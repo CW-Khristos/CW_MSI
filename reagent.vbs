@@ -49,7 +49,7 @@ elseif (retSTOP = 0) then
   ''DOWNLOAD WINDOWS AGENT MSI
   objOUT.write vbnewline & now & vbtab & vbtab & " - DOWNLOADING WINDOWS AGENT MSI"
   objLOG.write vbnewline & now & vbtab & vbtab & " - DOWNLOADING WINDOWS AGENT MSI"
-  call FILEDL("https://github.com/khristos666/CW_MSI/raw/master/Windows%20Agent.msi", "windows agent.msi")
+  call FILEDL("https://github.com/CW-Khristos/CW_MSI/raw/master/Windows%20Agent.msi", "windows agent.msi")
   ''INSTALL WINDOWS AGENT
   objOUT.write vbnewline & now & vbtab & vbtab & " - RE-CONFIGURING WINDOWS AGENT"
   objLOG.write vbnewline & now & vbtab & vbtab & " - RE-CONFIGURING WINDOWS AGENT"
