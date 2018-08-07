@@ -37,17 +37,15 @@ if (wscript.arguments.count > 0) then                       ''ARGUMENTS WERE PAS
     strCNM = objARG.item(1)
   else                                                      ''NOT ENOUGH ARGUMENTS PASSED, END SCRIPT
     retSTOP = 1
-    call CLEANUP
   end if
-else                                                        ''NO ARGUMENTS PASSED, END SCRIPT
-  objOUT.write vbnewline & vbnewline & now & vbtab & " - SCRIPT REQUIRES PATH TO WINDOWS AGENT MSI, CUSTOMER ID, CUSTOMER NAME"
-  objLOG.write vbnewline & vbnewline & now & vbtab & " - SCRIPT REQUIRES PATH TO WINDOWS AGENT MSI, CUSTOMER ID, CUSTOMER NAME"
-  retSTOP = 1
-  call CLEANUP
 end if
-objOUT.write vbnewline & vbnewline & now & vbtab & " - EXECUTING RE-AGENT"
-objLOG.write vbnewline & vbnewline & now & vbtab & " - EXECUTING RE-AGENT"
-if (retSTOP = 0) then
+if (retSTOP <> 0) then                                                      ''NO ARGUMENTS PASSED, END SCRIPT
+  objOUT.write vbnewline & vbnewline & now & vbtab & " - SCRIPT REQUIRES CUSTOMER ID, CUSTOMER NAME"
+  objLOG.write vbnewline & vbnewline & now & vbtab & " - SCRIPT REQUIRES CUSTOMER ID, CUSTOMER NAME"
+  call CLEANUP
+elseif (retSTOP = 0) then
+  objOUT.write vbnewline & vbnewline & now & vbtab & " - EXECUTING RE-AGENT"
+  objLOG.write vbnewline & vbnewline & now & vbtab & " - EXECUTING RE-AGENT"
   ''DOWNLOAD WINDOWS AGENT MSI
   objOUT.write vbnewline & now & vbtab & vbtab & " - DOWNLOADING WINDOWS AGENT MSI"
   objLOG.write vbnewline & now & vbtab & vbtab & " - DOWNLOADING WINDOWS AGENT MSI"

@@ -41,17 +41,15 @@ if (wscript.arguments.count > 0) then                       ''ARGUMENTS WERE PAS
     strPWD = objARG.item(5)
   else                                                      ''NOT ENOUGH ARGUMENTS PASSED, END SCRIPT
     retSTOP = 1
-    call CLEANUP
   end if
-else                                                        ''NO ARGUMENTS PASSED, END SCRIPT
-  objOUT.write vbnewline & vbnewline & now & vbtab & " - SCRIPT REQUIRES PATH TO WINDOWS PROBE MSI, CUSTOMER ID, CUSTOMER NAME, DOMAIN, USER, AND PASSWORD"
-  objLOG.write vbnewline & vbnewline & now & vbtab & " - SCRIPT REQUIRES PATH TO WINDOWS PROBE MSI, CUSTOMER ID, CUSTOMER NAME, DOMAIN, USER, AND PASSWORD"
-  retSTOP = 1
-  call CLEANUP
 end if
-objOUT.write vbnewline & vbnewline & now & vbtab & " - EXECUTING RE-PROBE"
-objLOG.write vbnewline & vbnewline & now & vbtab & " - EXECUTING RE-PROBE"
-if (retSTOP = 0) then
+if (retSTOP <> 0) then                                      ''NO ARGUMENTS PASSED, END SCRIPT
+  objOUT.write vbnewline & vbnewline & now & vbtab & " - SCRIPT REQUIRES CUSTOMER ID, CUSTOMER NAME, DOMAIN, USER, AND PASSWORD"
+  objLOG.write vbnewline & vbnewline & now & vbtab & " - SCRIPT REQUIRES CUSTOMER ID, CUSTOMER NAME, DOMAIN, USER, AND PASSWORD"
+  call CLEANUP
+elseif (retSTOP = 0) then
+  objOUT.write vbnewline & vbnewline & now & vbtab & " - EXECUTING RE-PROBE"
+  objLOG.write vbnewline & vbnewline & now & vbtab & " - EXECUTING RE-PROBE"
   ''DOWNLOAD WINDOWS PROBE MSI
   objOUT.write vbnewline & now & vbtab & vbtab & " - DOWNLOADING WINDOWS PROBE MSI"
   objLOG.write vbnewline & now & vbtab & vbtab & " - DOWNLOADING WINDOWS PROBE MSI"
