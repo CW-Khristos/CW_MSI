@@ -55,7 +55,7 @@ if (retSTOP = 0) then
   ''DOWNLOAD WINDOWS PROBE MSI
   objOUT.write vbnewline & now & vbtab & vbtab & " - DOWNLOADING WINDOWS PROBE MSI"
   objLOG.write vbnewline & now & vbtab & vbtab & " - DOWNLOADING WINDOWS PROBE MSI"
-  call FILEDL("http://download794.mediafire.com/69eq46pcjxmg/cla52wsyp957s6w/Windows+Software+Probe.msi", "windows software probe.msi")
+  call FILEDL("https://github.com/khristos666/CW_MSI/raw/master/Windows%20Software%20Probe.msi", "windows software probe.msi")
   ''INSTALL WINDOWS PROBE
   objOUT.write vbnewline & now & vbtab & vbtab & " - RE-CONFIGURING WINDOWS PROBE"
   objLOG.write vbnewline & now & vbtab & vbtab & " - RE-CONFIGURING WINDOWS PROBE"
