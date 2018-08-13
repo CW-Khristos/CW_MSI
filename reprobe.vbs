@@ -57,8 +57,6 @@ elseif (errRET = 0) then
 	objLOG.write vbnewline & vbnewline & now & vbtab & " - EXECUTING RE-PROBE"
 	''AUTOMATIC UPDATE, RE-PROBE.VBS, REF #2 , FIXES #7
 	call CHKAU()
-	''PRE-MATURE END SCRIPT, TESTING AUTOMATIC UPDATE RE-PROBE.VBS, REF #2
-	call CLEANUP()
 	''DOWNLOAD WINDOWS PROBE MSI
 	objOUT.write vbnewline & now & vbtab & vbtab & " - DOWNLOADING WINDOWS PROBE MSI"
 	objLOG.write vbnewline & now & vbtab & vbtab & " - DOWNLOADING WINDOWS PROBE MSI"

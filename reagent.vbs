@@ -53,8 +53,6 @@ elseif (retSTOP = 0) then																		''
 	objLOG.write vbnewline & vbnewline & now & vbtab & " - EXECUTING RE-AGENT"
 	''AUTOMATIC UPDATE, RE-AGENT.VBS, REF #2 , FIXES #8
 	call CHKAU()
-	''PRE-MATURE END SCRIPT, TESTING AUTOMATIC UPDATE RE-AGENT.VBS, REF #2
-	call CLEANUP()
 	''DOWNLOAD WINDOWS AGENT MSI
 	objOUT.write vbnewline & now & vbtab & vbtab & " - DOWNLOADING WINDOWS AGENT MSI"
   objLOG.write vbnewline & now & vbtab & vbtab & " - DOWNLOADING WINDOWS AGENT MSI"
