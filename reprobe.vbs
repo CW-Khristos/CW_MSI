@@ -10,7 +10,7 @@ dim strPRB, strDMN, strUSR, strPWD, strRCMD
 dim objIN, objOUT, objARG, objWSH, objFSO
 dim objLOG, objEXEC, objHOOK, objHTTP, objXML
 ''VERSION FOR SCRIPT UPDATE, RE-PROBE.VBS, REF #2 , FIXES #7
-strVER = 2
+strVER = 1
 ''DEFAULT SUCCESS
 errRET = 0
 ''STDIN / STDOUT
@@ -53,13 +53,15 @@ if (errRET <> 0) then                                      ''NO ARGUMENTS PASSED
   objLOG.write vbnewline & vbnewline & now & vbtab & " - SCRIPT REQUIRES CUSTOMER ID, CUSTOMER NAME, DOMAIN, USER, AND PASSWORD"
   call CLEANUP()
 elseif (errRET = 0) then
-  objOUT.write vbnewline & vbnewline & now & vbtab & " - EXECUTING RE-PROBE"
-  objLOG.write vbnewline & vbnewline & now & vbtab & " - EXECUTING RE-PROBE"
+	objOUT.write vbnewline & vbnewline & now & vbtab & " - EXECUTING RE-PROBE"
+	objLOG.write vbnewline & vbnewline & now & vbtab & " - EXECUTING RE-PROBE"
 	''AUTOMATIC UPDATE, RE-PROBE.VBS, REF #2 , FIXES #7
 	call CHKAU()
-  ''DOWNLOAD WINDOWS PROBE MSI
-  objOUT.write vbnewline & now & vbtab & vbtab & " - DOWNLOADING WINDOWS PROBE MSI"
-  objLOG.write vbnewline & now & vbtab & vbtab & " - DOWNLOADING WINDOWS PROBE MSI"
+	''PRE-MATURE END SCRIPT, TESTING AUTOMATIC UPDATE RE-PROBE.VBS, REF #2
+	call CLEANUP()
+	''DOWNLOAD WINDOWS PROBE MSI
+	objOUT.write vbnewline & now & vbtab & vbtab & " - DOWNLOADING WINDOWS PROBE MSI"
+	objLOG.write vbnewline & now & vbtab & vbtab & " - DOWNLOADING WINDOWS PROBE MSI"
   call FILEDL("https://github.com/CW-Khristos/CW_MSI/raw/master/Windows%20Software%20Probe.msi", "windows software probe.msi")
   ''INSTALL WINDOWS PROBE
   objOUT.write vbnewline & now & vbtab & vbtab & " - RE-CONFIGURING WINDOWS PROBE"
@@ -112,6 +114,11 @@ sub CHKAU()																									''CHECK FOR SCRIPT UPDATE, RE-PROBE.VBS, REF
 					end if
 					''DOWNLOAD LATEST VERSION OF SCRIPT
 					call FILEDL("https://github.com/CW-Khristos/CW_MSI/raw/master/reprobe.vbs", wscript.scriptname)
+					''RUN LATEST VERSION
+					objWSH.run "cscript.exe //nologo " & chr(34) & "c:\temp\" & wscript.scriptname & chr(34) & _
+						" " & strCID & " " & strCNM & " " & strPRB & " " & strDMN & " " & strUSR & " " & strPWD, 0, false
+					''END SCRIPT
+					call CLEANUP()
 				end if
 			end if
 		next

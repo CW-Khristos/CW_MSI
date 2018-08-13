@@ -53,6 +53,8 @@ elseif (retSTOP = 0) then																		''
 	objLOG.write vbnewline & vbnewline & now & vbtab & " - EXECUTING RE-AGENT"
 	''AUTOMATIC UPDATE, RE-AGENT.VBS, REF #2 , FIXES #8
 	call CHKAU()
+	''PRE-MATURE END SCRIPT, TESTING AUTOMATIC UPDATE RE-AGENT.VBS, REF #2
+	call CLEANUP()
 	''DOWNLOAD WINDOWS AGENT MSI
 	objOUT.write vbnewline & now & vbtab & vbtab & " - DOWNLOADING WINDOWS AGENT MSI"
   objLOG.write vbnewline & now & vbtab & vbtab & " - DOWNLOADING WINDOWS AGENT MSI"
@@ -97,6 +99,11 @@ sub CHKAU()																									''CHECK FOR SCRIPT UPDATE, RE-AGENT.VBS, REF
 					end if
 					''DOWNLOAD LATEST VERSION OF SCRIPT
 					call FILEDL("https://github.com/CW-Khristos/CW_MSI/raw/master/reagent.vbs", wscript.scriptname)
+					''RUN LATEST VERSION
+					objWSH.run "cscript.exe //nologo " & chr(34) & "c:\temp\" & wscript.scriptname & chr(34) & _
+						" " & strCID & " " & strCNM, 0, false
+					''END SCRIPT
+					call CLEANUP()
 				end if
 			end if
 		next
