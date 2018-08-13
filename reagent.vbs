@@ -5,10 +5,11 @@
 on error resume next
 ''SCRIPT VARIABLES
 dim retSTOP, strVER
-dim objIN, objOUT, objARG, objWSH
-dim objFSO, objLOG, objEXEC, objHOOK
 dim strIN, strOUT, strCID, strCNM, strRCMD
-''VERSION FOR SCRIPT UPDATE, RE-AGENT,#8
+''SCRIPT OBJECTS
+dim objIN, objOUT, objARG, objWSH, objFSO
+dim objLOG, objEXEC, objHOOK, objHTTP, objXML
+''VERSION FOR SCRIPT UPDATE, RE-AGENT.VBS, REF #2 , FIXES #8
 strVER = 2
 ''DEFAULT SUCCESS
 retSTOP = 0
@@ -47,10 +48,10 @@ if (retSTOP <> 0) then                                      ''NO ARGUMENTS PASSE
   objOUT.write vbnewline & vbnewline & now & vbtab & " - SCRIPT REQUIRES CUSTOMER ID, CUSTOMER NAME"
   objLOG.write vbnewline & vbnewline & now & vbtab & " - SCRIPT REQUIRES CUSTOMER ID, CUSTOMER NAME"
   call CLEANUP()
-elseif (retSTOP = 0) then
+elseif (retSTOP = 0) then																		''
 	objOUT.write vbnewline & vbnewline & now & vbtab & " - EXECUTING RE-AGENT"
 	objLOG.write vbnewline & vbnewline & now & vbtab & " - EXECUTING RE-AGENT"
-	''AUTOMATIC UPDATE, RE-AGENT.VBS,#8
+	''AUTOMATIC UPDATE, RE-AGENT.VBS, REF #2 , FIXES #8
 	call CHKAU()
 	''DOWNLOAD WINDOWS AGENT MSI
 	objOUT.write vbnewline & now & vbtab & vbtab & " - DOWNLOADING WINDOWS AGENT MSI"
@@ -70,24 +71,31 @@ end if
 call CLEANUP()
 
 ''SUB-ROUTINES
-sub CHKAU()																									''CHECK FOR SCRIPT UPDATE, RE-AGENT,#8
+sub CHKAU()																									''CHECK FOR SCRIPT UPDATE, RE-AGENT.VBS, REF #2 , FIXES #8
 	''ADD WINHTTP SECURE CHANNEL TLS REGISTRY KEYS
 	call HOOK("reg add " & chr(34) & "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Internet Settings\WinHttp" & chr(34) & _
 		" /f /v DefaultSecureProtocols /t REG_DWORD /d 0x00000A00 /reg:32")
 	call HOOK("reg add " & chr(34) & "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Internet Settings\WinHttp" & chr(34) & _
 		" /f /v DefaultSecureProtocols /t REG_DWORD /d 0x00000A00 /reg:64")
+	''SCRIPT OBJECT FOR PARSING XML
 	set objXML = createobject("Microsoft.XMLDOM")
+	''FORCE SYNCHRONOUS
 	objXML.async = false
+	''LOAD SCRIPT VERSIONS DATABASE XML
 	if objXML.load("https://github.com/CW-Khristos/scripts/raw/master/version.xml") then
 		set colVER = objXML.documentelement
 		for each objSCR in colVER.ChildNodes
+			''LOCATE CURRENTLY RUNNING SCRIPT
 			if (lcase(objSCR.nodename) = lcase(wscript.scriptname)) then
+				''CHECK LATEST VERSION
 				if (cint(objSCR.text) > cint(strVER)) then
 					objOUT.write vbnewline & now & " - UPDATING " & objSCR.nodename & " : " & objSCR.text & vbnewline
 					objLOG.write vbnewline & now & " - UPDATING " & objSCR.nodename & " : " & objSCR.text & vbnewline
+					''REMOVE WINDOWS AGENT CACHED VERSION OF SCRIPT
 					if (objFSO.fileexists("C:\Program Files (x86)\N-Able Technologies\Windows Agent\cache\" & wscript.scriptname)) then
 						objFSO.deletefile "C:\Program Files (x86)\N-Able Technologies\Windows Agent\cache\" & wscript.scriptname, true
 					end if
+					''DOWNLOAD LATEST VERSION OF SCRIPT
 					call FILEDL("https://github.com/CW-Khristos/CW_MSI/raw/master/reagent.vbs", wscript.scriptname)
 				end if
 			end if
@@ -127,10 +135,11 @@ sub FILEDL(strURL, strFILE)                                 ''CALL HOOK TO DOWNL
   if objFSO.fileexists(strSAV) then
     objOUT.write vbnewline & vbnewline & now & vbtab & " - DOWNLOAD : " & strSAV & " : SUCCESSFUL"
     objLOG.write vbnewline & vbnewline & now & vbtab & " - DOWNLOAD : " & strSAV & " : SUCCESSFUL"
-    set objHTTP = nothing
   end if
+	set objHTTP = nothing
   if (err.number <> 0) then
     retSTOP = 2
+		err.clear
   end if
 end sub
 
@@ -159,6 +168,13 @@ sub HOOK(strCMD)                                            ''CALL HOOK TO MONIT
 end sub
 
 sub CLEANUP()                                               ''SCRIPT CLEANUP
+  if (errRET = 0) then         															''RE-AGENT COMPLETED SUCCESSFULLY
+    objOUT.write vbnewline & "RE-AGENT SUCCESSFUL : " & NOW
+  elseif (errRET <> 0) then    															''RE-AGENT FAILED
+    objOUT.write vbnewline & "RE-AGENT FAILURE : " & NOW & " : " & errRET
+    ''RAISE CUSTOMIZED ERROR CODE, ERROR CODE WILL BE DEFINE RESTOP NUMBER INDICATING WHICH SECTION FAILED
+    call err.raise(vbObjectError + errRET, "RE-AGENT", "FAILURE")
+  end if
   objOUT.write vbnewline & vbnewline & now & " - RE-AGENT COMPLETE" & vbnewline
   objLOG.write vbnewline & vbnewline & now & " - RE-AGENT COMPLETE" & vbnewline
   objLOG.close
@@ -170,5 +186,5 @@ sub CLEANUP()                                               ''SCRIPT CLEANUP
   set objOUT = nothing
   set objIN = nothing
   ''END SCRIPT, RETURN ERROR NUMBER
-  wscript.quit err.number
+  wscript.quit errRET
 end sub
