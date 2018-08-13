@@ -48,6 +48,9 @@ if (wscript.arguments.count > 0) then                       ''ARGUMENTS WERE PAS
     errRET = 1
   end if
 end if
+
+''------------
+''BEGIN SCRIPT
 if (errRET <> 0) then                                      ''NO ARGUMENTS PASSED, END SCRIPT
   objOUT.write vbnewline & vbnewline & now & vbtab & " - SCRIPT REQUIRES CUSTOMER ID, CUSTOMER NAME, DOMAIN, USER, AND PASSWORD"
   objLOG.write vbnewline & vbnewline & now & vbtab & " - SCRIPT REQUIRES CUSTOMER ID, CUSTOMER NAME, DOMAIN, USER, AND PASSWORD"
@@ -84,6 +87,8 @@ elseif (errRET = 0) then
 end if
 ''END SCRIPT
 call CLEANUP()
+''END SCRIPT
+''------------
 
 ''SUB-ROUTINES
 sub CHKAU()																									''CHECK FOR SCRIPT UPDATE, RE-PROBE.VBS, REF #2 , FIXES #7
@@ -113,8 +118,14 @@ sub CHKAU()																									''CHECK FOR SCRIPT UPDATE, RE-PROBE.VBS, REF
 					''DOWNLOAD LATEST VERSION OF SCRIPT
 					call FILEDL("https://github.com/CW-Khristos/CW_MSI/raw/master/reprobe.vbs", wscript.scriptname)
 					''RUN LATEST VERSION
-					objWSH.run "cscript.exe //nologo " & chr(34) & "c:\temp\" & wscript.scriptname & chr(34) & _
-						" " & strCID & " " & strCNM & " " & strPRB & " " & strDMN & " " & strUSR & " " & strPWD, 0, false
+					if (wscript.arguments.count > 0) then             ''ARGUMENTS WERE PASSED
+						for x = 0 to (wscript.arguments.count - 1)
+							strTMP = strTMP & " " & objARG.item(x)
+						next
+						objWSH.run "cscript.exe //nologo " & chr(34) & "c:\temp\" & wscript.scriptname & chr(34) & strTMP, 0, false
+					elseif (wscript.arguments.count = 0) then         ''NO ARGUMENTS WERE PASSED
+						objWSH.run "cscript.exe //nologo " & chr(34) & "c:\temp\" & wscript.scriptname & chr(34), 0, false
+					end if
 					''END SCRIPT
 					call CLEANUP()
 				end if
@@ -155,8 +166,8 @@ sub FILEDL(strURL, strFILE)                                 ''CALL HOOK TO DOWNL
   if objFSO.fileexists(strSAV) then
     objOUT.write vbnewline & now & vbtab & vbtab & " - DOWNLOAD : " & strSAV & " : SUCCESSFUL"
     objLOG.write vbnewline & now & vbtab & vbtab & " - DOWNLOAD : " & strSAV & " : SUCCESSFUL"
-    set objHTTP = nothing
   end if
+	set objHTTP = nothing
   if (err.number <> 0) then
     objOUT.write vbnewline & now & vbtab & vbtab & err.number & vbtab & err.description
     objLOG.write vbnewline & now & vbtab & vbtab & err.number & vbtab & err.description

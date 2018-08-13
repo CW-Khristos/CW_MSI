@@ -4,7 +4,7 @@
 ''WRITTEN BY : CJ BLEDSOE / CJ<@>THECOMPUTERWARRIORS.COM
 on error resume next
 ''SCRIPT VARIABLES
-dim retSTOP, strVER
+dim errRET, strVER
 dim strIN, strOUT, strCID, strCNM, strRCMD
 ''SCRIPT OBJECTS
 dim objIN, objOUT, objARG, objWSH, objFSO
@@ -12,7 +12,7 @@ dim objLOG, objEXEC, objHOOK, objHTTP, objXML
 ''VERSION FOR SCRIPT UPDATE, RE-AGENT.VBS, REF #2 , FIXES #8
 strVER = 2
 ''DEFAULT SUCCESS
-retSTOP = 0
+errRET = 0
 ''STDIN / STDOUT
 set objIN = wscript.stdin
 set objOUT = wscript.stdout
@@ -41,14 +41,17 @@ if (wscript.arguments.count > 0) then                       ''ARGUMENTS WERE PAS
     strCID = objARG.item(0)
     strCNM = objARG.item(1)
   else                                                      ''NOT ENOUGH ARGUMENTS PASSED, END SCRIPT
-    retSTOP = 1
+    errRET = 1
   end if
 end if
-if (retSTOP <> 0) then                                      ''NO ARGUMENTS PASSED, END SCRIPT
+
+''------------
+''BEGIN SCRIPT
+if (errRET <> 0) then                                      ''NO ARGUMENTS PASSED, END SCRIPT
   objOUT.write vbnewline & vbnewline & now & vbtab & " - SCRIPT REQUIRES CUSTOMER ID, CUSTOMER NAME"
   objLOG.write vbnewline & vbnewline & now & vbtab & " - SCRIPT REQUIRES CUSTOMER ID, CUSTOMER NAME"
   call CLEANUP()
-elseif (retSTOP = 0) then																		''
+elseif (errRET = 0) then																		''
 	objOUT.write vbnewline & vbnewline & now & vbtab & " - EXECUTING RE-AGENT"
 	objLOG.write vbnewline & vbnewline & now & vbtab & " - EXECUTING RE-AGENT"
 	''AUTOMATIC UPDATE, RE-AGENT.VBS, REF #2 , FIXES #8
@@ -69,6 +72,8 @@ elseif (retSTOP = 0) then																		''
 end if
 ''END SCRIPT
 call CLEANUP()
+''END SCRIPT
+''------------
 
 ''SUB-ROUTINES
 sub CHKAU()																									''CHECK FOR SCRIPT UPDATE, RE-AGENT.VBS, REF #2 , FIXES #8
@@ -98,8 +103,14 @@ sub CHKAU()																									''CHECK FOR SCRIPT UPDATE, RE-AGENT.VBS, REF
 					''DOWNLOAD LATEST VERSION OF SCRIPT
 					call FILEDL("https://github.com/CW-Khristos/CW_MSI/raw/master/reagent.vbs", wscript.scriptname)
 					''RUN LATEST VERSION
-					objWSH.run "cscript.exe //nologo " & chr(34) & "c:\temp\" & wscript.scriptname & chr(34) & _
-						" " & strCID & " " & strCNM, 0, false
+					if (wscript.arguments.count > 0) then             ''ARGUMENTS WERE PASSED
+						for x = 0 to (wscript.arguments.count - 1)
+							strTMP = strTMP & " " & objARG.item(x)
+						next
+						objWSH.run "cscript.exe //nologo " & chr(34) & "c:\temp\" & wscript.scriptname & chr(34) & strTMP, 0, false
+					elseif (wscript.arguments.count = 0) then         ''NO ARGUMENTS WERE PASSED
+						objWSH.run "cscript.exe //nologo " & chr(34) & "c:\temp\" & wscript.scriptname & chr(34), 0, false
+					end if
 					''END SCRIPT
 					call CLEANUP()
 				end if
@@ -143,7 +154,7 @@ sub FILEDL(strURL, strFILE)                                 ''CALL HOOK TO DOWNL
   end if
 	set objHTTP = nothing
   if (err.number <> 0) then
-    retSTOP = 2
+    errRET = 2
 		err.clear
   end if
 end sub
@@ -166,7 +177,7 @@ sub HOOK(strCMD)                                            ''CALL HOOK TO MONIT
   end if
   set objHOOK = nothing
   if (err.number <> 0) then
-    retSTOP = 3
+    errRET = 3
     objOUT.write vbnewline & now & vbtab & vbtab & err.number & vbtab & err.description
     objLOG.write vbnewline & now & vbtab & vbtab & err.number & vbtab & err.description
   end if
