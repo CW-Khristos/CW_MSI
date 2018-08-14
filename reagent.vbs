@@ -10,7 +10,7 @@ dim strIN, strOUT, strCID, strCNM, strRCMD
 dim objIN, objOUT, objARG, objWSH, objFSO
 dim objLOG, objEXEC, objHOOK, objHTTP, objXML
 ''VERSION FOR SCRIPT UPDATE, RE-AGENT.VBS, REF #2 , FIXES #8
-strVER = 2
+strVER = 3
 ''DEFAULT SUCCESS
 errRET = 0
 ''STDIN / STDOUT
@@ -66,7 +66,7 @@ elseif (errRET = 0) then																		''
   ''WINDOWS AGENT RE-CONFIGURATION COMMAND
 	strRCMD = "msiexec /i " & chr(34) & "c:\temp\windows agent.msi" & chr(34) & " /qb CUSTOMERID=" & strCID & _
 		" CUSTOMERNAME=" & chr(34) & strCNM & chr(34) & " SERVERPROTOCOL=https SERVERPORT=443 SERVERADDRESS=ilmcw.dyndns.biz" & _
-		" /l*v c:\temp\install.log ALLUSERS=2"
+		" /l*v c:\temp\agent_install.log ALLUSERS=2"
 	''RE-CONFIGURE WINDOWS AGENT
 	call HOOK(strRCMD)
 end if
@@ -98,8 +98,8 @@ sub CHKAU()																									''CHECK FOR SCRIPT UPDATE, RE-AGENT.VBS, REF
 			if (lcase(objSCR.nodename) = lcase(wscript.scriptname)) then
 				''CHECK LATEST VERSION
 				if (cint(objSCR.text) > cint(strVER)) then
-					objOUT.write vbnewline & now & " - UPDATING " & objSCR.nodename & " : " & objSCR.text & vbnewline
-					objLOG.write vbnewline & now & " - UPDATING " & objSCR.nodename & " : " & objSCR.text & vbnewline
+					objOUT.write vbnewline & now & vbtab & " - UPDATING " & objSCR.nodename & " : " & objSCR.text & vbnewline
+					objLOG.write vbnewline & now & vbtab & " - UPDATING " & objSCR.nodename & " : " & objSCR.text & vbnewline
 					''DOWNLOAD LATEST VERSION OF SCRIPT
 					call FILEDL("https://github.com/CW-Khristos/CW_MSI/raw/master/reagent.vbs", wscript.scriptname)
 					''RUN LATEST VERSION
@@ -107,8 +107,12 @@ sub CHKAU()																									''CHECK FOR SCRIPT UPDATE, RE-AGENT.VBS, REF
 						for x = 0 to (wscript.arguments.count - 1)
 							strTMP = strTMP & " " & objARG.item(x)
 						next
+            objOUT.write vbnewline & now & vbtab & " - RE-EXECUTING " & objSCR.nodename & " : " & objSCR.text & vbnewline
+            objLOG.write vbnewline & now & vbtab & " - RE-EXECUTING  " & objSCR.nodename & " : " & objSCR.text & vbnewline
 						objWSH.run "cscript.exe //nologo " & chr(34) & "c:\temp\" & wscript.scriptname & chr(34) & strTMP, 0, false
 					elseif (wscript.arguments.count = 0) then         ''NO ARGUMENTS WERE PASSED
+            objOUT.write vbnewline & now & vbtab & " - RE-EXECUTING  " & objSCR.nodename & " : " & objSCR.text & vbnewline
+            objLOG.write vbnewline & now & vbtab & " - RE-EXECUTING  " & objSCR.nodename & " : " & objSCR.text & vbnewline
 						objWSH.run "cscript.exe //nologo " & chr(34) & "c:\temp\" & wscript.scriptname & chr(34), 0, false
 					end if
 					''END SCRIPT
