@@ -5,6 +5,7 @@
 on error resume next
 ''SCRIPT VARIABLES
 dim errRET, strVER
+''VARIABLES ACCEPTING PARAMETERS - CONFIGURES WINDOWS AGENT MSI
 dim strIN, strOUT, strCID, strCNM, strRCMD
 ''SCRIPT OBJECTS
 dim objIN, objOUT, objARG, objWSH, objFSO

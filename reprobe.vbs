@@ -4,8 +4,9 @@
 on error resume next
 ''SCRIPT VARIABLES
 dim errRET, strVER
-dim strIN, strOUT, strCID, strCNM
-dim strPRB, strDMN, strUSR, strPWD, strRCMD
+dim strIN, strOUT
+''VARIABLES ACCEPTING PARAMETERS - CONFIGURES WINDOWS SOFTWARE PROBE MSI
+dim strCID, strCNM, strPRB, strDMN, strUSR, strPWD, strRCMD
 ''SCRIPT OBJECTS
 dim objIN, objOUT, objARG, objWSH, objFSO
 dim objLOG, objEXEC, objHOOK, objHTTP, objXML
