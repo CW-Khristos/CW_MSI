@@ -148,14 +148,14 @@ sub FILEDL(strURL, strFILE)                                 ''CALL HOOK TO DOWNL
   strSAV = "C:\temp\" & strFILE
   objOUT.write vbnewline & now & vbtab & vbtab & vbtab & "HTTPDOWNLOAD-------------DOWNLOAD : " & strURL & " : SAVE AS :  " & strSAV
   objLOG.write vbnewline & now & vbtab & vbtab & vbtab & "HTTPDOWNLOAD-------------DOWNLOAD : " & strURL & " : SAVE AS :  " & strSAV
+  if objFSO.fileexists(strSAV) then
+    objFSO.deletefile(strSAV)
+  end if
   ''CREATE HTTP OBJECT
   set objHTTP = createobject( "WinHttp.WinHttpRequest.5.1" )
   ''DOWNLOAD FROM URL
   objHTTP.open "GET", strURL, false
   objHTTP.send
-  if objFSO.fileexists(strSAV) then
-    objFSO.deletefile(strSAV)
-  end if
   if (objHTTP.status = 200) then
     dim objStream
     set objStream = createobject("ADODB.Stream")
