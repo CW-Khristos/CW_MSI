@@ -11,7 +11,7 @@ dim strCID, strCNM, strPRB, strDMN, strUSR, strPWD, strRCMD
 dim objIN, objOUT, objARG, objWSH, objFSO
 dim objLOG, objEXEC, objHOOK, objHTTP, objXML
 ''VERSION FOR SCRIPT UPDATE, RE-PROBE.VBS, REF #2 , FIXES #7
-strVER = 3
+strVER = 4
 ''DEFAULT SUCCESS
 errRET = 0
 ''STDIN / STDOUT
