@@ -43,11 +43,16 @@ if (wscript.arguments.count > 0) then                       ''ARGUMENTS WERE PAS
     strCNM = objARG.item(1)
     strPRB = objARG.item(2)
     strDMN = objARG.item(3)
+    if (instr(1, strDMN, "\")) then
+      strDMN = replace(strDMN, "\", vbnullstring)
+    end if
     strUSR = objARG.item(4)
     strPWD = objARG.item(5)
   else                                                      ''NOT ENOUGH ARGUMENTS PASSED, END SCRIPT
     errRET = 1
   end if
+else
+  errRET = 1
 end if
 
 ''------------
