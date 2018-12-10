@@ -62,8 +62,8 @@ if (errRET <> 0) then                                      ''NO ARGUMENTS PASSED
   objLOG.write vbnewline & vbnewline & now & vbtab & " - SCRIPT REQUIRES CUSTOMER ID, CUSTOMER NAME, DOMAIN, USER, AND PASSWORD"
   call CLEANUP()
 elseif (errRET = 0) then
-	objOUT.write vbnewline & vbnewline & now & vbtab & " - EXECUTING RE-PROBE"
-	objLOG.write vbnewline & vbnewline & now & vbtab & " - EXECUTING RE-PROBE"
+	objOUT.write vbnewline & vbnewline & now & vbtab & " - EXECUTING : RE-PROBE"
+	objLOG.write vbnewline & vbnewline & now & vbtab & " - EXECUTING : RE-PROBE"
 	''AUTOMATIC UPDATE, RE-PROBE.VBS, REF #2 , FIXES #7
 	call CHKAU()
 	''DOWNLOAD WINDOWS PROBE MSI
@@ -88,8 +88,9 @@ elseif (errRET = 0) then
         " SERVERPROTOCOL=" & chr(34) & "HTTPS://" & chr(34) & " SERVERPORT=443 SERVERADDRESS=" & chr(34) & "ilmcw.dyndns.biz" & chr(34) & " PROBETYPE=" & chr(34) & strPRB & chr(34) & _
         " AGENTDOMAIN=" & chr(34) & strDMN & chr(34) & " AGENTUSERNAME=" & chr(34) & strUSR & chr(34) & " AGENTPASSWORD=" & chr(34) & strPWD & chr(34) & " /l*v c:\temp\probe_install.log ALLUSERS=2"
   end select
-  'objOUT.write vbnewline & now & vbtab & vbtab & strRCMD
   ''RE-CONFIGURE WINDOWS PROBE
+	objOUT.write vbnewline & vbnewline & now & vbtab & " - EXECUTING : " & strRCMD
+	objLOG.write vbnewline & vbnewline & now & vbtab & " - EXECUTING : " & strRCMD
   call HOOK(strRCMD)
 end if
 ''END SCRIPT
