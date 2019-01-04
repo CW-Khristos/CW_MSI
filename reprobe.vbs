@@ -11,7 +11,7 @@ dim strCID, strCNM, strPRB, strDMN, strUSR, strPWD, strRCMD
 dim objIN, objOUT, objARG, objWSH, objFSO
 dim objLOG, objEXEC, objHOOK, objHTTP, objXML
 ''VERSION FOR SCRIPT UPDATE, RE-PROBE.VBS, REF #2 , FIXES #7
-strVER = 4
+strVER = 5
 ''DEFAULT SUCCESS
 errRET = 0
 ''STDIN / STDOUT
@@ -66,6 +66,18 @@ elseif (errRET = 0) then
 	objLOG.write vbnewline & vbnewline & now & vbtab & " - EXECUTING : RE-PROBE"
 	''AUTOMATIC UPDATE, RE-PROBE.VBS, REF #2 , FIXES #7
 	call CHKAU()
+  ''GRANT USER SERVICE LOGON
+  objOUT.write vbnewline & now & vbtab & vbtab & " - DOWNLOADING SERVICE LOGON SCRIPT : SVCPERM"
+  objLOG.write vbnewline & now & vbtab & vbtab & " - DOWNLOADING SERVICE LOGON SCRIPT : SVCPERM"
+  call FILEDL("https://github.com/CW-Khristos/CW_MSI/raw/master/SVCperm.vbs", "SVCperm.vbs")
+  ''EXECUTE SERVICE LOGON SCRIPT : SVCPERM
+  objOUT.write vbnewline & now & vbtab & vbtab & " - EXECUTING SERVICE LOGON SCRIPT : SVCPERM"
+  objLOG.write vbnewline & now & vbtab & vbtab & " - EXECUTING SERVICE LOGON SCRIPT : SVCPERM"
+  if (strDMN <> vbnullstring) then
+    call HOOK("cscript.exe //nologo " & chr(34) & "c:\temp\svcperm.vbs" & chr(34) & " " & chr(34) & strDMN & "\" & strUSR & chr(34))
+  elseif (strDMN = vbnullstring) then
+    call HOOK("cscript.exe //nologo " & chr(34) & "c:\temp\svcperm.vbs" & chr(34) & " " & chr(34) & strUSR & chr(34))
+  end if
 	''DOWNLOAD WINDOWS PROBE MSI
 	objOUT.write vbnewline & now & vbtab & vbtab & " - DOWNLOADING WINDOWS PROBE MSI"
 	objLOG.write vbnewline & now & vbtab & vbtab & " - DOWNLOADING WINDOWS PROBE MSI"
