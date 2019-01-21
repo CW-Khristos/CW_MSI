@@ -1,17 +1,21 @@
 ''REAGENT.VBS
 ''DESIGNED TO AUTOMATE DOWNLOAD AND INSTALL OF WINDOWS AGENT SOFTWARE
-''REQUIRES 2 PARAMETERS; 'STRCID' AND 'STRCNM'
+''ACCEPTS 3 PARAMETERS, REQUIRES 2 PARAMETERS; 'STRCID' AND 'STRCNM'
+''REQUIRED PARAMETER : 'STRCID', STRING TO SET CUSTOMER ID
+''REQUIRED PARAMETER : 'STRCNM', STRING TO SET CUSTOMER NAME
+''OPTIONAL PARAMETER : 'STRSVR', STRING TO SET SERVER ADDRESS
 ''WRITTEN BY : CJ BLEDSOE / CJ<@>THECOMPUTERWARRIORS.COM
 on error resume next
 ''SCRIPT VARIABLES
 dim errRET, strVER
 ''VARIABLES ACCEPTING PARAMETERS - CONFIGURES WINDOWS AGENT MSI
-dim strIN, strOUT, strCID, strCNM, strRCMD
+dim strIN, strOUT, strRCMD
+dim strCID, strCNM, strSVR
 ''SCRIPT OBJECTS
 dim objIN, objOUT, objARG, objWSH, objFSO
 dim objLOG, objEXEC, objHOOK, objHTTP, objXML
 ''VERSION FOR SCRIPT UPDATE, RE-AGENT.VBS, REF #2 , FIXES #8
-strVER = 4
+strVER = 5
 ''DEFAULT SUCCESS
 errRET = 0
 ''STDIN / STDOUT
@@ -38,9 +42,14 @@ if (wscript.arguments.count > 0) then                       ''ARGUMENTS WERE PAS
     objOUT.write vbnewline & now & vbtab & " - ARGUMENT " & (x + 1) & " (ITEM " & x & ") " & " PASSED : " & ucase(objARG.item(x))
     objLOG.write vbnewline & now & vbtab & " - ARGUMENT " & (x + 1) & " (ITEM " & x & ") " & " PASSED : " & ucase(objARG.item(x))
   next 
-  if (wscript.arguments.count > 1) then                     ''
-    strCID = objARG.item(0)
-    strCNM = objARG.item(1)
+  if (wscript.arguments.count > 1) then                     ''SET VARIABLES ACCEPTING ARGUMENTS
+    strCID = objARG.item(0)                                 ''CUSTOMER ID
+    strCNM = objARG.item(1)                                 ''CUSTOMER NAME
+    if (wscript.arguments.count = 2) then
+      strSVR = "ilmcw.dyndns.biz"                           ''SERVER ADDRESS
+    elseif (wscript.arguments.count = 3) then
+      strSVR = objARG.item(2)                               ''SERVER ADDRESS
+    end if
   else                                                      ''NOT ENOUGH ARGUMENTS PASSED, END SCRIPT
     errRET = 1
   end if
@@ -66,8 +75,8 @@ elseif (errRET = 0) then																		''
   objLOG.write vbnewline & now & vbtab & vbtab & " - RE-CONFIGURING WINDOWS AGENT"
   ''WINDOWS AGENT RE-CONFIGURATION COMMAND
 	strRCMD = "msiexec /i " & chr(34) & "c:\temp\windows agent.msi" & chr(34) & " /qn CUSTOMERID=" & strCID & _
-		" CUSTOMERNAME=" & chr(34) & strCNM & chr(34) & " SERVERPROTOCOL=https:// SERVERPORT=443 SERVERADDRESS=ilmcw.dyndns.biz" & _
-		" /l*v c:\temp\agent_install.log ALLUSERS=2"
+		" CUSTOMERNAME=" & chr(34) & strCNM & chr(34) & " SERVERPROTOCOL=https:// SERVERPORT=443 SERVERADDRESS=" & chr(34) & strSVR & chr(34) & _
+    " /l*v c:\temp\agent_install.log ALLUSERS=2"
 	''RE-CONFIGURE WINDOWS AGENT
 	call HOOK(strRCMD)
 end if

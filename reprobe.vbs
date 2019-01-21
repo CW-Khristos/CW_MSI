@@ -4,14 +4,15 @@
 on error resume next
 ''SCRIPT VARIABLES
 dim errRET, strVER
-dim strIN, strOUT
 ''VARIABLES ACCEPTING PARAMETERS - CONFIGURES WINDOWS SOFTWARE PROBE MSI
-dim strCID, strCNM, strPRB, strDMN, strUSR, strPWD, strRCMD
+dim strIN, strOUT, strRCMD
+dim strCID, strCNM, strSVR
+dim strPRB, strDMN, strUSR, strPWD
 ''SCRIPT OBJECTS
 dim objIN, objOUT, objARG, objWSH, objFSO
 dim objLOG, objEXEC, objHOOK, objHTTP, objXML
 ''VERSION FOR SCRIPT UPDATE, RE-PROBE.VBS, REF #2 , FIXES #7
-strVER = 5
+strVER = 6
 ''DEFAULT SUCCESS
 errRET = 0
 ''STDIN / STDOUT
@@ -38,16 +39,21 @@ if (wscript.arguments.count > 0) then                       ''ARGUMENTS WERE PAS
     objOUT.write vbnewline & now & vbtab & " - ARGUMENT " & (x + 1) & " (ITEM " & x & ") " & " PASSED : " & ucase(objARG.item(x))
     objLOG.write vbnewline & now & vbtab & " - ARGUMENT " & (x + 1) & " (ITEM " & x & ") " & " PASSED : " & ucase(objARG.item(x))
   next 
-  if (wscript.arguments.count > 4) then                     ''
-    strCID = objARG.item(0)
-    strCNM = objARG.item(1)
-    strPRB = objARG.item(2)
-    strDMN = objARG.item(3)
-    if (instr(1, strDMN, "\")) then
+  if (wscript.arguments.count > 4) then                     ''SET VARIABLES ACCEPTING ARGUMENTS
+    strCID = objARG.item(0)                                 ''CUSTOMER ID
+    strCNM = objARG.item(1)                                 ''CUSTOMER NAME
+    strPRB = objARG.item(2)                                 ''PROBE TYPE
+    strDMN = objARG.item(3)                                 ''DOMAIN
+    if (instr(1, strDMN, "\")) then                         ''STRIP '\' FROM DOMAIN
       strDMN = replace(strDMN, "\", vbnullstring)
     end if
-    strUSR = objARG.item(4)
-    strPWD = objARG.item(5)
+    strUSR = objARG.item(4)                                 ''USER
+    strPWD = objARG.item(5)                                 ''PASSWORD
+    if (wscript.arguments.count = 6) then
+      strSVR = "ilmcw.dyndns.biz"                           ''SERVER ADDRESS
+    elseif (wscript.arguments.count = 7) then
+      strSVR = objARG.item(6)                               ''SERVER ADDRESS
+    end if
   else                                                      ''NOT ENOUGH ARGUMENTS PASSED, END SCRIPT
     errRET = 1
   end if
@@ -89,15 +95,15 @@ elseif (errRET = 0) then
   select case strPRB
     case "Local_Windows"
       strRCMD = "msiexec /i " & chr(34) & "c:\temp\windows software probe.msi" & chr(34) & " /qn CUSTOMERID=" & strCID & " CUSTOMERNAME=" & chr(34) & strCNM & chr(34) & _
-        " SERVERPROTOCOL=" & chr(34) & "HTTPS://" & chr(34) & " SERVERPORT=443 SERVERADDRESS=" & chr(34) & "ilmcw.dyndns.biz" & chr(34) & " PROBETYPE=" & chr(34) & strPRB & chr(34) & _
+        " SERVERPROTOCOL=" & chr(34) & "HTTPS://" & chr(34) & " SERVERPORT=443 SERVERADDRESS=" & chr(34) & strSVR & chr(34) & " PROBETYPE=" & chr(34) & strPRB & chr(34) & _
         " AGENTUSERNAME=" & chr(34) & strUSR & chr(34) & " AGENTPASSWORD=" & chr(34) & strPWD & chr(34) & " /l*v c:\temp\probe_install.log ALLUSERS=2"
     case "Workgroup_Windows"
       strRCMD = "msiexec /i " & chr(34) & "c:\temp\windows software probe.msi" & chr(34) & " /qn CUSTOMERID=" & strCID & " CUSTOMERNAME=" & chr(34) & strCNM & chr(34) & _
-        " SERVERPROTOCOL=" & chr(34) & "HTTPS://" & chr(34) & " SERVERPORT=443 SERVERADDRESS=" & chr(34) & "ilmcw.dyndns.biz" & chr(34) & " PROBETYPE=" & chr(34) & strPRB & chr(34) & _
+        " SERVERPROTOCOL=" & chr(34) & "HTTPS://" & chr(34) & " SERVERPORT=443 SERVERADDRESS=" & chr(34) & strSVR & chr(34) & " PROBETYPE=" & chr(34) & strPRB & chr(34) & _
         " AGENTUSERNAME=" & chr(34) & strUSR & chr(34) & " AGENTPASSWORD=" & chr(34) & strPWD & chr(34) & " /l*v c:\temp\probe_install.log ALLUSERS=2"
     case "Network_Windows"
       strRCMD = "msiexec /i " & chr(34) & "c:\temp\windows software probe.msi" & chr(34) & " /qn CUSTOMERID=" & strCID & " CUSTOMERNAME=" & chr(34) & strCNM & chr(34) & _
-        " SERVERPROTOCOL=" & chr(34) & "HTTPS://" & chr(34) & " SERVERPORT=443 SERVERADDRESS=" & chr(34) & "ilmcw.dyndns.biz" & chr(34) & " PROBETYPE=" & chr(34) & strPRB & chr(34) & _
+        " SERVERPROTOCOL=" & chr(34) & "HTTPS://" & chr(34) & " SERVERPORT=443 SERVERADDRESS=" & chr(34) & strSVR & chr(34) & " PROBETYPE=" & chr(34) & strPRB & chr(34) & _
         " AGENTDOMAIN=" & chr(34) & strDMN & chr(34) & " AGENTUSERNAME=" & chr(34) & strUSR & chr(34) & " AGENTPASSWORD=" & chr(34) & strPWD & chr(34) & " /l*v c:\temp\probe_install.log ALLUSERS=2"
   end select
   ''RE-CONFIGURE WINDOWS PROBE
