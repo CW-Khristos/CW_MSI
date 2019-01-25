@@ -50,7 +50,7 @@ if (wscript.arguments.count > 0) then                       ''ARGUMENTS WERE PAS
     strUSR = objARG.item(4)                                 ''USER
     strPWD = objARG.item(5)                                 ''PASSWORD
     if (wscript.arguments.count = 6) then
-      strSVR = "ilmcw.dyndns.biz"                           ''SERVER ADDRESS
+      strSVR = "ncentral.cwitsupport.com"                           ''SERVER ADDRESS
     elseif (wscript.arguments.count = 7) then
       strSVR = objARG.item(6)                               ''SERVER ADDRESS
     end if

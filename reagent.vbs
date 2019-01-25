@@ -46,7 +46,7 @@ if (wscript.arguments.count > 0) then                       ''ARGUMENTS WERE PAS
     strCID = objARG.item(0)                                 ''CUSTOMER ID
     strCNM = objARG.item(1)                                 ''CUSTOMER NAME
     if (wscript.arguments.count = 2) then
-      strSVR = "ilmcw.dyndns.biz"                           ''SERVER ADDRESS
+      strSVR = "ncentral.cwitsupport.com"                           ''SERVER ADDRESS
     elseif (wscript.arguments.count = 3) then
       strSVR = objARG.item(2)                               ''SERVER ADDRESS
     end if
