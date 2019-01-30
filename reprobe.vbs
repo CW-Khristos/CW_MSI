@@ -79,9 +79,9 @@ elseif (errRET = 0) then
   ''EXECUTE SERVICE LOGON SCRIPT : SVCPERM
   objOUT.write vbnewline & now & vbtab & vbtab & " - EXECUTING SERVICE LOGON SCRIPT : SVCPERM"
   objLOG.write vbnewline & now & vbtab & vbtab & " - EXECUTING SERVICE LOGON SCRIPT : SVCPERM"
-  if (strDMN <> vbnullstring) then
+  if ((strDMN <> vbnullstring) and (strDMN <> ".\")) then
     call HOOK("cscript.exe //nologo " & chr(34) & "c:\temp\svcperm.vbs" & chr(34) & " " & chr(34) & strDMN & "\" & strUSR & chr(34))
-  elseif (strDMN = vbnullstring) then
+  elseif ((strDMN = vbnullstring) or (strDMN = ".\")) then
     call HOOK("cscript.exe //nologo " & chr(34) & "c:\temp\svcperm.vbs" & chr(34) & " " & chr(34) & strUSR & chr(34))
   end if
 	''DOWNLOAD WINDOWS PROBE MSI
