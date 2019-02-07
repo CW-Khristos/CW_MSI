@@ -1,5 +1,13 @@
 ''REPROBE.VBS
 ''DESIGNED TO AUTOMATE DOWNLOAD AND INSTALL OF WINDOWS PROBE SOFTWARE
+''ACCEPTS 3 PARAMETERS, REQUIRES 2 PARAMETERS; 'STRCID' AND 'STRCNM'
+''REQUIRED PARAMETER : 'STRCID', STRING TO SET CUSTOMER ID
+''REQUIRED PARAMETER : 'STRCNM', STRING TO SET CUSTOMER NAME
+''REQUIRED PARAMETER : 'STRPRB', STRING TO SET PROBE TYPE
+''REQUIRED PARAMETER : 'STRDMN', STRING TO SET DOMAIN
+''REQUIRED PARAMETER : 'STRUSR', STRING TO SET USER
+''REQUIRED PARAMETER : 'STRPWD', STRING TO SET PASSWORD
+''OPTIONAL PARAMETER : 'STRSVR', STRING TO SET SERVER ADDRESS
 ''WRITTEN BY : CJ BLEDSOE / CJ<@>THECOMPUTERWARRIORS.COM
 on error resume next
 ''SCRIPT VARIABLES
@@ -50,7 +58,7 @@ if (wscript.arguments.count > 0) then                       ''ARGUMENTS WERE PAS
     strUSR = objARG.item(4)                                 ''USER
     strPWD = objARG.item(5)                                 ''PASSWORD
     if (wscript.arguments.count = 6) then
-      strSVR = "ncentral.cwitsupport.com"                           ''SERVER ADDRESS
+      strSVR = "ncentral.cwitsupport.com"                   ''SERVER ADDRESS
     elseif (wscript.arguments.count = 7) then
       strSVR = objARG.item(6)                               ''SERVER ADDRESS
     end if
