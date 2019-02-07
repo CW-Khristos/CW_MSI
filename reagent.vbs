@@ -1,6 +1,6 @@
 ''REAGENT.VBS
 ''DESIGNED TO AUTOMATE DOWNLOAD AND INSTALL OF WINDOWS AGENT SOFTWARE
-''ACCEPTS 3 PARAMETERS, REQUIRES 2 PARAMETERS; 'STRCID' AND 'STRCNM'
+''ACCEPTS 3 PARAMETERS, REQUIRES 2 PARAMETERS
 ''REQUIRED PARAMETER : 'STRCID', STRING TO SET CUSTOMER ID
 ''REQUIRED PARAMETER : 'STRCNM', STRING TO SET CUSTOMER NAME
 ''OPTIONAL PARAMETER : 'STRSVR', STRING TO SET SERVER ADDRESS
@@ -46,7 +46,7 @@ if (wscript.arguments.count > 0) then                       ''ARGUMENTS WERE PAS
     strCID = objARG.item(0)                                 ''CUSTOMER ID
     strCNM = objARG.item(1)                                 ''CUSTOMER NAME
     if (wscript.arguments.count = 2) then
-      strSVR = "ncentral.cwitsupport.com"                           ''SERVER ADDRESS
+      strSVR = "ncentral.cwitsupport.com"                   ''SERVER ADDRESS
     elseif (wscript.arguments.count = 3) then
       strSVR = objARG.item(2)                               ''SERVER ADDRESS
     end if
@@ -61,7 +61,7 @@ if (errRET <> 0) then                                      ''NO ARGUMENTS PASSED
   objOUT.write vbnewline & vbnewline & now & vbtab & " - SCRIPT REQUIRES CUSTOMER ID, CUSTOMER NAME"
   objLOG.write vbnewline & vbnewline & now & vbtab & " - SCRIPT REQUIRES CUSTOMER ID, CUSTOMER NAME"
   call CLEANUP()
-elseif (errRET = 0) then																		''
+elseif (errRET = 0) then                                   ''ARGUMENTS PASSED, CONTINUE SCRIPT
 	objOUT.write vbnewline & vbnewline & now & vbtab & " - EXECUTING RE-AGENT"
 	objLOG.write vbnewline & vbnewline & now & vbtab & " - EXECUTING RE-AGENT"
 	''AUTOMATIC UPDATE, RE-AGENT.VBS, REF #2 , FIXES #8
