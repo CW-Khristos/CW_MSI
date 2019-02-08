@@ -20,7 +20,7 @@ dim strPRB, strDMN, strUSR, strPWD
 dim objIN, objOUT, objARG, objWSH, objFSO
 dim objLOG, objEXEC, objHOOK, objHTTP, objXML
 ''VERSION FOR SCRIPT UPDATE, RE-PROBE.VBS, REF #2 , FIXES #7
-strVER = 6
+strVER = 7
 ''DEFAULT SUCCESS
 errRET = 0
 ''STDIN / STDOUT
@@ -60,7 +60,11 @@ if (wscript.arguments.count > 0) then                       ''ARGUMENTS WERE PAS
     if (wscript.arguments.count = 6) then
       strSVR = "ncentral.cwitsupport.com"                   ''SERVER ADDRESS
     elseif (wscript.arguments.count = 7) then
-      strSVR = objARG.item(6)                               ''SERVER ADDRESS
+      if (strSVR = vbnullstring) then
+        strSVR = "ncentral.cwitsupport.com"                 ''SERVER ADDRESS
+      elseif (strSVR <> vbnullstring) then
+        strSVR = objARG.item(6)                             ''SERVER ADDRESS
+      end if
     end if
   else                                                      ''NOT ENOUGH ARGUMENTS PASSED, END SCRIPT
     errRET = 1
