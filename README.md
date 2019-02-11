@@ -28,5 +28,5 @@ respective property of their developers / distributors; and are subject to their
 original copyrights. They are included in this repository **ONLY** for the
 use / function of the scripts and their intended design!
 
-I make not promises, comittments, or declarations regarding the legality of
+I make no promises, comittments, or declarations regarding the legality of
 their use and/or distribution; even when used as intended with these scripts!
