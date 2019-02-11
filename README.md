@@ -1,7 +1,7 @@
 # CW_MSI
 CW Agent &amp; Probe
 
-Copyright (c) 2018 Christopher J. Bledsoe
+Copyright (c) 2019 Christopher J. Bledsoe
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of the scripts contained in this repository, and/or "source code", and
