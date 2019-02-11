@@ -20,7 +20,7 @@ dim strPRB, strDMN, strUSR, strPWD
 dim objIN, objOUT, objARG, objWSH, objFSO
 dim objLOG, objEXEC, objHOOK, objHTTP, objXML
 ''VERSION FOR SCRIPT UPDATE, RE-PROBE.VBS, REF #2 , FIXES #7
-strVER = 7
+strVER = 8
 ''DEFAULT SUCCESS
 errRET = 0
 ''STDIN / STDOUT
@@ -47,39 +47,39 @@ if (wscript.arguments.count > 0) then                       ''ARGUMENTS WERE PAS
     objOUT.write vbnewline & now & vbtab & " - ARGUMENT " & (x + 1) & " (ITEM " & x & ") " & " PASSED : " & ucase(objARG.item(x))
     objLOG.write vbnewline & now & vbtab & " - ARGUMENT " & (x + 1) & " (ITEM " & x & ") " & " PASSED : " & ucase(objARG.item(x))
   next 
-  if (wscript.arguments.count > 4) then                     ''SET VARIABLES ACCEPTING ARGUMENTS
-    strCID = objARG.item(0)                                 ''CUSTOMER ID
-    strCNM = objARG.item(1)                                 ''CUSTOMER NAME
-    strPRB = objARG.item(2)                                 ''PROBE TYPE
-    strDMN = objARG.item(3)                                 ''DOMAIN
-    if (instr(1, strDMN, "\")) then                         ''STRIP '\' FROM DOMAIN
+  if (wscript.arguments.count > 4) then                     ''SET REQUIRED VARIABLES ACCEPTING ARGUMENTS
+    strCID = objARG.item(0)                                 ''SET REQUIRED PARAMTERS 'STRCID', CUSTOMER ID
+    strCNM = objARG.item(1)                                 ''SET REQUIRED PARAMETER 'STRCNM', CUSTOMER NAME
+    strPRB = objARG.item(2)                                 ''SET REQUIRED PARAMETER 'STRPRB', PROBE TYPE - WORKGROUP_WINDOWS / NETWORK_WINDOWS
+    strDMN = objARG.item(3)                                 ''SET REQUIRED PARAMETER 'STRDMN', DOMAIN FOR USER AUTHENTICATION
+    if (instr(1, strDMN, "\")) then                         ''STRIP '\' FROM PASSED DOMAIN
       strDMN = replace(strDMN, "\", vbnullstring)
     end if
-    strUSR = objARG.item(4)                                 ''USER
-    strPWD = objARG.item(5)                                 ''PASSWORD
-    if (wscript.arguments.count = 6) then
-      strSVR = "ncentral.cwitsupport.com"                   ''SERVER ADDRESS
-    elseif (wscript.arguments.count = 7) then
-      if (strSVR = vbnullstring) then
-        strSVR = "ncentral.cwitsupport.com"                 ''SERVER ADDRESS
-      elseif (strSVR <> vbnullstring) then
-        strSVR = objARG.item(6)                             ''SERVER ADDRESS
+    strUSR = objARG.item(4)                                 ''SET REQUIRED PARAMETER 'STRUSR', TARGET USER
+    strPWD = objARG.item(5)                                 ''SET REQUIRED PARAMETER 'STRPWD', USER PASSWORD
+    if (wscript.arguments.count = 6) then                   ''NO OPTIONAL ARGUMENT PASSED
+      strSVR = "ncentral.cwitsupport.com"                   ''SET OPTIONAL PARAMETER 'STRSVR', 'DEFAULT' SERVER ADDRESS
+    elseif (wscript.arguments.count = 7) then               ''OPTIONAL ARGUMENT PASSED
+      if (strSVR = vbnullstring) then                       ''OPTIONAL 'STRSVR' ARGUMENT EMPTY
+        strSVR = "ncentral.cwitsupport.com"                 ''SET OPTIONAL PARAMETER 'STRSVR', 'DEFAULT' SERVER ADDRESS
+      elseif (strSVR <> vbnullstring) then                  ''OPTIONAL 'STRSVR' ARGUMENT NOT EMPTY
+        strSVR = objARG.item(6)                             ''SET OPTIONAL PARAMETER 'STRSVR', PASSED SERVER ADDRESS; SEPARATE MULTIPLES WITH ','
       end if
     end if
   else                                                      ''NOT ENOUGH ARGUMENTS PASSED, END SCRIPT
-    errRET = 1
+    call LOGERR(1)
   end if
-else
-  errRET = 1
+else                                                        ''NOT ENOUGH ARGUMENTS PASSED, END SCRIPT
+  call LOGERR(1)
 end if
 
 ''------------
 ''BEGIN SCRIPT
-if (errRET <> 0) then                                      ''NO ARGUMENTS PASSED, END SCRIPT
+if (errRET <> 0) then                                       ''NO ARGUMENTS PASSED, END SCRIPT
   objOUT.write vbnewline & vbnewline & now & vbtab & " - SCRIPT REQUIRES CUSTOMER ID, CUSTOMER NAME, DOMAIN, USER, AND PASSWORD"
   objLOG.write vbnewline & vbnewline & now & vbtab & " - SCRIPT REQUIRES CUSTOMER ID, CUSTOMER NAME, DOMAIN, USER, AND PASSWORD"
   call CLEANUP()
-elseif (errRET = 0) then                                   ''ARGUMENTS PASSED, CONTINUE SCRIPT
+elseif (errRET = 0) then                                    ''ARGUMENTS PASSED, CONTINUE SCRIPT
 	objOUT.write vbnewline & vbnewline & now & vbtab & " - EXECUTING : RE-PROBE"
 	objLOG.write vbnewline & vbnewline & now & vbtab & " - EXECUTING : RE-PROBE"
 	''AUTOMATIC UPDATE, RE-PROBE.VBS, REF #2 , FIXES #7
@@ -88,18 +88,27 @@ elseif (errRET = 0) then                                   ''ARGUMENTS PASSED, C
   objOUT.write vbnewline & now & vbtab & vbtab & " - DOWNLOADING SERVICE LOGON SCRIPT : SVCPERM"
   objLOG.write vbnewline & now & vbtab & vbtab & " - DOWNLOADING SERVICE LOGON SCRIPT : SVCPERM"
   call FILEDL("https://github.com/CW-Khristos/CW_MSI/raw/master/SVCperm.vbs", "SVCperm.vbs")
+  if (errRET <> 0) then
+    call LOGERR(2)
+  end if
   ''EXECUTE SERVICE LOGON SCRIPT : SVCPERM
   objOUT.write vbnewline & now & vbtab & vbtab & " - EXECUTING SERVICE LOGON SCRIPT : SVCPERM"
   objLOG.write vbnewline & now & vbtab & vbtab & " - EXECUTING SERVICE LOGON SCRIPT : SVCPERM"
-  if ((strDMN <> vbnullstring) and (strDMN <> ".\")) then
+  if ((strDMN <> vbnullstring) and (strDMN <> ".\")) then   ''EXECUTE SVCPERM.VBS AT DOMAIN LEVEL
     call HOOK("cscript.exe //nologo " & chr(34) & "c:\temp\svcperm.vbs" & chr(34) & " " & chr(34) & strDMN & "\" & strUSR & chr(34))
-  elseif ((strDMN = vbnullstring) or (strDMN = ".\")) then
+  elseif ((strDMN = vbnullstring) or (strDMN = ".\")) then  ''EXECUTE SVCPERM.VBS AT LOCAL LEVEL
     call HOOK("cscript.exe //nologo " & chr(34) & "c:\temp\svcperm.vbs" & chr(34) & " " & chr(34) & strUSR & chr(34))
+  end if
+  if (errRET <> 0) then
+    call LOGERR(3)
   end if
 	''DOWNLOAD WINDOWS PROBE MSI
 	objOUT.write vbnewline & now & vbtab & vbtab & " - DOWNLOADING WINDOWS PROBE MSI"
 	objLOG.write vbnewline & now & vbtab & vbtab & " - DOWNLOADING WINDOWS PROBE MSI"
   call FILEDL("https://github.com/CW-Khristos/CW_MSI/raw/master/Windows%20Software%20Probe.msi", "windows software probe.msi")
+  if (errRET <> 0) then
+    call LOGERR(4)
+  end if
   ''INSTALL WINDOWS PROBE
   objOUT.write vbnewline & now & vbtab & vbtab & " - RE-CONFIGURING WINDOWS PROBE"
   objLOG.write vbnewline & now & vbtab & vbtab & " - RE-CONFIGURING WINDOWS PROBE"
@@ -122,6 +131,9 @@ elseif (errRET = 0) then                                   ''ARGUMENTS PASSED, C
 	objOUT.write vbnewline & vbnewline & now & vbtab & " - EXECUTING : " & strRCMD
 	objLOG.write vbnewline & vbnewline & now & vbtab & " - EXECUTING : " & strRCMD
   call HOOK(strRCMD)
+  if (errRET <> 0) then
+    call LOGERR(5)
+  end if
 end if
 ''END SCRIPT
 call CLEANUP()
@@ -168,7 +180,8 @@ sub CHKAU()																									''CHECK FOR SCRIPT UPDATE, RE-PROBE.VBS, REF
             objLOG.write vbnewline & now & vbtab & " - RE-EXECUTING  " & objSCR.nodename & " : " & objSCR.text & vbnewline
 						objWSH.run "cscript.exe //nologo " & chr(34) & "c:\temp\" & wscript.scriptname & chr(34), 0, false
 					end if
-					''END SCRIPT
+					''SET 'ERRRET'=11, END SCRIPT
+          errRET = 11
 					call CLEANUP()
 				end if
 			end if
@@ -176,6 +189,9 @@ sub CHKAU()																									''CHECK FOR SCRIPT UPDATE, RE-PROBE.VBS, REF
 	end if
 	set colVER = nothing
 	set objXML = nothing
+  if (err.number <> 0) then
+    call LOGERR(10)
+  end if
 end sub
 
 sub FILEDL(strURL, strFILE)                                 ''CALL HOOK TO DOWNLOAD FILE FROM URL
@@ -211,10 +227,7 @@ sub FILEDL(strURL, strFILE)                                 ''CALL HOOK TO DOWNL
   end if
 	set objHTTP = nothing
   if (err.number <> 0) then
-    objOUT.write vbnewline & now & vbtab & vbtab & err.number & vbtab & err.description
-    objLOG.write vbnewline & now & vbtab & vbtab & err.number & vbtab & err.description
-    errRET = 2
-		err.clear
+    call LOGERR(11)
   end if
 end sub
 
@@ -236,9 +249,14 @@ sub HOOK(strCMD)                                            ''CALL HOOK TO MONIT
   end if
   set objHOOK = nothing
   if (err.number <> 0) then
-    objOUT.write vbnewline & now & vbtab & vbtab & err.number & vbtab & err.description
-    objLOG.write vbnewline & now & vbtab & vbtab & err.number & vbtab & err.description
-		errRET = 3
+    call LOGERR(12)
+end sub
+
+sub LOGERR(intSTG)                                          ''CALL HOOK TO MONITOR OUTPUT OF CALLED COMMAND
+  if (err.number <> 0) then
+    objOUT.write vbnewline & now & vbtab & vbtab & vbtab & err.number & vbtab & err.description & vbnewline
+    objLOG.write vbnewline & now & vbtab & vbtab & vbtab & err.number & vbtab & err.description & vbnewline
+		errRET = intSTG
 		err.clear
   end if
 end sub
@@ -246,6 +264,7 @@ end sub
 sub CLEANUP()                                               ''SCRIPT CLEANUP
   if (errRET = 0) then         															''RE-PROBE COMPLETED SUCCESSFULLY
     objOUT.write vbnewline & "RE-PROBE SUCCESSFUL : " & NOW
+    err.clear
   elseif (errRET <> 0) then    															''RE-PROBE FAILED
     objOUT.write vbnewline & "RE-PROBE FAILURE : " & NOW & " : " & errRET
     ''RAISE CUSTOMIZED ERROR CODE, ERROR CODE WILL BE DEFINE RESTOP NUMBER INDICATING WHICH SECTION FAILED
@@ -262,5 +281,5 @@ sub CLEANUP()                                               ''SCRIPT CLEANUP
   set objOUT = nothing
   set objIN = nothing
   ''END SCRIPT, RETURN ERROR NUMBER
-  wscript.quit errRET
+  wscript.quit err.number
 end sub

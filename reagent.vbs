@@ -15,7 +15,7 @@ dim strCID, strCNM, strSVR
 dim objIN, objOUT, objARG, objWSH, objFSO
 dim objLOG, objEXEC, objHOOK, objHTTP, objXML
 ''VERSION FOR SCRIPT UPDATE, RE-AGENT.VBS, REF #2 , FIXES #8
-strVER = 6
+strVER = 7
 ''DEFAULT SUCCESS
 errRET = 0
 ''STDIN / STDOUT
@@ -42,20 +42,20 @@ if (wscript.arguments.count > 0) then                       ''ARGUMENTS WERE PAS
     objOUT.write vbnewline & now & vbtab & " - ARGUMENT " & (x + 1) & " (ITEM " & x & ") " & " PASSED : " & ucase(objARG.item(x))
     objLOG.write vbnewline & now & vbtab & " - ARGUMENT " & (x + 1) & " (ITEM " & x & ") " & " PASSED : " & ucase(objARG.item(x))
   next 
-  if (wscript.arguments.count > 1) then                     ''SET VARIABLES ACCEPTING ARGUMENTS
-    strCID = objARG.item(0)                                 ''CUSTOMER ID
-    strCNM = objARG.item(1)                                 ''CUSTOMER NAME
-    if (wscript.arguments.count = 2) then
-      strSVR = "ncentral.cwitsupport.com"                   ''SERVER ADDRESS
-    elseif (wscript.arguments.count = 3) then
-      if (strSVR = vbnullstring) then
-        strSVR = "ncentral.cwitsupport.com"                 ''SERVER ADDRESS
-      elseif (strSVR <> vbnullstring) then
-        strSVR = objARG.item(6)                             ''SERVER ADDRESS
+  if (wscript.arguments.count > 1) then                     ''SET REQUIRED VARIABLES ACCEPTING ARGUMENTS
+    strCID = objARG.item(0)                                 ''SET REQUIRED PARAMETER 'STRCID', CUSTOMER ID
+    strCNM = objARG.item(1)                                 ''SET REQUIRED PARAMETER 'STRCNM', CUSTOMER NAME
+    if (wscript.arguments.count = 2) then                   ''NO OPTIONAL ARGUMENTS PASSED
+      strSVR = "ncentral.cwitsupport.com"                   ''SET OPTIONAL PARAMETER 'STRSVR', 'DEFAULT' SERVER ADDRESS
+    elseif (wscript.arguments.count = 3) then               ''OPTIONAL ARGUMENTS PASSED
+      if (strSVR = vbnullstring) then                       ''OPTIONAL 'STRSVR' ARGUMENT EMPTY
+        strSVR = "ncentral.cwitsupport.com"                 ''SET OPTIONAL PARAMETER 'STRSVR', 'DEFAULT' SERVER ADDRESS
+      elseif (strSVR <> vbnullstring) then                  ''OPTIONAL 'STRSVR' ARGUMENT NOT EMPTY
+        strSVR = objARG.item(6)                             ''SET OPTIONAL PARAMETER 'STRSVR', PASSED SERVER ADDRESS; SEPARATE MULTIPLES WITH ','
       end if
     end if
   else                                                      ''NOT ENOUGH ARGUMENTS PASSED, END SCRIPT
-    errRET = 1
+    call LOGERR(1)
   end if
 end if
 
@@ -74,6 +74,9 @@ elseif (errRET = 0) then                                   ''ARGUMENTS PASSED, C
 	objOUT.write vbnewline & now & vbtab & vbtab & " - DOWNLOADING WINDOWS AGENT MSI"
   objLOG.write vbnewline & now & vbtab & vbtab & " - DOWNLOADING WINDOWS AGENT MSI"
   call FILEDL("https://github.com/CW-Khristos/CW_MSI/raw/master/Windows%20Agent.msi", "windows agent.msi")
+  if (errRET <> 0) then
+    call LOGERR(2)
+  end if
   ''INSTALL WINDOWS AGENT
   objOUT.write vbnewline & now & vbtab & vbtab & " - RE-CONFIGURING WINDOWS AGENT"
   objLOG.write vbnewline & now & vbtab & vbtab & " - RE-CONFIGURING WINDOWS AGENT"
@@ -83,6 +86,9 @@ elseif (errRET = 0) then                                   ''ARGUMENTS PASSED, C
     " /l*v c:\temp\agent_install.log ALLUSERS=2"
 	''RE-CONFIGURE WINDOWS AGENT
 	call HOOK(strRCMD)
+  if (errRET <> 0) then
+    call LOGERR(3)
+  end if
 end if
 ''END SCRIPT
 call CLEANUP()
@@ -129,6 +135,9 @@ sub CHKAU()																									''CHECK FOR SCRIPT UPDATE, RE-AGENT.VBS, REF
             objLOG.write vbnewline & now & vbtab & " - RE-EXECUTING  " & objSCR.nodename & " : " & objSCR.text & vbnewline
 						objWSH.run "cscript.exe //nologo " & chr(34) & "c:\temp\" & wscript.scriptname & chr(34), 0, false
 					end if
+          if (err.number <> 0) then
+            call LOGERR(10)
+          end if
 					''END SCRIPT
 					call CLEANUP()
 				end if
@@ -137,6 +146,9 @@ sub CHKAU()																									''CHECK FOR SCRIPT UPDATE, RE-AGENT.VBS, REF
 	end if
 	set colVER = nothing
 	set objXML = nothing
+  if (err.number <> 0) then
+    call LOGERR(10)
+  end if
 end sub
 
 sub FILEDL(strURL, strFILE)                                 ''CALL HOOK TO DOWNLOAD FILE FROM URL
@@ -172,8 +184,7 @@ sub FILEDL(strURL, strFILE)                                 ''CALL HOOK TO DOWNL
   end if
 	set objHTTP = nothing
   if (err.number <> 0) then
-    errRET = 2
-		err.clear
+    call LOGERR(11)
   end if
 end sub
 
@@ -195,9 +206,16 @@ sub HOOK(strCMD)                                            ''CALL HOOK TO MONIT
   end if
   set objHOOK = nothing
   if (err.number <> 0) then
-    errRET = 3
-    objOUT.write vbnewline & now & vbtab & vbtab & err.number & vbtab & err.description
-    objLOG.write vbnewline & now & vbtab & vbtab & err.number & vbtab & err.description
+    call LOGERR(12)
+  end if
+end sub
+
+sub LOGERR(intSTG)                                          ''CALL HOOK TO MONITOR OUTPUT OF CALLED COMMAND
+  if (err.number <> 0) then
+    objOUT.write vbnewline & now & vbtab & vbtab & vbtab & err.number & vbtab & err.description & vbnewline
+    objLOG.write vbnewline & now & vbtab & vbtab & vbtab & err.number & vbtab & err.description & vbnewline
+		errRET = intSTG
+		err.clear
   end if
 end sub
 
@@ -220,5 +238,5 @@ sub CLEANUP()                                               ''SCRIPT CLEANUP
   set objOUT = nothing
   set objIN = nothing
   ''END SCRIPT, RETURN ERROR NUMBER
-  wscript.quit errRET
+  wscript.quit err.number
 end sub
