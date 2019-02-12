@@ -166,7 +166,7 @@ sub CHKAU()																									''CHECK FOR SCRIPT UPDATE, RE-PROBE.VBS, REF
 					objOUT.write vbnewline & now & vbtab & " - UPDATING " & objSCR.nodename & " : " & objSCR.text & vbnewline
 					objLOG.write vbnewline & now & vbtab & " - UPDATING " & objSCR.nodename & " : " & objSCR.text & vbnewline
 					''DOWNLOAD LATEST VERSION OF SCRIPT
-					call FILEDL("https://github.com/CW-Khristos/CW_MSI/raw/master/reprobe.vbs", wscript.scriptname)
+					call FILEDL("https://github.com/CW-Khristos/CW_MSI/raw/dev/reprobe.vbs", wscript.scriptname)
 					''RUN LATEST VERSION
 					if (wscript.arguments.count > 0) then             ''ARGUMENTS WERE PASSED
 						for x = 0 to (wscript.arguments.count - 1)
