@@ -251,6 +251,7 @@ sub HOOK(strCMD)                                            ''CALL HOOK TO MONIT
   set objHOOK = nothing
   if (err.number <> 0) then                                 ''ERROR RETURNED , 'ERRRET'=12
     call LOGERR(12)
+  end if
 end sub
 
 sub LOGERR(intSTG)                                          ''CALL HOOK TO MONITOR OUTPUT OF CALLED COMMAND
