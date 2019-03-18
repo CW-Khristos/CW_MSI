@@ -88,7 +88,7 @@ elseif (errRET = 0) then                                    ''ARGUMENTS PASSED ,
   ''DOWNLOAD SVCPERM.VBS SCRIPT TO GRANT USER SERVICE LOGON , 'ERRRET'=2
   objOUT.write vbnewline & now & vbtab & vbtab & " - DOWNLOADING SERVICE LOGON SCRIPT : SVCPERM"
   objLOG.write vbnewline & now & vbtab & vbtab & " - DOWNLOADING SERVICE LOGON SCRIPT : SVCPERM"
-  call FILEDL("https://github.com/CW-Khristos/CW_MSI/raw/master/SVCperm.vbs", "SVCperm.vbs")
+  call FILEDL("https://github.com/CW-Khristos/scripts/raw/master/SVCperm.vbs", "SVCperm.vbs")
   if (errRET <> 0) then
     call LOGERR(2)
   end if
