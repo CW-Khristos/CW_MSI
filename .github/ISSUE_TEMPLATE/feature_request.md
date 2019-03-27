@@ -4,14 +4,22 @@ about: Suggest an idea for this project; When submitting a Feature Request, plea
 title: Script or Project - Title
 ---
 
-**Is your feature request related to a problem? Please describe.**
+* When submitting a Feature Request, please make the Title according to this standard : "[Script or Project] - [Title]"
+* Be descriptive and clear about intent and expectation of feature requested
+* Be courteous and understanding; if you are told a request will not happen, accept this
+
+* **Is your feature request related to a problem? Please describe.**
+
 A clear and concise description of what the problem is. Ex. I'm always frustrated when [...]
 
-**Describe the solution you'd like**
+* **Describe the solution you'd like**
+
 A clear and concise description of what you want to happen.
 
-**Describe alternatives you've considered**
+* **Describe alternatives you've considered**
+
 A clear and concise description of any alternative solutions or features you've considered.
 
-**Additional context**
+* **Additional context**
+
 Add any other context or screenshots about the feature request here.
