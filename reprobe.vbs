@@ -114,16 +114,16 @@ elseif (errRET = 0) then                                    ''ARGUMENTS PASSED ,
   objOUT.write vbnewline & now & vbtab & vbtab & " - RE-CONFIGURING WINDOWS PROBE"
   objLOG.write vbnewline & now & vbtab & vbtab & " - RE-CONFIGURING WINDOWS PROBE"
   ''WINDOWS PROBE RE-CONFIGURATION COMMAND, VALIDATED 08/13/2018, PROBE REQUIRES ADMIN USER PRIOR TO RUNNING, FIXES #6
-  select case strPRB
-    case "Local_Windows"
+  select case lcase(strPRB)
+    case "local_windows"
       strRCMD = "msiexec /i " & chr(34) & "c:\temp\windows software probe.msi" & chr(34) & " /qn CUSTOMERID=" & strCID & " CUSTOMERNAME=" & chr(34) & strCNM & chr(34) & _
         " SERVERPROTOCOL=" & chr(34) & "HTTPS://" & chr(34) & " SERVERPORT=443 SERVERADDRESS=" & chr(34) & strSVR & chr(34) & " PROBETYPE=" & chr(34) & strPRB & chr(34) & _
         " AGENTUSERNAME=" & chr(34) & strUSR & chr(34) & " AGENTPASSWORD=" & chr(34) & strPWD & chr(34) & " /l*v c:\temp\probe_install.log ALLUSERS=2"
-    case "Workgroup_Windows"
+    case "workgroup_windows"
       strRCMD = "msiexec /i " & chr(34) & "c:\temp\windows software probe.msi" & chr(34) & " /qn CUSTOMERID=" & strCID & " CUSTOMERNAME=" & chr(34) & strCNM & chr(34) & _
         " SERVERPROTOCOL=" & chr(34) & "HTTPS://" & chr(34) & " SERVERPORT=443 SERVERADDRESS=" & chr(34) & strSVR & chr(34) & " PROBETYPE=" & chr(34) & strPRB & chr(34) & _
         " AGENTUSERNAME=" & chr(34) & strUSR & chr(34) & " AGENTPASSWORD=" & chr(34) & strPWD & chr(34) & " /l*v c:\temp\probe_install.log ALLUSERS=2"
-    case "Network_Windows"
+    case "network_windows"
       strRCMD = "msiexec /i " & chr(34) & "c:\temp\windows software probe.msi" & chr(34) & " /qn CUSTOMERID=" & strCID & " CUSTOMERNAME=" & chr(34) & strCNM & chr(34) & _
         " SERVERPROTOCOL=" & chr(34) & "HTTPS://" & chr(34) & " SERVERPORT=443 SERVERADDRESS=" & chr(34) & strSVR & chr(34) & " PROBETYPE=" & chr(34) & strPRB & chr(34) & _
         " AGENTDOMAIN=" & chr(34) & strDMN & chr(34) & " AGENTUSERNAME=" & chr(34) & strUSR & chr(34) & " AGENTPASSWORD=" & chr(34) & strPWD & chr(34) & " /l*v c:\temp\probe_install.log ALLUSERS=2"
