@@ -20,7 +20,7 @@ dim strPRB, strDMN, strUSR, strPWD
 dim objIN, objOUT, objARG, objWSH, objFSO
 dim objLOG, objEXEC, objHOOK, objHTTP, objXML
 ''VERSION FOR SCRIPT UPDATE , RE-PROBE.VBS , REF #2 , FIXES #7
-strVER = 9
+strVER = 10
 ''DEFAULT SUCCESS
 errRET = 0
 ''STDIN / STDOUT
@@ -88,16 +88,16 @@ elseif (errRET = 0) then                                    ''ARGUMENTS PASSED ,
   ''DOWNLOAD SVCPERM.VBS SCRIPT TO GRANT USER SERVICE LOGON , 'ERRRET'=2
   objOUT.write vbnewline & now & vbtab & vbtab & " - DOWNLOADING SERVICE LOGON SCRIPT : SVCPERM"
   objLOG.write vbnewline & now & vbtab & vbtab & " - DOWNLOADING SERVICE LOGON SCRIPT : SVCPERM"
-  call FILEDL("https://github.com/CW-Khristos/scripts/raw/master/SVCperm.vbs", "SVCperm.vbs")
+  call FILEDL("https://github.com/CW-Khristos/scripts/raw/dev/SVCperm.vbs", "SVCperm.vbs")
   if (errRET <> 0) then
     call LOGERR(2)
   end if
   ''EXECUTE SERVICE LOGON SCRIPT : SVCPERM , 'ERRRET'=3
   objOUT.write vbnewline & now & vbtab & vbtab & " - EXECUTING SERVICE LOGON SCRIPT : SVCPERM"
   objLOG.write vbnewline & now & vbtab & vbtab & " - EXECUTING SERVICE LOGON SCRIPT : SVCPERM"
-  if ((strDMN <> vbnullstring) and (strDMN <> ".\")) then   ''EXECUTE SVCPERM.VBS AT DOMAIN LEVEL
+  if ((strDMN <> vbnullstring) and (strDMN <> ".")) then   ''EXECUTE SVCPERM.VBS AT DOMAIN LEVEL
     call HOOK("cscript.exe //nologo " & chr(34) & "c:\temp\svcperm.vbs" & chr(34) & " " & chr(34) & strDMN & "\" & strUSR & chr(34))
-  elseif ((strDMN = vbnullstring) or (strDMN = ".\")) then  ''EXECUTE SVCPERM.VBS AT LOCAL LEVEL
+  elseif ((strDMN = vbnullstring) or (strDMN = ".")) then  ''EXECUTE SVCPERM.VBS AT LOCAL LEVEL
     call HOOK("cscript.exe //nologo " & chr(34) & "c:\temp\svcperm.vbs" & chr(34) & " " & chr(34) & strUSR & chr(34))
   end if
   if (errRET <> 0) then
