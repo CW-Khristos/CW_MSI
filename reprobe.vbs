@@ -53,7 +53,7 @@ if (wscript.arguments.count > 0) then                       ''ARGUMENTS WERE PAS
     strPRB = objARG.item(2)                                 ''SET REQUIRED PARAMETER 'STRPRB' , PROBE TYPE - WORKGROUP_WINDOWS / NETWORK_WINDOWS
     if (lcase(strPRB) = "workgroup") then
       strPRB = "Workgroup_Windows"
-    elseif (lcase(strPRB) = "network") then
+    elseif ((lcase(strPRB) = "network") or (lcase(strPRB) = "domain")) then
       strPRB= "Network_Windows"
     end if
     'strDMN = objARG.item(3)                                 ''SET REQUIRED PARAMETER 'STRDMN' , DOMAIN FOR USER AUTHENTICATION
