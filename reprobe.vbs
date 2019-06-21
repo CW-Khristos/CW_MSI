@@ -71,7 +71,7 @@ if (wscript.arguments.count > 0) then                       ''ARGUMENTS WERE PAS
       if (strSVR = vbnullstring) then                       ''OPTIONAL 'STRSVR' ARGUMENT EMPTY
         strSVR = "ncentral.cwitsupport.com"                 ''SET OPTIONAL PARAMETER 'STRSVR' , 'DEFAULT' SERVER ADDRESS
       elseif (strSVR <> vbnullstring) then                  ''OPTIONAL 'STRSVR' ARGUMENT NOT EMPTY
-        strSVR = objARG.item(6)                             ''SET OPTIONAL PARAMETER 'STRSVR' , PASSED SERVER ADDRESS; SEPARATE MULTIPLES WITH ','
+        strSVR = objARG.item(5)                             ''SET OPTIONAL PARAMETER 'STRSVR' , PASSED SERVER ADDRESS; SEPARATE MULTIPLES WITH ','
       end if
     end if
   else                                                      ''NOT ENOUGH ARGUMENTS PASSED , END SCRIPT , 'ERRRET'=1
@@ -96,7 +96,9 @@ elseif (errRET = 0) then                                    ''ARGUMENTS PASSED ,
     strIN = objEXEC.stdout.readline
     'objOUT.write vbnewline & now & vbtab & vbtab & strIN
     'objLOG.write vbnewline & now & vbtab & vbtab & strIN
-    if ((trim(strIN) <> vbnullstring) and (instr(1, strIN, "Logon Domain"))) then
+    if ((trim(strIN) <> vbnullstring) and (instr(1, lcase(strIN), "logon domain"))) then
+      objOUT.write vbnewline & now & vbtab & vbtab & strIN
+      objLOG.write vbnewline & now & vbtab & vbtab & strIN
       strDMN = (split(strIN, " ")(ubound(split(strIN, " "))))
       ''HANDLE "\" IN PASSED 'STRUSR'
       if (instr(1, lcase(strUSR), "\")) then
