@@ -20,7 +20,7 @@ dim strPRB, strDMN, strUSR, strPWD
 dim objIN, objOUT, objARG, objWSH, objFSO
 dim objLOG, objEXEC, objHOOK, objHTTP, objXML
 ''VERSION FOR SCRIPT UPDATE , RE-PROBE.VBS , REF #2 , FIXES #7
-strVER = 10
+strVER = 11
 ''DEFAULT SUCCESS
 errRET = 0
 ''STDIN / STDOUT
@@ -51,18 +51,23 @@ if (wscript.arguments.count > 0) then                       ''ARGUMENTS WERE PAS
     strCID = objARG.item(0)                                 ''SET REQUIRED PARAMTERS 'STRCID' , CUSTOMER ID
     strCNM = objARG.item(1)                                 ''SET REQUIRED PARAMETER 'STRCNM' , CUSTOMER NAME
     strPRB = objARG.item(2)                                 ''SET REQUIRED PARAMETER 'STRPRB' , PROBE TYPE - WORKGROUP_WINDOWS / NETWORK_WINDOWS
-    strDMN = objARG.item(3)                                 ''SET REQUIRED PARAMETER 'STRDMN' , DOMAIN FOR USER AUTHENTICATION
-    if (instr(1, strDMN, "\")) then                         ''INPUT VALIDATION FOR 'STRUSR'
-      strDMN = replace(strDMN, "\", vbnullstring)           ''STRIP WORKGROUP / DOMAIN FROM PASSED VARIABLE TO ENSURE WE HAVE USER NAME ONLY
+    if (lcase(strPRB) = "workgroup") then
+      strPRB = "Workgroup_Windows"
+    elseif (lcase(strPRB) = "network") then
+      strPRB= "Network_Windows"
     end if
-    strUSR = objARG.item(4)                                 ''SET REQUIRED PARAMETER 'STRUSR' , TARGET USER
+    'strDMN = objARG.item(3)                                 ''SET REQUIRED PARAMETER 'STRDMN' , DOMAIN FOR USER AUTHENTICATION
+    'if (instr(1, strDMN, "\")) then                         ''INPUT VALIDATION FOR 'STRUSR'
+    '  strDMN = replace(strDMN, "\", vbnullstring)           ''STRIP WORKGROUP / DOMAIN FROM PASSED VARIABLE TO ENSURE WE HAVE USER NAME ONLY
+    'end if
+    strUSR = objARG.item(3)                                 ''SET REQUIRED PARAMETER 'STRUSR' , TARGET USER
     if (instr(1, strUSR, "\")) then                         ''INPUT VALIDATION FOR 'STRUSR'
       strUSR = split(strUSR, "\")(1)                        ''STRIP WORKGROUP / DOMAIN FROM PASSED VARIABLE TO ENSURE WE HAVE USER NAME ONLY
     end if
-    strPWD = objARG.item(5)                                 ''SET REQUIRED PARAMETER 'STRPWD' , USER PASSWORD
-    if (wscript.arguments.count = 6) then                   ''NO OPTIONAL ARGUMENT PASSED
+    strPWD = objARG.item(4)                                 ''SET REQUIRED PARAMETER 'STRPWD' , USER PASSWORD
+    if (wscript.arguments.count = 5) then                   ''NO OPTIONAL ARGUMENT PASSED
       strSVR = "ncentral.cwitsupport.com"                   ''SET OPTIONAL PARAMETER 'STRSVR' , 'DEFAULT' SERVER ADDRESS
-    elseif (wscript.arguments.count = 7) then               ''OPTIONAL ARGUMENT PASSED
+    elseif (wscript.arguments.count = 6) then               ''OPTIONAL ARGUMENT PASSED
       if (strSVR = vbnullstring) then                       ''OPTIONAL 'STRSVR' ARGUMENT EMPTY
         strSVR = "ncentral.cwitsupport.com"                 ''SET OPTIONAL PARAMETER 'STRSVR' , 'DEFAULT' SERVER ADDRESS
       elseif (strSVR <> vbnullstring) then                  ''OPTIONAL 'STRSVR' ARGUMENT NOT EMPTY
@@ -85,6 +90,27 @@ elseif (errRET = 0) then                                    ''ARGUMENTS PASSED ,
 	objLOG.write vbnewline & vbnewline & now & vbtab & " - EXECUTING : RE-PROBE"
 	''AUTOMATIC UPDATE, RE-PROBE.VBS, REF #2 , FIXES #7
 	call CHKAU()
+  ''VERIFY NETWORK WORKGROUP / DOMAIN SETTINGS , REF #7 , FIXES #12
+  set objEXEC = objWSH.exec("net config workstation")
+  while (not objEXEC.stdout.atendofstream)
+    strIN = objEXEC.stdout.readline
+    'objOUT.write vbnewline & now & vbtab & vbtab & strIN
+    'objLOG.write vbnewline & now & vbtab & vbtab & strIN
+    if ((trim(strIN) <> vbnullstring) and (instr(1, strIN, "Logon Domain"))) then
+      strDMN = (split(strIN, " ")(ubound(split(strIN, " "))))
+      ''HANDLE "\" IN PASSED 'STRUSR'
+      if (instr(1, lcase(strUSR), "\")) then
+        strUSR = strDMN & "\" & split(strUSR, "\")(1)
+      ''HANDLE NO "\" IN PASSED 'STRUSR'
+      elseif (instr(1, lcase(strUSR), "\") = 0) then
+        strUSR = strDMN & "\" & strUSR
+      end if
+    end if
+    if (err.number <> 0) then
+      call LOGERR(2)
+    end if
+  wend
+  set objEXEC = nothing
   ''DOWNLOAD SVCPERM.VBS SCRIPT TO GRANT USER SERVICE LOGON , 'ERRRET'=2
   objOUT.write vbnewline & now & vbtab & vbtab & " - DOWNLOADING SERVICE LOGON SCRIPT : SVCPERM"
   objLOG.write vbnewline & now & vbtab & vbtab & " - DOWNLOADING SERVICE LOGON SCRIPT : SVCPERM"
@@ -96,7 +122,7 @@ elseif (errRET = 0) then                                    ''ARGUMENTS PASSED ,
   objOUT.write vbnewline & now & vbtab & vbtab & " - EXECUTING SERVICE LOGON SCRIPT : SVCPERM"
   objLOG.write vbnewline & now & vbtab & vbtab & " - EXECUTING SERVICE LOGON SCRIPT : SVCPERM"
   if ((strDMN <> vbnullstring) and (strDMN <> ".")) then   ''EXECUTE SVCPERM.VBS AT DOMAIN LEVEL
-    call HOOK("cscript.exe //nologo " & chr(34) & "c:\temp\svcperm.vbs" & chr(34) & " " & chr(34) & strDMN & "\" & strUSR & chr(34))
+    call HOOK("cscript.exe //nologo " & chr(34) & "c:\temp\svcperm.vbs" & chr(34) & " " & chr(34) & strUSR & chr(34))
   elseif ((strDMN = vbnullstring) or (strDMN = ".")) then  ''EXECUTE SVCPERM.VBS AT LOCAL LEVEL
     call HOOK("cscript.exe //nologo " & chr(34) & "c:\temp\svcperm.vbs" & chr(34) & " " & chr(34) & strUSR & chr(34))
   end if
