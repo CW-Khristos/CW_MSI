@@ -20,7 +20,7 @@ dim strPRB, strDMN, strUSR, strPWD
 dim objIN, objOUT, objARG, objWSH, objFSO
 dim objLOG, objEXEC, objHOOK, objHTTP, objXML
 ''VERSION FOR SCRIPT UPDATE , RE-PROBE.VBS , REF #2 , FIXES #7
-strVER = 11
+strVER = 12
 ''DEFAULT SUCCESS
 errRET = 0
 ''STDIN / STDOUT
@@ -56,10 +56,6 @@ if (wscript.arguments.count > 0) then                       ''ARGUMENTS WERE PAS
     elseif ((lcase(strPRB) = "network") or (lcase(strPRB) = "domain")) then
       strPRB= "Network_Windows"
     end if
-    'strDMN = objARG.item(3)                                 ''SET REQUIRED PARAMETER 'STRDMN' , DOMAIN FOR USER AUTHENTICATION
-    'if (instr(1, strDMN, "\")) then                         ''INPUT VALIDATION FOR 'STRUSR'
-    '  strDMN = replace(strDMN, "\", vbnullstring)           ''STRIP WORKGROUP / DOMAIN FROM PASSED VARIABLE TO ENSURE WE HAVE USER NAME ONLY
-    'end if
     strUSR = objARG.item(3)                                 ''SET REQUIRED PARAMETER 'STRUSR' , TARGET USER
     if (instr(1, strUSR, "\")) then                         ''INPUT VALIDATION FOR 'STRUSR'
       strUSR = split(strUSR, "\")(1)                        ''STRIP WORKGROUP / DOMAIN FROM PASSED VARIABLE TO ENSURE WE HAVE USER NAME ONLY
@@ -148,9 +144,10 @@ elseif (errRET = 0) then                                    ''ARGUMENTS PASSED ,
         " SERVERPROTOCOL=" & chr(34) & "HTTPS://" & chr(34) & " SERVERPORT=443 SERVERADDRESS=" & chr(34) & strSVR & chr(34) & " PROBETYPE=" & chr(34) & strPRB & chr(34) & _
         " AGENTUSERNAME=" & chr(34) & strUSR & chr(34) & " AGENTPASSWORD=" & chr(34) & strPWD & chr(34) & " /l*v c:\temp\probe_install.log ALLUSERS=2"
     case "workgroup_windows"
+      ''WORKGROUP_WINDOWS - " AGENTUSERNAME=" & chr(34) & split(strUSR, "\")(1) - STRIP RETRIEVED "LOGON DOMAIN" INFORMATION FROM 'STRUSR' PRIOR TO EXECUTING MSIEXEC , FIXES #12
       strRCMD = "msiexec /i " & chr(34) & "c:\temp\windows software probe.msi" & chr(34) & " /qn CUSTOMERID=" & strCID & " CUSTOMERNAME=" & chr(34) & strCNM & chr(34) & _
         " SERVERPROTOCOL=" & chr(34) & "HTTPS://" & chr(34) & " SERVERPORT=443 SERVERADDRESS=" & chr(34) & strSVR & chr(34) & " PROBETYPE=" & chr(34) & strPRB & chr(34) & _
-        " AGENTUSERNAME=" & chr(34) & strUSR & chr(34) & " AGENTPASSWORD=" & chr(34) & strPWD & chr(34) & " /l*v c:\temp\probe_install.log ALLUSERS=2"
+        " AGENTUSERNAME=" & chr(34) & split(strUSR, "\")(1) & chr(34) & " AGENTPASSWORD=" & chr(34) & strPWD & chr(34) & " /l*v c:\temp\probe_install.log ALLUSERS=2"
     case "network_windows"
       strRCMD = "msiexec /i " & chr(34) & "c:\temp\windows software probe.msi" & chr(34) & " /qn CUSTOMERID=" & strCID & " CUSTOMERNAME=" & chr(34) & strCNM & chr(34) & _
         " SERVERPROTOCOL=" & chr(34) & "HTTPS://" & chr(34) & " SERVERPORT=443 SERVERADDRESS=" & chr(34) & strSVR & chr(34) & " PROBETYPE=" & chr(34) & strPRB & chr(34) & _
