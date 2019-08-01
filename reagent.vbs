@@ -15,7 +15,7 @@ dim strCID, strCNM, strSVR
 dim objIN, objOUT, objARG, objWSH, objFSO
 dim objLOG, objEXEC, objHOOK, objHTTP, objXML
 ''VERSION FOR SCRIPT UPDATE , RE-AGENT.VBS , REF #2 , FIXES #8
-strVER = 8
+strVER = 9
 ''DEFAULT SUCCESS
 errRET = 0
 ''STDIN / STDOUT
@@ -42,16 +42,16 @@ if (wscript.arguments.count > 0) then                       ''ARGUMENTS WERE PAS
     objOUT.write vbnewline & now & vbtab & " - ARGUMENT " & (x + 1) & " (ITEM " & x & ") " & " PASSED : " & ucase(objARG.item(x))
     objLOG.write vbnewline & now & vbtab & " - ARGUMENT " & (x + 1) & " (ITEM " & x & ") " & " PASSED : " & ucase(objARG.item(x))
   next 
-  if (wscript.arguments.count > 1) then                     ''SET REQUIRED VARIABLES ACCEPTING ARGUMENTS
+  if (wscript.arguments.count > 0) then                     ''SET REQUIRED VARIABLES ACCEPTING ARGUMENTS
     strCID = objARG.item(0)                                 ''SET REQUIRED PARAMETER 'STRCID' , CUSTOMER ID
-    strCNM = objARG.item(1)                                 ''SET REQUIRED PARAMETER 'STRCNM' , CUSTOMER NAME
-    if (wscript.arguments.count = 2) then                   ''NO OPTIONAL ARGUMENTS PASSED
+    'strCNM = objARG.item(1)                                 ''SET REQUIRED PARAMETER 'STRCNM' , CUSTOMER NAME
+    if (wscript.arguments.count = 1) then                   ''NO OPTIONAL ARGUMENTS PASSED
       strSVR = "ncentral.cwitsupport.com"                   ''SET OPTIONAL PARAMETER 'STRSVR' , 'DEFAULT' SERVER ADDRESS
-    elseif (wscript.arguments.count = 3) then               ''OPTIONAL ARGUMENTS PASSED
+    elseif (wscript.arguments.count = 2) then               ''OPTIONAL ARGUMENTS PASSED
       if (strSVR = vbnullstring) then                       ''OPTIONAL 'STRSVR' ARGUMENT EMPTY
         strSVR = "ncentral.cwitsupport.com"                 ''SET OPTIONAL PARAMETER 'STRSVR' , 'DEFAULT' SERVER ADDRESS
       elseif (strSVR <> vbnullstring) then                  ''OPTIONAL 'STRSVR' ARGUMENT NOT EMPTY
-        strSVR = objARG.item(6)                             ''SET OPTIONAL PARAMETER 'STRSVR' , PASSED SERVER ADDRESS ; SEPARATE MULTIPLES WITH ','
+        strSVR = objARG.item(1)                             ''SET OPTIONAL PARAMETER 'STRSVR' , PASSED SERVER ADDRESS ; SEPARATE MULTIPLES WITH ','
       end if
     end if
   else                                                      ''NOT ENOUGH ARGUMENTS PASSED , END SCRIPT , 'ERRRET'=1
@@ -71,7 +71,8 @@ elseif (errRET = 0) then                                   ''ARGUMENTS PASSED, C
 	''DOWNLOAD WINDOWS AGENT MSI , 'ERRRET'=2
 	objOUT.write vbnewline & now & vbtab & vbtab & " - DOWNLOADING WINDOWS AGENT MSI"
   objLOG.write vbnewline & now & vbtab & vbtab & " - DOWNLOADING WINDOWS AGENT MSI"
-  call FILEDL("https://github.com/CW-Khristos/CW_MSI/raw/master/Windows%20Agent.msi", "windows agent.msi")
+  'call FILEDL("https://github.com/CW-Khristos/CW_MSI/raw/master/Windows%20Agent.msi", "windows agent.msi")
+  call FILEDL("http://ncentral.cwitsupport.com/dms/FileDownload?customerID=" & strCID & "&softwareID=101", strCID & "WindowsAgentSetup.exe")
   if (errRET <> 0) then
     call LOGERR(2)
   end if
@@ -79,9 +80,10 @@ elseif (errRET = 0) then                                   ''ARGUMENTS PASSED, C
   objOUT.write vbnewline & now & vbtab & vbtab & " - RE-CONFIGURING WINDOWS AGENT"
   objLOG.write vbnewline & now & vbtab & vbtab & " - RE-CONFIGURING WINDOWS AGENT"
   ''WINDOWS AGENT RE-CONFIGURATION COMMAND
-	strRCMD = "msiexec /i " & chr(34) & "c:\temp\windows agent.msi" & chr(34) & " /qn CUSTOMERID=" & strCID & _
-		" CUSTOMERNAME=" & chr(34) & strCNM & chr(34) & " SERVERPROTOCOL=https:// SERVERPORT=443 SERVERADDRESS=" & chr(34) & strSVR & chr(34) & _
-    " /l*v c:\temp\agent_install.log ALLUSERS=2"
+  strRCMD = strCID & "WindowsAgentSetup.exe /quiet /passive"
+	'strRCMD = "msiexec /i " & chr(34) & "c:\temp\windows agent.msi" & chr(34) & " /qn CUSTOMERID=" & strCID & _
+	'	" CUSTOMERNAME=" & chr(34) & strCNM & chr(34) & " SERVERPROTOCOL=https:// SERVERPORT=443 SERVERADDRESS=" & chr(34) & strSVR & chr(34) & _
+  '  " /l*v c:\temp\agent_install.log ALLUSERS=2"
 	''RE-CONFIGURE WINDOWS AGENT , 'ERRRET'=3
 	call HOOK(strRCMD)
   if (errRET <> 0) then
