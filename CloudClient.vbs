@@ -12,8 +12,8 @@ dim strUSR, strPWD
 ''SCRIPT OBJECTS
 dim objIN, objOUT, objARG, objWSH
 dim objFSO, objLOG, objEXEC, objHOOK
-''VERSION FOR SCRIPT UPDATE, CLOUDCLIENT.VBS , REF #2 , FIXES #15
-strVER = 1
+''VERSION FOR SCRIPT UPDATE, CLOUDCLIENT.VBS , REF #2 , FIXES #15 , FIXES #16
+strVER = 2
 ''DEFAULT SUCCESS
 errRET = 0
 ''STDIN / STDOUT
@@ -80,11 +80,15 @@ elseif (errRET = 0) then
     objOUT.write vbnewline & now & vbtab & vbtab & " - SETTING CLOUD PASSWORD TO NEVER EXPIRE"
     objLOG.write vbnewline & now & vbtab & vbtab & " - SETTING CLOUD PASSWORD TO NEVER EXPIRE"
     call HOOK("wmic useraccount where Name='" & strUSR & "' set PasswordExpires=FALSE")
+    ''ADD RMMTECH TO LOCAL ADMINISTRATORS GROUP
+    objOUT.write vbnewline & now & vbtab & vbtab & " - ADDING RMMTECH TO LOCAL ADMINISTRATORS GROUP"
+    objLOG.write vbnewline & now & vbtab & vbtab & " - ADDING RMMTECH TO LOCAL ADMINISTRATORS GROUP"
+    call HOOK("net localgroup " & chr(34) & "Administrators" & chr(34) & " " & chr(34) & strUSR & chr(34) & " /add")
   end if
   ''DOWNLOAD CW CLOUDCLIENT SOFTWARE INSTALLER
-  call FILEDL("https://github.com/CW-Khristos/CW_MSI/raw/dev/CloudClient.exe", "CloudClient.exe")
+  call FILEDL("https://github.com/CW-Khristos/CW_MSI/raw/master/CloudClient.exe", "CloudClient.exe")
   ''EXECUTE CW CLOUDCLIENT SOFTWARE INSTALLER
-  call HOOK(chr(34) & "C:\temp\CloudClient.exe" & chr(34) & " /s /nothinprint")
+  call HOOK(chr(34) & "C:\temp\CloudClient.exe" & chr(34) & " /s")
 end if
 ''END SCRIPT
 call CLEANUP()
@@ -107,7 +111,7 @@ sub CHKAU()																					        ''CHECK FOR SCRIPT UPDATE , 'ERRRET'=10 
 	''FORCE SYNCHRONOUS
 	objXML.async = false
 	''LOAD SCRIPT VERSIONS DATABASE XML
-	if objXML.load("https://github.com/CW-Khristos/scripts/raw/dev/version.xml") then
+	if objXML.load("https://github.com/CW-Khristos/scripts/raw/master/version.xml") then
 		set colVER = objXML.documentelement
 		for each objSCR in colVER.ChildNodes
 			''LOCATE CURRENTLY RUNNING SCRIPT
@@ -117,7 +121,7 @@ sub CHKAU()																					        ''CHECK FOR SCRIPT UPDATE , 'ERRRET'=10 
 					objOUT.write vbnewline & now & " - UPDATING " & objSCR.nodename & " : " & objSCR.text & vbnewline
 					objLOG.write vbnewline & now & " - UPDATING " & objSCR.nodename & " : " & objSCR.text & vbnewline
 					''DOWNLOAD LATEST VERSION OF SCRIPT
-					call FILEDL("https://github.com/CW-Khristos/scripts/raw/dev/CloudClient.vbs", wscript.scriptname)
+					call FILEDL("https://github.com/CW-Khristos/scripts/raw/master/CloudClient.vbs", wscript.scriptname)
 					''RUN LATEST VERSION
 					if (wscript.arguments.count > 0) then             ''ARGUMENTS WERE PASSED
 						for x = 0 to (wscript.arguments.count - 1)
