@@ -1,5 +1,6 @@
 ''REAGENT.VBS
 ''DESIGNED TO AUTOMATE DOWNLOAD AND INSTALL OF WINDOWS AGENT SOFTWARE
+''UTILIZES THE SYSTEM SPECIFIC WINDOWS AGENT MSI INSTALLER WITH CONFIGURED PARAMETERS
 ''ACCEPTS 2 PARAMETERS , REQUIRES 1 PARAMETERS
 ''REQUIRED PARAMETER : 'STRCID' , STRING TO SET CUSTOMER ID
 ''OPTIONAL PARAMETER : 'STRSVR' , STRING TO SET SERVER ADDRESS
@@ -14,7 +15,7 @@ dim strCID, strCNM, strSVR
 dim objIN, objOUT, objARG, objWSH, objFSO
 dim objLOG, objEXEC, objHOOK, objHTTP, objXML
 ''VERSION FOR SCRIPT UPDATE , RE-AGENT.VBS , REF #2 , FIXES #8 , FIXES #13
-strVER = 9
+strVER = 10
 ''DEFAULT SUCCESS
 errRET = 0
 ''STDIN / STDOUT
@@ -109,19 +110,19 @@ sub CHKAU()																									''CHECK FOR SCRIPT UPDATE , 'ERRRET'=10 , RE
 	''FORCE SYNCHRONOUS
 	objXML.async = false
 	''LOAD SCRIPT VERSIONS DATABASE XML
-	if objXML.load("https://github.com/CW-Khristos/scripts/raw/master/version.xml") then
+	if objXML.load("https://github.com/CW-Khristos/scripts/raw/dev/version.xml") then
 		set colVER = objXML.documentelement
 		for each objSCR in colVER.ChildNodes
 			''LOCATE CURRENTLY RUNNING SCRIPT
 			if (lcase(objSCR.nodename) = lcase(wscript.scriptname)) then
 				''CHECK LATEST VERSION
-        objOUT.write vbnewline & now & vbtab & " - Re-Agent :  " & strVER & " : GitHub : " & objSCR.text & vbnewline
-        objLOG.write vbnewline & now & vbtab & " - Re-Agent :  " & strVER & " : GitHub : " & objSCR.text & vbnewline
+        objOUT.write vbnewline & now & vbtab & " - MSI Re-Agent :  " & strVER & " : GitHub : " & objSCR.text & vbnewline
+        objLOG.write vbnewline & now & vbtab & " - MSI Re-Agent :  " & strVER & " : GitHub : " & objSCR.text & vbnewline
 				if (cint(objSCR.text) > cint(strVER)) then
 					objOUT.write vbnewline & now & vbtab & " - UPDATING " & objSCR.nodename & " : " & objSCR.text & vbnewline
 					objLOG.write vbnewline & now & vbtab & " - UPDATING " & objSCR.nodename & " : " & objSCR.text & vbnewline
 					''DOWNLOAD LATEST VERSION OF SCRIPT
-					call FILEDL("https://github.com/CW-Khristos/CW_MSI/raw/master/reagent.vbs", wscript.scriptname)
+					call FILEDL("https://github.com/CW-Khristos/CW_MSI/raw/dev/msi_reagent.vbs", wscript.scriptname)
 					''RUN LATEST VERSION
 					if (wscript.arguments.count > 0) then             ''ARGUMENTS WERE PASSED
 						for x = 0 to (wscript.arguments.count - 1)

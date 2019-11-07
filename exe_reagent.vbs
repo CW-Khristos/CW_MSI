@@ -1,7 +1,9 @@
-''REAGENT.VBS
+''EXE_REAGENT.VBS
 ''DESIGNED TO AUTOMATE DOWNLOAD AND INSTALL OF WINDOWS AGENT SOFTWARE
-''ACCEPTS 2 PARAMETERS , REQUIRES 1 PARAMETERS
+''UTILIZES THE SYSTEM SPECIFIC WINDOWS AGENT EXE INSTALLER WITH CONFIGURED PARAMETERS
+''ACCEPTS 3 PARAMETERS , REQUIRES 2 PARAMETERS
 ''REQUIRED PARAMETER : 'STRCID' , STRING TO SET CUSTOMER ID
+''REQUIRED PARAMETER : 'STRCNM' , STRING TO SET CUSTOMER NAME
 ''OPTIONAL PARAMETER : 'STRSVR' , STRING TO SET SERVER ADDRESS
 ''WRITTEN BY : CJ BLEDSOE / CJ<@>THECOMPUTERWARRIORS.COM
 on error resume next
@@ -14,7 +16,7 @@ dim strCID, strCNM, strSVR
 dim objIN, objOUT, objARG, objWSH, objFSO
 dim objLOG, objEXEC, objHOOK, objHTTP, objXML
 ''VERSION FOR SCRIPT UPDATE , RE-AGENT.VBS , REF #2 , FIXES #8 , FIXES #13
-strVER = 9
+strVER = 10
 ''DEFAULT SUCCESS
 errRET = 0
 ''STDIN / STDOUT
@@ -43,9 +45,10 @@ if (wscript.arguments.count > 0) then                       ''ARGUMENTS WERE PAS
   next 
   if (wscript.arguments.count > 0) then                     ''SET REQUIRED VARIABLES ACCEPTING ARGUMENTS
     strCID = objARG.item(0)                                 ''SET REQUIRED PARAMETER 'STRCID' , CUSTOMER ID
-    if (wscript.arguments.count = 1) then                   ''NO OPTIONAL ARGUMENTS PASSED
+    strCNM = objARG.item(1)                                 ''SET REQUIRED PARAMETER 'STRCNM' , CUSTOMER NAME
+    if (wscript.arguments.count = 2) then                   ''NO OPTIONAL ARGUMENTS PASSED
       strSVR = "ncentral.cwitsupport.com"                   ''SET OPTIONAL PARAMETER 'STRSVR' , 'DEFAULT' SERVER ADDRESS
-    elseif (wscript.arguments.count = 2) then               ''OPTIONAL ARGUMENTS PASSED
+    elseif (wscript.arguments.count = 3) then               ''OPTIONAL ARGUMENTS PASSED
       if (strSVR = vbnullstring) then                       ''OPTIONAL 'STRSVR' ARGUMENT EMPTY
         strSVR = "ncentral.cwitsupport.com"                 ''SET OPTIONAL PARAMETER 'STRSVR' , 'DEFAULT' SERVER ADDRESS
       elseif (strSVR <> vbnullstring) then                  ''OPTIONAL 'STRSVR' ARGUMENT NOT EMPTY
@@ -70,7 +73,8 @@ elseif (errRET = 0) then                                   ''ARGUMENTS PASSED, C
 	objOUT.write vbnewline & now & vbtab & vbtab & " - DOWNLOADING WINDOWS AGENT MSI"
   objLOG.write vbnewline & now & vbtab & vbtab & " - DOWNLOADING WINDOWS AGENT MSI"
   'call FILEDL("https://github.com/CW-Khristos/CW_MSI/raw/master/Windows%20Agent.msi", "windows agent.msi")
-  call FILEDL("http://ncentral.cwitsupport.com/dms/FileDownload?customerID=" & strCID & "&softwareID=101", strCID & "WindowsAgentSetup.exe")
+  
+  call FILEDL("https://github.com/CW-Khristos/CW_MSI/raw/master/WindowsAgentSetup.exe", strCID & "WindowsAgentSetup.exe")
   if (errRET <> 0) then
     call LOGERR(2)
   end if
@@ -78,7 +82,8 @@ elseif (errRET = 0) then                                   ''ARGUMENTS PASSED, C
   objOUT.write vbnewline & now & vbtab & vbtab & " - RE-CONFIGURING WINDOWS AGENT"
   objLOG.write vbnewline & now & vbtab & vbtab & " - RE-CONFIGURING WINDOWS AGENT"
   ''WINDOWS AGENT RE-CONFIGURATION COMMAND , REF #2 , FIXES #13
-  strRCMD = "c:\temp\" & strCID & "WindowsAgentSetup.exe -ai"
+  strRCMD = chr(34) & "c:\temp\" & strCID & "WindowsAgentSetup.exe" & chr(34) & " /s /v" & chr(34) & " /qn /norestart /l*v c:\temp\agent_install.log CUSTOMERID=" & strCID & _
+    " CUSTOMERNAME=\" & chr(34) & strCNM & "\" & chr(34) & " SERVERPROTOCOL=HTTPS SERVERPORT=443 SERVERADDRESS=" & strSVR & " " & chr(34)
 	'strRCMD = "msiexec /i " & chr(34) & "c:\temp\windows agent.msi" & chr(34) & " /qn CUSTOMERID=" & strCID & _
 	'	" CUSTOMERNAME=" & chr(34) & strCNM & chr(34) & " SERVERPROTOCOL=https:// SERVERPORT=443 SERVERADDRESS=" & chr(34) & strSVR & chr(34) & _
   '  " /l*v c:\temp\agent_install.log ALLUSERS=2"
@@ -109,19 +114,19 @@ sub CHKAU()																									''CHECK FOR SCRIPT UPDATE , 'ERRRET'=10 , RE
 	''FORCE SYNCHRONOUS
 	objXML.async = false
 	''LOAD SCRIPT VERSIONS DATABASE XML
-	if objXML.load("https://github.com/CW-Khristos/scripts/raw/master/version.xml") then
+	if objXML.load("https://github.com/CW-Khristos/scripts/raw/dev/version.xml") then
 		set colVER = objXML.documentelement
 		for each objSCR in colVER.ChildNodes
 			''LOCATE CURRENTLY RUNNING SCRIPT
 			if (lcase(objSCR.nodename) = lcase(wscript.scriptname)) then
 				''CHECK LATEST VERSION
-        objOUT.write vbnewline & now & vbtab & " - Re-Agent :  " & strVER & " : GitHub : " & objSCR.text & vbnewline
-        objLOG.write vbnewline & now & vbtab & " - Re-Agent :  " & strVER & " : GitHub : " & objSCR.text & vbnewline
+        objOUT.write vbnewline & now & vbtab & " - EXE Re-Agent :  " & strVER & " : GitHub : " & objSCR.text & vbnewline
+        objLOG.write vbnewline & now & vbtab & " - EXE Re-Agent :  " & strVER & " : GitHub : " & objSCR.text & vbnewline
 				if (cint(objSCR.text) > cint(strVER)) then
 					objOUT.write vbnewline & now & vbtab & " - UPDATING " & objSCR.nodename & " : " & objSCR.text & vbnewline
 					objLOG.write vbnewline & now & vbtab & " - UPDATING " & objSCR.nodename & " : " & objSCR.text & vbnewline
 					''DOWNLOAD LATEST VERSION OF SCRIPT
-					call FILEDL("https://github.com/CW-Khristos/CW_MSI/raw/master/reagent.vbs", wscript.scriptname)
+					call FILEDL("https://github.com/CW-Khristos/CW_MSI/raw/dev/exe_reagent.vbs", wscript.scriptname)
 					''RUN LATEST VERSION
 					if (wscript.arguments.count > 0) then             ''ARGUMENTS WERE PASSED
 						for x = 0 to (wscript.arguments.count - 1)

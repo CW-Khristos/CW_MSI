@@ -1,5 +1,6 @@
 ''REPROBE.VBS
 ''DESIGNED TO AUTOMATE DOWNLOAD AND INSTALL OF WINDOWS PROBE SOFTWARE
+''UTILIZES THE CUSTOMER SPECIFIC WINDOWS PROBE EXE INSTALLER
 ''ACCEPTS 7 PARAMETERS , REQUIRES 6 PARAMETERS
 ''REQUIRED PARAMETER : 'STRCID' , STRING TO SET CUSTOMER ID
 ''REQUIRED PARAMETER : 'STRCNM' , STRING TO SET CUSTOMER NAME
@@ -182,7 +183,7 @@ sub CHKAU()																									''CHECK FOR SCRIPT UPDATE , 'ERRRET'=10 , RE
 	''FORCE SYNCHRONOUS
 	objXML.async = false
 	''LOAD SCRIPT VERSIONS DATABASE XML
-	if objXML.load("https://github.com/CW-Khristos/scripts/raw/dev/version.xml") then
+	if objXML.load("https://github.com/CW-Khristos/scripts/raw/master/version.xml") then
 		set colVER = objXML.documentelement
 		for each objSCR in colVER.ChildNodes
 			''LOCATE CURRENTLY RUNNING SCRIPT
@@ -194,7 +195,7 @@ sub CHKAU()																									''CHECK FOR SCRIPT UPDATE , 'ERRRET'=10 , RE
 					objOUT.write vbnewline & now & vbtab & " - UPDATING " & objSCR.nodename & " : " & objSCR.text & vbnewline
 					objLOG.write vbnewline & now & vbtab & " - UPDATING " & objSCR.nodename & " : " & objSCR.text & vbnewline
 					''DOWNLOAD LATEST VERSION OF SCRIPT
-					call FILEDL("https://github.com/CW-Khristos/CW_MSI/raw/dev/reprobe.vbs", wscript.scriptname)
+					call FILEDL("https://github.com/CW-Khristos/CW_MSI/raw/master/reprobe.vbs", wscript.scriptname)
 					''RUN LATEST VERSION
 					if (wscript.arguments.count > 0) then             ''ARGUMENTS WERE PASSED
 						for x = 0 to (wscript.arguments.count - 1)

@@ -1,5 +1,6 @@
 ''EXE_REPROBE.VBS
 ''DESIGNED TO AUTOMATE DOWNLOAD AND INSTALL OF WINDOWS PROBE SOFTWARE
+''UTILIZES THE SYSTEM SPECIFIC WINDOWS PROBE EXE INSTALLER WITH CONFIGURED PARAMETERS
 ''ACCEPTS 7 PARAMETERS , REQUIRES 6 PARAMETERS
 ''REQUIRED PARAMETER : 'STRCID' , STRING TO SET CUSTOMER ID
 ''REQUIRED PARAMETER : 'STRCNM' , STRING TO SET CUSTOMER NAME
@@ -133,7 +134,7 @@ elseif (errRET = 0) then                                    ''ARGUMENTS PASSED ,
 	''DOWNLOAD WINDOWS PROBE MSI , 'ERRRET'=4
 	objOUT.write vbnewline & now & vbtab & vbtab & " - DOWNLOADING WINDOWS PROBE EXE"
 	objLOG.write vbnewline & now & vbtab & vbtab & " - DOWNLOADING WINDOWS PROBE EXE"
-  call FILEDL("https://github.com/CW-Khristos/CW_MSI/raw/master/WindowsProbeSetup.exe", "windowssoftwareprobe.exe")
+  call FILEDL("https://github.com/CW-Khristos/CW_MSI/raw/master/WindowsProbeSetup.exe", "WindowsSoftwareProbe.exe")
   if (errRET <> 0) then
     call LOGERR(4)
   end if
@@ -143,26 +144,26 @@ elseif (errRET = 0) then                                    ''ARGUMENTS PASSED ,
   ''WINDOWS PROBE RE-CONFIGURATION COMMAND, VALIDATED 08/13/2018, PROBE REQUIRES ADMIN USER PRIOR TO RUNNING, FIXES #6
   select case lcase(strPRB)
     case "local_windows"
-      'strRCMD = chr(34) & "c:\temp\windowssoftwareprobe.exe" & chr(34) & " /s /v" & chr(34) & "  /qn /norestart /l*v c:\temp\probe_install.log CUSTOMERID=" & strCID & _
+      'strRCMD = chr(34) & "c:\temp\WindowsSoftwareProbe.exe" & chr(34) & " /s /v" & chr(34) & "  /qn /norestart /l*v c:\temp\probe_install.log CUSTOMERID=" & strCID & _
       '  " CUSTOMERNAME=\" & chr(34) & strCNM & "\" & chr(34) & " SERVERPROTOCOL=HTTPS SERVERPORT=443 SERVERADDRESS=" & strSVR & " PROBETYPE=" & strPRB & _
       '  " AGENTUSERNAME=\" & chr(34) & strUSR & "\" & chr(34) & " AGENTPASSWORD=\" & chr(34) & strPWD & "\" & chr(34) & " " & chr(34)
-      strRCMD = chr(34) & "c:\temp\windowssoftwareprobe.exe" & chr(34) & " /s /v" & chr(34) & " /qn /norestart /l*v c:\temp\probe_install.log CUSTOMERID=" & strCID & _
+      strRCMD = chr(34) & "c:\temp\WindowsSoftwareProbe.exe" & chr(34) & " /s /v" & chr(34) & " /qn /norestart /l*v c:\temp\probe_install.log CUSTOMERID=" & strCID & _
         " CUSTOMERNAME=\" & chr(34) & strCNM & "\" & chr(34) & " SERVERPROTOCOL=HTTPS SERVERPORT=443 SERVERADDRESS=" & strSVR & " PROBETYPE=" & strPRB & _
         " AGENTUSERNAME=\" & chr(34) & strUSR & "\" & chr(34) & " AGENTPASSWORD=\" & chr(34) & strPWD & "\" & chr(34) & " " & chr(34)
     case "workgroup_windows"
       strUSR = split(strUSR, "\")(1)
       ''WORKGROUP_WINDOWS - " AGENTUSERNAME=" & chr(34) & split(strUSR, "\")(1) - STRIP RETRIEVED "LOGON DOMAIN" INFORMATION FROM 'STRUSR' PRIOR TO EXECUTING MSIEXEC , FIXES #12
-      'strRCMD = chr(34) & "c:\temp\windowssoftwareprobe.exe" & chr(34) & " /s /v" & chr(34) & "  /qn /norestart /l*v c:\temp\probe_install.log CUSTOMERID=" & strCID & _
+      'strRCMD = chr(34) & "c:\temp\WindowsSoftwareProbe.exe" & chr(34) & " /s /v" & chr(34) & "  /qn /norestart /l*v c:\temp\probe_install.log CUSTOMERID=" & strCID & _
       '  " CUSTOMERNAME=\" & chr(34) & strCNM & "\" & chr(34) & " SERVERPROTOCOL=HTTPS SERVERPORT=443 SERVERADDRESS=" & strSVR & " PROBETYPE=" & strPRB & _
       '  " AGENTUSERNAME=" & chr(34) & strUSR & "\" & chr(34) & " AGENTPASSWORD=\" & chr(34) & strPWD & "\" & chr(34) & " " & chr(34) & "  ALLUSERS=2"
-      strRCMD = chr(34) & "c:\temp\windowssoftwareprobe.exe" & chr(34) & " /s /v" & chr(34) & " /qn /norestart /l*v c:\temp\probe_install.log CUSTOMERID=" & strCID & _
+      strRCMD = chr(34) & "c:\temp\WindowsSoftwareProbe.exe" & chr(34) & " /s /v" & chr(34) & " /qn /norestart /l*v c:\temp\probe_install.log CUSTOMERID=" & strCID & _
         " CUSTOMERNAME=\" & chr(34) & strCNM & "\" & chr(34) & " SERVERPROTOCOL=HTTPS SERVERPORT=443 SERVERADDRESS=" & strSVR & " PROBETYPE=" & strPRB & _
         " AGENTUSERNAME=\" & chr(34) & strUSR & "\" & chr(34) & " AGENTPASSWORD=\" & chr(34) & strPWD & "\" & chr(34) & " " & chr(34)
     case "network_windows"
-      'strRCMD = chr(34) & "c:\temp\windowssoftwareprobe.exe" & chr(34) & " /s /v" & chr(34) & "  /qn /norestart /l*v c:\temp\probe_install.log CUSTOMERID=" & strCID & _
+      'strRCMD = chr(34) & "c:\temp\WindowsSoftwareProbe.exe" & chr(34) & " /s /v" & chr(34) & "  /qn /norestart /l*v c:\temp\probe_install.log CUSTOMERID=" & strCID & _
       '  " CUSTOMERNAME=\" & chr(34) & strCNM & "\" & chr(34) & " SERVERPROTOCOL=HTTPS SERVERPORT=443 SERVERADDRESS=" & strSVR & " PROBETYPE=" & strPRB & _
       '  " AGENTDOMAIN=\" & chr(34) & strDMN & chr(34) & " AGENTUSERNAME=" & chr(34) & strUSR & "\" & chr(34) & " AGENTPASSWORD=\" & chr(34) & strPWD & "\" & chr(34) & " " & chr(34)
-      strRCMD = chr(34) & "c:\temp\windowssoftwareprobe.exe" & chr(34) & " /s /v" & chr(34) & " /qn /norestart /l*v c:\temp\probe_install.log CUSTOMERID=" & strCID & _
+      strRCMD = chr(34) & "c:\temp\WindowsSoftwareProbe.exe" & chr(34) & " /s /v" & chr(34) & " /qn /norestart /l*v c:\temp\probe_install.log CUSTOMERID=" & strCID & _
         " CUSTOMERNAME=\" & chr(34) & strCNM & "\" & chr(34) & " SERVERPROTOCOL=HTTPS SERVERPORT=443 SERVERADDRESS=" & strSVR & " PROBETYPE=" & strPRB & _
         " AGENTDOMAIN=" & strDMN & " AGENTUSERNAME=\" & chr(34) & strUSR & "\" & chr(34) & " AGENTPASSWORD=\" & chr(34) & strPWD & "\" & chr(34) & " " & chr(34)
   end select
