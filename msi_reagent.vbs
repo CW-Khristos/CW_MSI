@@ -1,8 +1,9 @@
 ''REAGENT.VBS
 ''DESIGNED TO AUTOMATE DOWNLOAD AND INSTALL OF WINDOWS AGENT SOFTWARE
 ''UTILIZES THE SYSTEM SPECIFIC WINDOWS AGENT MSI INSTALLER WITH CONFIGURED PARAMETERS
-''ACCEPTS 2 PARAMETERS , REQUIRES 1 PARAMETERS
+''ACCEPTS 3 PARAMETERS , REQUIRES 1 PARAMETERS
 ''REQUIRED PARAMETER : 'STRCID' , STRING TO SET CUSTOMER ID
+''REQUIRED PARAMETER : 'STRCNM' , STRING TO SET CUSTOMER NAME
 ''OPTIONAL PARAMETER : 'STRSVR' , STRING TO SET SERVER ADDRESS
 ''WRITTEN BY : CJ BLEDSOE / CJ<@>THECOMPUTERWARRIORS.COM
 on error resume next
@@ -44,9 +45,10 @@ if (wscript.arguments.count > 0) then                       ''ARGUMENTS WERE PAS
   next 
   if (wscript.arguments.count > 0) then                     ''SET REQUIRED VARIABLES ACCEPTING ARGUMENTS
     strCID = objARG.item(0)                                 ''SET REQUIRED PARAMETER 'STRCID' , CUSTOMER ID
-    if (wscript.arguments.count = 1) then                   ''NO OPTIONAL ARGUMENTS PASSED
+    strCNM = objARG.item(1)                                 ''SET REQUIRED PARAMETER 'STRCNM' , CUSTOMER NAME
+    if (wscript.arguments.count = 2) then                   ''NO OPTIONAL ARGUMENTS PASSED
       strSVR = "ncentral.cwitsupport.com"                   ''SET OPTIONAL PARAMETER 'STRSVR' , 'DEFAULT' SERVER ADDRESS
-    elseif (wscript.arguments.count = 2) then               ''OPTIONAL ARGUMENTS PASSED
+    elseif (wscript.arguments.count = 3) then               ''OPTIONAL ARGUMENTS PASSED
       if (strSVR = vbnullstring) then                       ''OPTIONAL 'STRSVR' ARGUMENT EMPTY
         strSVR = "ncentral.cwitsupport.com"                 ''SET OPTIONAL PARAMETER 'STRSVR' , 'DEFAULT' SERVER ADDRESS
       elseif (strSVR <> vbnullstring) then                  ''OPTIONAL 'STRSVR' ARGUMENT NOT EMPTY
@@ -79,10 +81,10 @@ elseif (errRET = 0) then                                   ''ARGUMENTS PASSED, C
   objOUT.write vbnewline & now & vbtab & vbtab & " - RE-CONFIGURING WINDOWS AGENT"
   objLOG.write vbnewline & now & vbtab & vbtab & " - RE-CONFIGURING WINDOWS AGENT"
   ''WINDOWS AGENT RE-CONFIGURATION COMMAND , REF #2 , FIXES #13
-  strRCMD = "c:\temp\" & strCID & "WindowsAgentSetup.exe -ai"
-	'strRCMD = "msiexec /i " & chr(34) & "c:\temp\windows agent.msi" & chr(34) & " /qn CUSTOMERID=" & strCID & _
-	'	" CUSTOMERNAME=" & chr(34) & strCNM & chr(34) & " SERVERPROTOCOL=https:// SERVERPORT=443 SERVERADDRESS=" & chr(34) & strSVR & chr(34) & _
-  '  " /l*v c:\temp\agent_install.log ALLUSERS=2"
+  'strRCMD = "c:\temp\" & strCID & "WindowsAgentSetup.exe -ai"
+	strRCMD = "msiexec /i " & chr(34) & "c:\temp\windows agent.msi" & chr(34) & " /qn CUSTOMERID=" & strCID & _
+		" CUSTOMERNAME=" & chr(34) & strCNM & chr(34) & " SERVERPROTOCOL=https:// SERVERPORT=443 SERVERADDRESS=" & chr(34) & strSVR & chr(34) & _
+    " /l*v c:\temp\agent_install.log ALLUSERS=2"
 	''RE-CONFIGURE WINDOWS AGENT , 'ERRRET'=3
 	call HOOK(strRCMD)
   if (errRET <> 0) then
