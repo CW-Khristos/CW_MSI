@@ -81,8 +81,8 @@ elseif (errRET = 0) then
     objLOG.write vbnewline & now & vbtab & vbtab & " - SETTING CLOUD PASSWORD TO NEVER EXPIRE"
     call HOOK("wmic useraccount where Name='" & strUSR & "' set PasswordExpires=FALSE")
     ''ADD RMMTECH TO LOCAL ADMINISTRATORS GROUP
-    objOUT.write vbnewline & now & vbtab & vbtab & " - ADDING RMMTECH TO LOCAL ADMINISTRATORS GROUP"
-    objLOG.write vbnewline & now & vbtab & vbtab & " - ADDING RMMTECH TO LOCAL ADMINISTRATORS GROUP"
+    objOUT.write vbnewline & now & vbtab & vbtab & " - ADDING CLOUD USER TO LOCAL ADMINISTRATORS GROUP"
+    objLOG.write vbnewline & now & vbtab & vbtab & " - ADDING CLOUD USER TO LOCAL ADMINISTRATORS GROUP"
     call HOOK("net localgroup " & chr(34) & "Administrators" & chr(34) & " " & chr(34) & strUSR & chr(34) & " /add")
   end if
   ''DOWNLOAD CW CLOUDCLIENT SOFTWARE INSTALLER
