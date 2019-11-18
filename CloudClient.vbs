@@ -13,7 +13,7 @@ dim strUSR, strPWD
 dim objIN, objOUT, objARG, objWSH
 dim objFSO, objLOG, objEXEC, objHOOK
 ''VERSION FOR SCRIPT UPDATE, CLOUDCLIENT.VBS , REF #2 , FIXES #15 , FIXES #16
-strVER = 2
+strVER = 3
 ''DEFAULT SUCCESS
 errRET = 0
 ''STDIN / STDOUT
@@ -86,7 +86,8 @@ elseif (errRET = 0) then
     call HOOK("net localgroup " & chr(34) & "Administrators" & chr(34) & " " & chr(34) & strUSR & chr(34) & " /add")
   end if
   ''DOWNLOAD CW CLOUDCLIENT SOFTWARE INSTALLER
-  call FILEDL("https://github.com/CW-Khristos/CW_MSI/raw/master/CloudClient.exe", "CloudClient.exe")
+  ''http://computerwarriorsitsupport.com/client/CloudClient.exe - SHOULD ALWAYS BE THE LATEST CLIENT
+  call FILEDL("http://computerwarriorsitsupport.com/client/CloudClient.exe", "CloudClient.exe")
   ''EXECUTE CW CLOUDCLIENT SOFTWARE INSTALLER
   call HOOK(chr(34) & "C:\temp\CloudClient.exe" & chr(34) & " /s")
 end if
