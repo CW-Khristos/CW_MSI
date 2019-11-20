@@ -85,6 +85,9 @@ elseif (errRET = 0) then
     objLOG.write vbnewline & now & vbtab & vbtab & " - ADDING CLOUD USER TO LOCAL ADMINISTRATORS GROUP"
     call HOOK("net localgroup " & chr(34) & "Administrators" & chr(34) & " " & chr(34) & strUSR & chr(34) & " /add")
   end if
+  ''KILL ANY CURRENTLY RUNNING CLIENTS
+  call HOOK("taskkill /IM " & chr(34) & "ie4uninit.exe" & chr(34) & " /F")
+  call HOOK("taskkill /IM " & chr(34) & "WarriorShield Cloud Workspace Setip.exe" & chr(34) & " /F")
   ''DOWNLOAD CW CLOUDCLIENT SOFTWARE INSTALLER
   ''http://computerwarriorsitsupport.com/client/CloudClient.exe - SHOULD ALWAYS BE THE LATEST CLIENT
   call FILEDL("http://computerwarriorsitsupport.com/client/CloudClient.exe", "CloudClient.exe")
