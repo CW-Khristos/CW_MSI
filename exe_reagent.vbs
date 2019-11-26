@@ -43,7 +43,7 @@ if (wscript.arguments.count > 0) then                       ''ARGUMENTS WERE PAS
     objOUT.write vbnewline & now & vbtab & " - ARGUMENT " & (x + 1) & " (ITEM " & x & ") " & " PASSED : " & ucase(objARG.item(x))
     objLOG.write vbnewline & now & vbtab & " - ARGUMENT " & (x + 1) & " (ITEM " & x & ") " & " PASSED : " & ucase(objARG.item(x))
   next 
-  if (wscript.arguments.count > 0) then                     ''SET REQUIRED VARIABLES ACCEPTING ARGUMENTS
+  if (wscript.arguments.count >= 2) then                     ''SET REQUIRED VARIABLES ACCEPTING ARGUMENTS
     strCID = objARG.item(0)                                 ''SET REQUIRED PARAMETER 'STRCID' , CUSTOMER ID
     strCNM = objARG.item(1)                                 ''SET REQUIRED PARAMETER 'STRCNM' , CUSTOMER NAME
     if (wscript.arguments.count = 2) then                   ''NO OPTIONAL ARGUMENTS PASSED
