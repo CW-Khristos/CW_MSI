@@ -21,7 +21,7 @@ dim strPRB, strDMN, strUSR, strPWD
 dim objIN, objOUT, objARG, objWSH, objFSO
 dim objLOG, objEXEC, objHOOK, objHTTP, objXML
 ''VERSION FOR SCRIPT UPDATE , EXE_REPROBE.VBS , REF #2 , FIXES #7
-strVER = 12
+strVER = 13
 ''DEFAULT SUCCESS
 errRET = 0
 ''STDIN / STDOUT
@@ -168,8 +168,8 @@ elseif (errRET = 0) then                                    ''ARGUMENTS PASSED ,
         " AGENTDOMAIN=" & strDMN & " AGENTUSERNAME=\" & chr(34) & strUSR & "\" & chr(34) & " AGENTPASSWORD=\" & chr(34) & strPWD & "\" & chr(34) & " " & chr(34)
   end select
   ''RE-CONFIGURE WINDOWS PROBE , 'ERRRET'=5
-	objOUT.write vbnewline & vbnewline & now & vbtab & " - EXECUTING : " & strRCMD
-	objLOG.write vbnewline & vbnewline & now & vbtab & " - EXECUTING : " & strRCMD
+	objOUT.write vbnewline & now & vbtab & vbtab & " - EXECUTING : " & strRCMD
+	objLOG.write vbnewline & now & vbtab & vbtab & " - EXECUTING : " & strRCMD
   call HOOK(strRCMD)
   if (errRET <> 0) then
     call LOGERR(5)
