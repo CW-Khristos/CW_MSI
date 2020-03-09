@@ -132,8 +132,8 @@ elseif (errRET = 0) then                                    ''ARGUMENTS PASSED ,
     call LOGERR(3)
   end if
 	''DOWNLOAD WINDOWS PROBE MSI , 'ERRRET'=4
-	objOUT.write vbnewline & now & vbtab & vbtab & " - DOWNLOADING WINDOWS PROBE EXE"
-	objLOG.write vbnewline & now & vbtab & vbtab & " - DOWNLOADING WINDOWS PROBE EXE"
+	objOUT.write vbnewline & now & vbtab & vbtab & " - DOWNLOADING WINDOWS PROBE SYSTEM-SPECIFIC EXE"
+	objLOG.write vbnewline & now & vbtab & vbtab & " - DOWNLOADING WINDOWS PROBE SYSTEM-SPECIFIC EXE"
   call FILEDL("https://github.com/CW-Khristos/CW_MSI/raw/master/WindowsProbeSetup.exe", "WindowsSoftwareProbe.exe")
   if (errRET <> 0) then
     call LOGERR(4)
