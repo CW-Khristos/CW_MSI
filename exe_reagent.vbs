@@ -27,15 +27,15 @@ set objARG = wscript.arguments
 set objWSH = createobject("wscript.shell")
 set objFSO = createobject("scripting.filesystemobject")
 ''PREPARE LOGFILE
-if (objFSO.fileexists("C:\temp\reagent")) then              ''LOGFILE EXISTS
-  objFSO.deletefile "C:\temp\reagent", true
-  set objLOG = objFSO.createtextfile("C:\temp\reagent")
+if (objFSO.fileexists("C:\temp\EXE_REAGENT")) then              ''LOGFILE EXISTS
+  objFSO.deletefile "C:\temp\EXE_REAGENT", true
+  set objLOG = objFSO.createtextfile("C:\temp\EXE_REAGENT")
   objLOG.close
-  set objLOG = objFSO.opentextfile("C:\temp\reagent", 8)
+  set objLOG = objFSO.opentextfile("C:\temp\EXE_REAGENT", 8)
 else                                                        ''LOGFILE NEEDS TO BE CREATED
-  set objLOG = objFSO.createtextfile("C:\temp\reagent")
+  set objLOG = objFSO.createtextfile("C:\temp\EXE_REAGENT")
   objLOG.close
-  set objLOG = objFSO.opentextfile("C:\temp\reagent", 8)
+  set objLOG = objFSO.opentextfile("C:\temp\EXE_REAGENT", 8)
 end if
 ''READ PASSED COMMANDLINE ARGUMENTS
 if (wscript.arguments.count > 0) then                       ''ARGUMENTS WERE PASSED
@@ -65,8 +65,8 @@ end if
 if (errRET <> 0) then                                      ''NO ARGUMENTS PASSED, END SCRIPT , 'ERRRET'=1
   call CLEANUP()
 elseif (errRET = 0) then                                   ''ARGUMENTS PASSED, CONTINUE SCRIPT
-	objOUT.write vbnewline & vbnewline & now & vbtab & " - EXECUTING RE-AGENT"
-	objLOG.write vbnewline & vbnewline & now & vbtab & " - EXECUTING RE-AGENT"
+	objOUT.write vbnewline & vbnewline & now & vbtab & " - EXECUTING EXE_REAGENT"
+	objLOG.write vbnewline & vbnewline & now & vbtab & " - EXECUTING EXE_REAGENT"
 	''AUTOMATIC UPDATE, RE-AGENT.VBS, REF #2 , FIXES #8
 	call CHKAU()
 	''DOWNLOAD WINDOWS AGENT MSI , 'ERRRET'=2 , REF #2 , FIXES #13
@@ -80,8 +80,9 @@ elseif (errRET = 0) then                                   ''ARGUMENTS PASSED, C
   objOUT.write vbnewline & now & vbtab & vbtab & " - RE-CONFIGURING WINDOWS AGENT"
   objLOG.write vbnewline & now & vbtab & vbtab & " - RE-CONFIGURING WINDOWS AGENT"
   ''WINDOWS AGENT RE-CONFIGURATION COMMAND , REF #2 , FIXES #13
-  strRCMD = chr(34) & "c:\temp\" & strCID & "WindowsAgentSetup.exe" & chr(34) & " /s /v" & chr(34) & " /qn /norestart /l*v c:\temp\agent_install.log CUSTOMERID=" & strCID & _
-    " CUSTOMERNAME=\" & chr(34) & strCNM & "\" & chr(34) & " SERVERPROTOCOL=HTTPS SERVERPORT=443 SERVERADDRESS=" & strSVR & " " & chr(34)
+  strRCMD = chr(34) & "c:\temp\" & strCID & "WindowsAgentSetup.exe" & chr(34) & " -ai"
+  'strRCMD = chr(34) & "c:\temp\" & strCID & "WindowsAgentSetup.exe" & chr(34) & " /s /v" & chr(34) & " /qn /norestart /l*v c:\temp\agent_install.log CUSTOMERID=" & strCID & _
+  '  " CUSTOMERNAME=\" & chr(34) & strCNM & "\" & chr(34) & " SERVERPROTOCOL=HTTPS SERVERPORT=443 SERVERADDRESS=" & strSVR & " " & chr(34)
 	'strRCMD = "msiexec /i " & chr(34) & "c:\temp\windows agent.msi" & chr(34) & " /qn CUSTOMERID=" & strCID & _
 	'	" CUSTOMERNAME=" & chr(34) & strCNM & chr(34) & " SERVERPROTOCOL=https:// SERVERPORT=443 SERVERADDRESS=" & chr(34) & strSVR & chr(34) & _
   '  " /l*v c:\temp\agent_install.log ALLUSERS=2"
@@ -99,7 +100,7 @@ call CLEANUP()
 ''------------
 
 ''SUB-ROUTINES
-sub CHKAU()																									''CHECK FOR SCRIPT UPDATE , 'ERRRET'=10 , RE-AGENT.VBS , REF #2 , FIXES #8
+sub CHKAU()																									''CHECK FOR SCRIPT UPDATE , 'ERRRET'=10 , EXE_REAGENT.VBS , REF #2 , FIXES #8
   ''REMOVE WINDOWS AGENT CACHED VERSION OF SCRIPT
   if (objFSO.fileexists("C:\Program Files (x86)\N-Able Technologies\Windows Agent\cache\" & wscript.scriptname)) then
     objFSO.deletefile "C:\Program Files (x86)\N-Able Technologies\Windows Agent\cache\" & wscript.scriptname, true
@@ -120,8 +121,8 @@ sub CHKAU()																									''CHECK FOR SCRIPT UPDATE , 'ERRRET'=10 , RE
 			''LOCATE CURRENTLY RUNNING SCRIPT
 			if (lcase(objSCR.nodename) = lcase(wscript.scriptname)) then
 				''CHECK LATEST VERSION
-        objOUT.write vbnewline & now & vbtab & " - EXE Re-Agent :  " & strVER & " : GitHub : " & objSCR.text & vbnewline
-        objLOG.write vbnewline & now & vbtab & " - EXE Re-Agent :  " & strVER & " : GitHub : " & objSCR.text & vbnewline
+        objOUT.write vbnewline & now & vbtab & " - EXE EXE_REAGENT :  " & strVER & " : GitHub : " & objSCR.text & vbnewline
+        objLOG.write vbnewline & now & vbtab & " - EXE EXE_REAGENT :  " & strVER & " : GitHub : " & objSCR.text & vbnewline
 				if (cint(objSCR.text) > cint(strVER)) then
 					objOUT.write vbnewline & now & vbtab & " - UPDATING " & objSCR.nodename & " : " & objSCR.text & vbnewline
 					objLOG.write vbnewline & now & vbtab & " - UPDATING " & objSCR.nodename & " : " & objSCR.text & vbnewline
@@ -230,16 +231,16 @@ sub LOGERR(intSTG)                                          ''CALL HOOK TO MONIT
 end sub
 
 sub CLEANUP()                                               ''SCRIPT CLEANUP
-  if (errRET = 0) then         															''RE-AGENT COMPLETED SUCCESSFULLY
-    objOUT.write vbnewline & "RE-AGENT SUCCESSFUL : " & errRET & " : " & now
+  if (errRET = 0) then         															''EXE_REAGENT COMPLETED SUCCESSFULLY
+    objOUT.write vbnewline & "EXE_REAGENT SUCCESSFUL : " & errRET & " : " & now
     err.clear
-  elseif (errRET <> 0) then    															''RE-AGENT FAILED
-    objOUT.write vbnewline & "RE-AGENT FAILURE : " & errRET & " : " & now
+  elseif (errRET <> 0) then    															''EXE_REAGENT FAILED
+    objOUT.write vbnewline & "EXE_REAGENT FAILURE : " & errRET & " : " & now
     ''RAISE CUSTOMIZED ERROR CODE, ERROR CODE WILL BE DEFINE RESTOP NUMBER INDICATING WHICH SECTION FAILED
-    call err.raise(vbObjectError + errRET, "RE-AGENT", "FAILURE")
+    call err.raise(vbObjectError + errRET, "EXE_REAGENT", "FAILURE")
   end if
-  objOUT.write vbnewline & vbnewline & now & " - RE-AGENT COMPLETE" & vbnewline
-  objLOG.write vbnewline & vbnewline & now & " - RE-AGENT COMPLETE" & vbnewline
+  objOUT.write vbnewline & vbnewline & now & " - EXE_REAGENT COMPLETE" & vbnewline
+  objLOG.write vbnewline & vbnewline & now & " - EXE_REAGENT COMPLETE" & vbnewline
   objLOG.close
   ''EMPTY OBJECTS
   set objLOG = nothing
