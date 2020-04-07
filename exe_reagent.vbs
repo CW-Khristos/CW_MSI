@@ -82,7 +82,6 @@ elseif (errRET = 0) then                                    ''ARGUMENTS PASSED, 
     chr(34) & strREPO & chr(34) & " " & chr(34) & strBRCH & chr(34) & " " & chr(34) & strDIR & chr(34) & " " & _
     chr(34) & wscript.scriptname & chr(34) & " " & chr(34) & strVER & chr(34) & " " & _
     chr(34) & strCID & "|" & strCNM & "|" & strSVR & chr(34), 1, true)
-  objOUT.write vbnewline & intRET & vbnewline
   ''NO UPDATE FOUND
 	if (intRET = -1073741510) then
     ''DOWNLOAD WINDOWS AGENT MSI , 'ERRRET'=2 , REF #2 , FIXES #13
