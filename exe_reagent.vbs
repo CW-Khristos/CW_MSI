@@ -16,7 +16,7 @@ dim strCID, strCNM, strSVR
 ''SCRIPT OBJECTS
 dim objIN, objOUT, objARG, objWSH, objFSO
 dim objLOG, objEXEC, objHOOK, objHTTP, objXML
-''VERSION FOR SCRIPT UPDATE , RE-AGENT.VBS , REF #2 , FIXES #8 , FIXES #13 , REF #69
+''VERSION FOR SCRIPT UPDATE , EXE_REAGENT.VBS , REF #2 , FIXES #8 , FIXES #13 , REF #69
 strVER = 12
 strREPO = "CW_MSI"
 strBRCH = "dev"
@@ -31,7 +31,7 @@ set objARG = wscript.arguments
 set objWSH = createobject("wscript.shell")
 set objFSO = createobject("scripting.filesystemobject")
 ''PREPARE LOGFILE
-if (objFSO.fileexists("C:\temp\EXE_REAGENT")) then              ''LOGFILE EXISTS
+if (objFSO.fileexists("C:\temp\EXE_REAGENT")) then          ''LOGFILE EXISTS
   objFSO.deletefile "C:\temp\EXE_REAGENT", true
   set objLOG = objFSO.createtextfile("C:\temp\EXE_REAGENT")
   objLOG.close
@@ -71,7 +71,7 @@ if (errRET <> 0) then                                       ''NO ARGUMENTS PASSE
 elseif (errRET = 0) then                                    ''ARGUMENTS PASSED, CONTINUE SCRIPT
 	objOUT.write vbnewline & vbnewline & now & vbtab & " - EXECUTING EXE_REAGENT"
 	objLOG.write vbnewline & vbnewline & now & vbtab & " - EXECUTING EXE_REAGENT"
-	''AUTOMATIC UPDATE, RE-AGENT.VBS, REF #2 , REF #69 , REF #68 , FIXES #8
+	''AUTOMATIC UPDATE, EXE_REAGENT.VBS, REF #2 , REF #69 , REF #68 , FIXES #8
   ''DOWNLOAD CHKAU.VBS SCRIPT, REF #2 , REF #69 , REF #68
   call FILEDL("https://github.com/CW-Khristos/scripts/raw/dev/chkAU.vbs", "chkAU.vbs")
   ''EXECUTE CHKAU.VBS SCRIPT, REF #69

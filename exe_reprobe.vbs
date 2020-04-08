@@ -20,8 +20,11 @@ dim strPRB, strDMN, strUSR, strPWD
 ''SCRIPT OBJECTS
 dim objIN, objOUT, objARG, objWSH, objFSO
 dim objLOG, objEXEC, objHOOK, objHTTP, objXML
-''VERSION FOR SCRIPT UPDATE , EXE_REPROBE.VBS , REF #2 , FIXES #7
-strVER = 13
+''VERSION FOR SCRIPT UPDATE , EXE_REPROBE.VBS , REF #2 , FIXES #7 , FIXES #13 , REF #69
+strVER = 14
+strREPO = "CW_MSI"
+strBRCH = "dev"
+strDIR = vbnullstring
 ''DEFAULT SUCCESS
 errRET = 0
 ''STDIN / STDOUT
@@ -85,94 +88,105 @@ if (errRET <> 0) then                                       ''NO ARGUMENTS PASSE
 elseif (errRET = 0) then                                    ''ARGUMENTS PASSED , CONTINUE SCRIPT
 	objOUT.write vbnewline & vbnewline & now & vbtab & " - EXECUTING : EXE_REPROBE"
 	objLOG.write vbnewline & vbnewline & now & vbtab & " - EXECUTING : EXE_REPROBE"
-	''AUTOMATIC UPDATE, EXE_REPROBE.VBS, REF #2 , FIXES #7
-	call CHKAU()
-  ''VERIFY NETWORK WORKGROUP / DOMAIN SETTINGS , REF #7 , FIXES #12
-  set objEXEC = objWSH.exec("net config workstation")
-  while (not objEXEC.stdout.atendofstream)
-    strIN = objEXEC.stdout.readline
-    'objOUT.write vbnewline & now & vbtab & vbtab & strIN
-    'objLOG.write vbnewline & now & vbtab & vbtab & strIN
-    if ((trim(strIN) <> vbnullstring) and (instr(1, lcase(strIN), "logon domain"))) then
-      objOUT.write vbnewline & now & vbtab & vbtab & strIN
-      objLOG.write vbnewline & now & vbtab & vbtab & strIN
-      strDMN = (split(strIN, " ")(ubound(split(strIN, " "))))
-      ''HANDLE "\" IN PASSED 'STRUSR'
-      if (instr(1, lcase(strUSR), "\")) then
-        strUSR = strDMN & "\" & split(strUSR, "\")(1)
-      ''HANDLE NO "\" IN PASSED 'STRUSR'
-      elseif (instr(1, lcase(strUSR), "\") = 0) then
-        strUSR = strDMN & "\" & strUSR
+	''AUTOMATIC UPDATE, EXE_REPROBE.VBS, REF #2 , REF #69 , REF #68 , FIXES #7
+  ''DOWNLOAD CHKAU.VBS SCRIPT, REF #2 , REF #69 , REF #68
+  call FILEDL("https://github.com/CW-Khristos/scripts/raw/dev/chkAU.vbs", "chkAU.vbs")
+  ''EXECUTE CHKAU.VBS SCRIPT, REF #69
+  objOUT.write vbnewline & now & vbtab & vbtab & " - CHECKING FOR UPDATE : EXE_REPROBE : " & strVER
+  objLOG.write vbnewline & now & vbtab & vbtab & " - CHECKING FOR UPDATE : EXE_REPROBE : " & strVER
+  intRET = objWSH.run ("cmd.exe /C " & chr(34) & "cscript.exe " & chr(34) & "C:\temp\chkAU.vbs" & chr(34) & " " & _
+    chr(34) & strREPO & chr(34) & " " & chr(34) & strBRCH & chr(34) & " " & chr(34) & strDIR & chr(34) & " " & _
+    chr(34) & wscript.scriptname & chr(34) & " " & chr(34) & strVER & chr(34) & " " & _
+    chr(34) & strCID & "|" & strCNM & "|" & strPRB & "|" & strUSR & "|" & strPWD & "|" & strSVR & chr(34), 0, true)
+  ''CHKAU RETURNED - NO UPDATE FOUND , REF #2 , REF #69 , REF #68
+	if (intRET = -1073741510) then
+    ''VERIFY NETWORK WORKGROUP / DOMAIN SETTINGS , REF #7 , FIXES #12
+    set objEXEC = objWSH.exec("net config workstation")
+    while (not objEXEC.stdout.atendofstream)
+      strIN = objEXEC.stdout.readline
+      'objOUT.write vbnewline & now & vbtab & vbtab & strIN
+      'objLOG.write vbnewline & now & vbtab & vbtab & strIN
+      if ((trim(strIN) <> vbnullstring) and (instr(1, lcase(strIN), "logon domain"))) then
+        objOUT.write vbnewline & now & vbtab & vbtab & strIN
+        objLOG.write vbnewline & now & vbtab & vbtab & strIN
+        strDMN = (split(strIN, " ")(ubound(split(strIN, " "))))
+        ''HANDLE "\" IN PASSED 'STRUSR'
+        if (instr(1, lcase(strUSR), "\")) then
+          strUSR = strDMN & "\" & split(strUSR, "\")(1)
+        ''HANDLE NO "\" IN PASSED 'STRUSR'
+        elseif (instr(1, lcase(strUSR), "\") = 0) then
+          strUSR = strDMN & "\" & strUSR
+        end if
+        if (strPRB = "Workgroup_Windows") then
+          strUSR = split(strUSR, "\")(1)
+        end if
       end if
-      if (strPRB = "Workgroup_Windows") then
-        strUSR = split(strUSR, "\")(1)
+      if (err.number <> 0) then
+        call LOGERR(2)
       end if
-    end if
-    if (err.number <> 0) then
+    wend
+    set objEXEC = nothing
+    ''DOWNLOAD SVCPERM.VBS SCRIPT TO GRANT USER SERVICE LOGON , 'ERRRET'=2
+    objOUT.write vbnewline & now & vbtab & vbtab & " - DOWNLOADING SERVICE LOGON SCRIPT : SVCPERM"
+    objLOG.write vbnewline & now & vbtab & vbtab & " - DOWNLOADING SERVICE LOGON SCRIPT : SVCPERM"
+    call FILEDL("https://github.com/CW-Khristos/scripts/raw/dev/SVCperm.vbs", "SVCperm.vbs")
+    if (errRET <> 0) then
       call LOGERR(2)
     end if
-  wend
-  set objEXEC = nothing
-  ''DOWNLOAD SVCPERM.VBS SCRIPT TO GRANT USER SERVICE LOGON , 'ERRRET'=2
-  objOUT.write vbnewline & now & vbtab & vbtab & " - DOWNLOADING SERVICE LOGON SCRIPT : SVCPERM"
-  objLOG.write vbnewline & now & vbtab & vbtab & " - DOWNLOADING SERVICE LOGON SCRIPT : SVCPERM"
-  call FILEDL("https://github.com/CW-Khristos/scripts/raw/dev/SVCperm.vbs", "SVCperm.vbs")
-  if (errRET <> 0) then
-    call LOGERR(2)
-  end if
-  ''EXECUTE SERVICE LOGON SCRIPT : SVCPERM , 'ERRRET'=3
-  objOUT.write vbnewline & now & vbtab & vbtab & " - EXECUTING SERVICE LOGON SCRIPT : SVCPERM"
-  objLOG.write vbnewline & now & vbtab & vbtab & " - EXECUTING SERVICE LOGON SCRIPT : SVCPERM"
-  if ((strDMN <> vbnullstring) and (strDMN <> ".")) then   ''EXECUTE SVCPERM.VBS AT DOMAIN LEVEL
-    call HOOK("cscript.exe //nologo " & chr(34) & "c:\temp\svcperm.vbs" & chr(34) & " " & chr(34) & strUSR & chr(34))
-  elseif ((strDMN = vbnullstring) or (strDMN = ".")) then  ''EXECUTE SVCPERM.VBS AT LOCAL LEVEL
-    call HOOK("cscript.exe //nologo " & chr(34) & "c:\temp\svcperm.vbs" & chr(34) & " " & chr(34) & strUSR & chr(34))
-  end if
-  if (errRET <> 0) then
-    call LOGERR(3)
-  end if
-	''DOWNLOAD WINDOWS PROBE MSI , 'ERRRET'=4
-	objOUT.write vbnewline & now & vbtab & vbtab & " - DOWNLOADING WINDOWS PROBE SYSTEM-SPECIFIC EXE"
-	objLOG.write vbnewline & now & vbtab & vbtab & " - DOWNLOADING WINDOWS PROBE SYSTEM-SPECIFIC EXE"
-  call FILEDL("https://github.com/CW-Khristos/CW_MSI/raw/master/WindowsProbeSetup.exe", "WindowsSoftwareProbe.exe")
-  if (errRET <> 0) then
-    call LOGERR(4)
-  end if
-  ''INSTALL WINDOWS PROBE
-  objOUT.write vbnewline & now & vbtab & vbtab & " - RE-CONFIGURING WINDOWS PROBE"
-  objLOG.write vbnewline & now & vbtab & vbtab & " - RE-CONFIGURING WINDOWS PROBE"
-  ''WINDOWS PROBE RE-CONFIGURATION COMMAND, VALIDATED 08/13/2018, PROBE REQUIRES ADMIN USER PRIOR TO RUNNING, FIXES #6
-  select case lcase(strPRB)
-    case "local_windows"
-      'strRCMD = chr(34) & "c:\temp\WindowsSoftwareProbe.exe" & chr(34) & " /s /v" & chr(34) & "  /qn /norestart /l*v c:\temp\probe_install.log CUSTOMERID=" & strCID & _
-      '  " CUSTOMERNAME=\" & chr(34) & strCNM & "\" & chr(34) & " SERVERPROTOCOL=HTTPS SERVERPORT=443 SERVERADDRESS=" & strSVR & " PROBETYPE=" & strPRB & _
-      '  " AGENTUSERNAME=\" & chr(34) & strUSR & "\" & chr(34) & " AGENTPASSWORD=\" & chr(34) & strPWD & "\" & chr(34) & " " & chr(34)
-      strRCMD = chr(34) & "c:\temp\WindowsSoftwareProbe.exe" & chr(34) & " /s /v" & chr(34) & " /qn /norestart /l*v c:\temp\probe_install.log CUSTOMERID=" & strCID & _
-        " CUSTOMERNAME=\" & chr(34) & strCNM & "\" & chr(34) & " SERVERPROTOCOL=HTTPS SERVERPORT=443 SERVERADDRESS=" & strSVR & " PROBETYPE=" & strPRB & _
-        " AGENTUSERNAME=\" & chr(34) & strUSR & "\" & chr(34) & " AGENTPASSWORD=\" & chr(34) & strPWD & "\" & chr(34) & " " & chr(34)
-    case "workgroup_windows"
-      strUSR = split(strUSR, "\")(1)
-      ''WORKGROUP_WINDOWS - " AGENTUSERNAME=" & chr(34) & split(strUSR, "\")(1) - STRIP RETRIEVED "LOGON DOMAIN" INFORMATION FROM 'STRUSR' PRIOR TO EXECUTING MSIEXEC , FIXES #12
-      'strRCMD = chr(34) & "c:\temp\WindowsSoftwareProbe.exe" & chr(34) & " /s /v" & chr(34) & "  /qn /norestart /l*v c:\temp\probe_install.log CUSTOMERID=" & strCID & _
-      '  " CUSTOMERNAME=\" & chr(34) & strCNM & "\" & chr(34) & " SERVERPROTOCOL=HTTPS SERVERPORT=443 SERVERADDRESS=" & strSVR & " PROBETYPE=" & strPRB & _
-      '  " AGENTUSERNAME=" & chr(34) & strUSR & "\" & chr(34) & " AGENTPASSWORD=\" & chr(34) & strPWD & "\" & chr(34) & " " & chr(34) & "  ALLUSERS=2"
-      strRCMD = chr(34) & "c:\temp\WindowsSoftwareProbe.exe" & chr(34) & " /s /v" & chr(34) & " /qn /norestart /l*v c:\temp\probe_install.log CUSTOMERID=" & strCID & _
-        " CUSTOMERNAME=\" & chr(34) & strCNM & "\" & chr(34) & " SERVERPROTOCOL=HTTPS SERVERPORT=443 SERVERADDRESS=" & strSVR & " PROBETYPE=" & strPRB & _
-        " AGENTUSERNAME=\" & chr(34) & strUSR & "\" & chr(34) & " AGENTPASSWORD=\" & chr(34) & strPWD & "\" & chr(34) & " " & chr(34)
-    case "network_windows"
-      'strRCMD = chr(34) & "c:\temp\WindowsSoftwareProbe.exe" & chr(34) & " /s /v" & chr(34) & "  /qn /norestart /l*v c:\temp\probe_install.log CUSTOMERID=" & strCID & _
-      '  " CUSTOMERNAME=\" & chr(34) & strCNM & "\" & chr(34) & " SERVERPROTOCOL=HTTPS SERVERPORT=443 SERVERADDRESS=" & strSVR & " PROBETYPE=" & strPRB & _
-      '  " AGENTDOMAIN=\" & chr(34) & strDMN & chr(34) & " AGENTUSERNAME=" & chr(34) & strUSR & "\" & chr(34) & " AGENTPASSWORD=\" & chr(34) & strPWD & "\" & chr(34) & " " & chr(34)
-      strRCMD = chr(34) & "c:\temp\WindowsSoftwareProbe.exe" & chr(34) & " /s /v" & chr(34) & " /qn /norestart /l*v c:\temp\probe_install.log CUSTOMERID=" & strCID & _
-        " CUSTOMERNAME=\" & chr(34) & strCNM & "\" & chr(34) & " SERVERPROTOCOL=HTTPS SERVERPORT=443 SERVERADDRESS=" & strSVR & " PROBETYPE=" & strPRB & _
-        " AGENTDOMAIN=" & strDMN & " AGENTUSERNAME=\" & chr(34) & strUSR & "\" & chr(34) & " AGENTPASSWORD=\" & chr(34) & strPWD & "\" & chr(34) & " " & chr(34)
-  end select
-  ''RE-CONFIGURE WINDOWS PROBE , 'ERRRET'=5
-	objOUT.write vbnewline & now & vbtab & vbtab & " - EXECUTING : " & strRCMD
-	objLOG.write vbnewline & now & vbtab & vbtab & " - EXECUTING : " & strRCMD
-  call HOOK(strRCMD)
-  if (errRET <> 0) then
-    call LOGERR(5)
+    ''EXECUTE SERVICE LOGON SCRIPT : SVCPERM , 'ERRRET'=3
+    objOUT.write vbnewline & now & vbtab & vbtab & " - EXECUTING SERVICE LOGON SCRIPT : SVCPERM"
+    objLOG.write vbnewline & now & vbtab & vbtab & " - EXECUTING SERVICE LOGON SCRIPT : SVCPERM"
+    if ((strDMN <> vbnullstring) and (strDMN <> ".")) then   ''EXECUTE SVCPERM.VBS AT DOMAIN LEVEL
+      call HOOK("cscript.exe //nologo " & chr(34) & "c:\temp\svcperm.vbs" & chr(34) & " " & chr(34) & strUSR & chr(34))
+    elseif ((strDMN = vbnullstring) or (strDMN = ".")) then  ''EXECUTE SVCPERM.VBS AT LOCAL LEVEL
+      call HOOK("cscript.exe //nologo " & chr(34) & "c:\temp\svcperm.vbs" & chr(34) & " " & chr(34) & strUSR & chr(34))
+    end if
+    if (errRET <> 0) then
+      call LOGERR(3)
+    end if
+    ''DOWNLOAD WINDOWS PROBE MSI , 'ERRRET'=4
+    objOUT.write vbnewline & now & vbtab & vbtab & " - DOWNLOADING WINDOWS PROBE SYSTEM-SPECIFIC EXE"
+    objLOG.write vbnewline & now & vbtab & vbtab & " - DOWNLOADING WINDOWS PROBE SYSTEM-SPECIFIC EXE"
+    call FILEDL("https://github.com/CW-Khristos/CW_MSI/raw/master/WindowsProbeSetup.exe", "WindowsSoftwareProbe.exe")
+    if (errRET <> 0) then
+      call LOGERR(4)
+    end if
+    ''INSTALL WINDOWS PROBE
+    objOUT.write vbnewline & now & vbtab & vbtab & " - RE-CONFIGURING WINDOWS PROBE"
+    objLOG.write vbnewline & now & vbtab & vbtab & " - RE-CONFIGURING WINDOWS PROBE"
+    ''WINDOWS PROBE RE-CONFIGURATION COMMAND, VALIDATED 08/13/2018, PROBE REQUIRES ADMIN USER PRIOR TO RUNNING, FIXES #6
+    select case lcase(strPRB)
+      case "local_windows"
+        'strRCMD = chr(34) & "c:\temp\WindowsSoftwareProbe.exe" & chr(34) & " /s /v" & chr(34) & "  /qn /norestart /l*v c:\temp\probe_install.log CUSTOMERID=" & strCID & _
+        '  " CUSTOMERNAME=\" & chr(34) & strCNM & "\" & chr(34) & " SERVERPROTOCOL=HTTPS SERVERPORT=443 SERVERADDRESS=" & strSVR & " PROBETYPE=" & strPRB & _
+        '  " AGENTUSERNAME=\" & chr(34) & strUSR & "\" & chr(34) & " AGENTPASSWORD=\" & chr(34) & strPWD & "\" & chr(34) & " " & chr(34)
+        strRCMD = chr(34) & "c:\temp\WindowsSoftwareProbe.exe" & chr(34) & " /s /v" & chr(34) & " /qn /norestart /l*v c:\temp\probe_install.log CUSTOMERID=" & strCID & _
+          " CUSTOMERNAME=\" & chr(34) & strCNM & "\" & chr(34) & " SERVERPROTOCOL=HTTPS SERVERPORT=443 SERVERADDRESS=" & strSVR & " PROBETYPE=" & strPRB & _
+          " AGENTUSERNAME=\" & chr(34) & strUSR & "\" & chr(34) & " AGENTPASSWORD=\" & chr(34) & strPWD & "\" & chr(34) & " " & chr(34)
+      case "workgroup_windows"
+        strUSR = split(strUSR, "\")(1)
+        ''WORKGROUP_WINDOWS - " AGENTUSERNAME=" & chr(34) & split(strUSR, "\")(1) - STRIP RETRIEVED "LOGON DOMAIN" INFORMATION FROM 'STRUSR' PRIOR TO EXECUTING MSIEXEC , FIXES #12
+        'strRCMD = chr(34) & "c:\temp\WindowsSoftwareProbe.exe" & chr(34) & " /s /v" & chr(34) & "  /qn /norestart /l*v c:\temp\probe_install.log CUSTOMERID=" & strCID & _
+        '  " CUSTOMERNAME=\" & chr(34) & strCNM & "\" & chr(34) & " SERVERPROTOCOL=HTTPS SERVERPORT=443 SERVERADDRESS=" & strSVR & " PROBETYPE=" & strPRB & _
+        '  " AGENTUSERNAME=" & chr(34) & strUSR & "\" & chr(34) & " AGENTPASSWORD=\" & chr(34) & strPWD & "\" & chr(34) & " " & chr(34) & "  ALLUSERS=2"
+        strRCMD = chr(34) & "c:\temp\WindowsSoftwareProbe.exe" & chr(34) & " /s /v" & chr(34) & " /qn /norestart /l*v c:\temp\probe_install.log CUSTOMERID=" & strCID & _
+          " CUSTOMERNAME=\" & chr(34) & strCNM & "\" & chr(34) & " SERVERPROTOCOL=HTTPS SERVERPORT=443 SERVERADDRESS=" & strSVR & " PROBETYPE=" & strPRB & _
+          " AGENTUSERNAME=\" & chr(34) & strUSR & "\" & chr(34) & " AGENTPASSWORD=\" & chr(34) & strPWD & "\" & chr(34) & " " & chr(34)
+      case "network_windows"
+        'strRCMD = chr(34) & "c:\temp\WindowsSoftwareProbe.exe" & chr(34) & " /s /v" & chr(34) & "  /qn /norestart /l*v c:\temp\probe_install.log CUSTOMERID=" & strCID & _
+        '  " CUSTOMERNAME=\" & chr(34) & strCNM & "\" & chr(34) & " SERVERPROTOCOL=HTTPS SERVERPORT=443 SERVERADDRESS=" & strSVR & " PROBETYPE=" & strPRB & _
+        '  " AGENTDOMAIN=\" & chr(34) & strDMN & chr(34) & " AGENTUSERNAME=" & chr(34) & strUSR & "\" & chr(34) & " AGENTPASSWORD=\" & chr(34) & strPWD & "\" & chr(34) & " " & chr(34)
+        strRCMD = chr(34) & "c:\temp\WindowsSoftwareProbe.exe" & chr(34) & " /s /v" & chr(34) & " /qn /norestart /l*v c:\temp\probe_install.log CUSTOMERID=" & strCID & _
+          " CUSTOMERNAME=\" & chr(34) & strCNM & "\" & chr(34) & " SERVERPROTOCOL=HTTPS SERVERPORT=443 SERVERADDRESS=" & strSVR & " PROBETYPE=" & strPRB & _
+          " AGENTDOMAIN=" & strDMN & " AGENTUSERNAME=\" & chr(34) & strUSR & "\" & chr(34) & " AGENTPASSWORD=\" & chr(34) & strPWD & "\" & chr(34) & " " & chr(34)
+    end select
+    ''RE-CONFIGURE WINDOWS PROBE , 'ERRRET'=5
+    objOUT.write vbnewline & now & vbtab & vbtab & " - EXECUTING : " & strRCMD
+    objLOG.write vbnewline & now & vbtab & vbtab & " - EXECUTING : " & strRCMD
+    call HOOK(strRCMD)
+    if (errRET <> 0) then
+      call LOGERR(5)
+    end if
   end if
 end if
 ''END SCRIPT
