@@ -10,8 +10,8 @@ on error resume next
 dim errRET, strVER
 dim strREPO, strBRCH, strDIR
 ''VARIABLES ACCEPTING PARAMETERS - CONFIGURES WINDOWS AGENT MSI
+dim strKEY, strSVR
 dim strIN, strOUT, strRCMD
-dim strCID, strCNM, strSVR
 ''SCRIPT OBJECTS
 dim objIN, objOUT, objARG, objWSH, objFSO
 dim objLOG, objEXEC, objHOOK, objHTTP, objXML
@@ -60,6 +60,8 @@ if (wscript.arguments.count > 0) then                       ''ARGUMENTS WERE PAS
   else                                                      ''NOT ENOUGH ARGUMENTS PASSED , END SCRIPT , 'ERRRET'=1
     call LOGERR(1)
   end if
+else                                                        ''NOT ENOUGH ARGUMENTS PASSED , END SCRIPT , 'ERRRET'=1
+  call LOGERR(1)
 end if
 
 ''------------
@@ -93,7 +95,7 @@ elseif (errRET = 0) then                                    ''ARGUMENTS PASSED, 
     objLOG.write vbnewline & now & vbtab & vbtab & " - RE-CONFIGURING WINDOWS AGENT"
     ''WINDOWS AGENT RE-CONFIGURATION COMMAND , REF #2 , FIXES #13
     'strRCMD = chr(34) & "c:\temp\" & strCID & "WindowsAgentSetup.exe" & chr(34) & " -ai"
-    strRCMD = chr(34) & "c:\temp\WindowsAgentSetup.exe" & chr(34) & " /s /v" & chr(34) & " /qn /norestart /l*v c:\temp\agent_install.log ACTIVATIONKEY=" & strKEY & _
+    strRCMD = chr(34) & "c:\temp\WindowsAgentSetup.exe" & chr(34) & " /s /v" & chr(34) & " /qn /norestart /l*v c:\temp\agent_install.log AGENTACTIVATIONKEY=" & strKEY & _
       " SERVERPROTOCOL=HTTPS SERVERPORT=443 SERVERADDRESS=" & strSVR & " " & chr(34)
     'strRCMD = "msiexec /i " & chr(34) & "c:\temp\windows agent.msi" & chr(34) & " /qn CUSTOMERID=" & strCID & _
     '	" CUSTOMERNAME=" & chr(34) & strCNM & chr(34) & " SERVERPROTOCOL=https:// SERVERPORT=443 SERVERADDRESS=" & chr(34) & strSVR & chr(34) & _
