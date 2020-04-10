@@ -21,7 +21,7 @@ dim strPRB, strDMN, strUSR, strPWD
 dim objIN, objOUT, objARG, objWSH, objFSO
 dim objLOG, objEXEC, objHOOK, objHTTP, objXML
 ''VERSION FOR SCRIPT UPDATE , MSI_REPROBE_KEY.VBS , REF #2 , REF #69 , FIXES #7 , FIXES #18
-strVER = 1
+strVER = 2
 strREPO = "CW_MSI"
 strBRCH = "dev"
 strDIR = vbnullstring
@@ -96,9 +96,10 @@ elseif (errRET = 0) then                                    ''ARGUMENTS PASSED ,
   intRET = objWSH.run ("cmd.exe /C " & chr(34) & "cscript.exe " & chr(34) & "C:\temp\chkAU.vbs" & chr(34) & " " & _
     chr(34) & strREPO & chr(34) & " " & chr(34) & strBRCH & chr(34) & " " & chr(34) & strDIR & chr(34) & " " & _
     chr(34) & wscript.scriptname & chr(34) & " " & chr(34) & strVER & chr(34) & " " & _
-    chr(34) & strKEY & "|" & strPRB & "|" & strUSR & "|" & strPWD & "|" & strSVR & chr(34), 0, true)
+    chr(34) & strKEY & "|" & strPRB & "|" & strUSR & "|" & strPWD & "|" & strSVR & chr(34) & chr(34), 0, true)
   ''CHKAU RETURNED - NO UPDATE FOUND , REF #2 , REF #68 , REF #69
-	if ((intRET = -1073741510) or (intRET = 10) or (intRET = 11) or (intRET = 1)) then
+  intRET = (intRET - vbObjectError)
+  if ((intRET = 4) or (intRET = 10) or (intRET = 11) or (intRET = 1)) then
     ''VERIFY NETWORK WORKGROUP / DOMAIN SETTINGS , REF #7 , FIXES #12
     set objEXEC = objWSH.exec("net config workstation")
     while (not objEXEC.stdout.atendofstream)
@@ -320,9 +321,11 @@ end sub
 sub CLEANUP()                                               ''SCRIPT CLEANUP
   if (errRET = 0) then         															''MSI_REPROBE_KEY COMPLETED SUCCESSFULLY
     objOUT.write vbnewline & "RE-PROBE SUCCESSFUL : " & errRET & " : " & now
+    objLOG.write vbnewline & "RE-PROBE SUCCESSFUL : " & errRET & " : " & now
     err.clear
   elseif (errRET <> 0) then    															''MSI_REPROBE_KEY FAILED
     objOUT.write vbnewline & "RE-PROBE FAILURE : " & errRET & " : " & now
+    objLOG.write vbnewline & "RE-PROBE FAILURE : " & errRET & " : " & now
     ''RAISE CUSTOMIZED ERROR CODE, ERROR CODE WILL BE DEFINE RESTOP NUMBER INDICATING WHICH SECTION FAILED
     call err.raise(vbObjectError + errRET, "RE-PROBE", "FAILURE")
   end if

@@ -16,7 +16,7 @@ dim strIN, strOUT, strRCMD
 dim objIN, objOUT, objARG, objWSH, objFSO
 dim objLOG, objEXEC, objHOOK, objHTTP, objXML
 ''VERSION FOR SCRIPT UPDATE , EXE_REAGENT_KEY.VBS , REF #2 , REF #69 , FIXES #19
-strVER = 1
+strVER = 2
 strREPO = "CW_MSI"
 strBRCH = "dev"
 strDIR = vbnullstring
@@ -80,9 +80,10 @@ elseif (errRET = 0) then                                    ''ARGUMENTS PASSED, 
   intRET = objWSH.run ("cmd.exe /C " & chr(34) & "cscript.exe " & chr(34) & "C:\temp\chkAU.vbs" & chr(34) & " " & _
     chr(34) & strREPO & chr(34) & " " & chr(34) & strBRCH & chr(34) & " " & chr(34) & strDIR & chr(34) & " " & _
     chr(34) & wscript.scriptname & chr(34) & " " & chr(34) & strVER & chr(34) & " " & _
-    chr(34) & strCID & "|" & strCNM & "|" & strSVR & chr(34), 0, true)
+    chr(34) & strCID & "|" & strCNM & "|" & strSVR & chr(34) & chr(34), 0, true)
   ''CHKAU RETURNED - NO UPDATE FOUND OR ERROR ENCOUNTERED IN AUTOMATED UPDATE, REF #2 , REF #68 , REF #69
-	if ((intRET = -1073741510) or (intRET = 10) or (intRET = 11) or (intRET = 1)) then
+  intRET = (intRET - vbObjectError)
+  if ((intRET = 4) or (intRET = 10) or (intRET = 11) or (intRET = 1)) then
     ''DOWNLOAD WINDOWS AGENT MSI , 'ERRRET'=2 , REF #2 , FIXES #13
     objOUT.write vbnewline & now & vbtab & vbtab & " - DOWNLOADING WINDOWS AGENT CUSTOMER-SPECIFIC EXE"
     objLOG.write vbnewline & now & vbtab & vbtab & " - DOWNLOADING WINDOWS AGENT CUSTOMER-SPECIFIC EXE"
@@ -245,9 +246,11 @@ end sub
 sub CLEANUP()                                               ''SCRIPT CLEANUP
   if (errRET = 0) then         															''EXE_REAGENT_KEY COMPLETED SUCCESSFULLY
     objOUT.write vbnewline & "EXE_REAGENT_KEY SUCCESSFUL : " & errRET & " : " & now
+    objLOG.write vbnewline & "EXE_REAGENT_KEY SUCCESSFUL : " & errRET & " : " & now
     err.clear
   elseif (errRET <> 0) then    															''EXE_REAGENT_KEY FAILED
     objOUT.write vbnewline & "EXE_REAGENT_KEY FAILURE : " & errRET & " : " & now
+    objLOG.write vbnewline & "EXE_REAGENT_KEY FAILURE : " & errRET & " : " & now
     ''RAISE CUSTOMIZED ERROR CODE, ERROR CODE WILL BE DEFINE RESTOP NUMBER INDICATING WHICH SECTION FAILED
     call err.raise(vbObjectError + errRET, "EXE_REAGENT_KEY", "FAILURE")
   end if
