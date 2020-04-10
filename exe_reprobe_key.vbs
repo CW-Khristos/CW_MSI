@@ -18,7 +18,7 @@ dim strPRB, strDMN, strUSR, strPWD
 ''SCRIPT OBJECTS
 dim objIN, objOUT, objARG, objWSH, objFSO
 dim objLOG, objEXEC, objHOOK, objHTTP, objXML
-''VERSION FOR SCRIPT UPDATE , EXE_REPROBE_KEY.VBS , REF #2 , FIXES #7 , FIXES #13 , REF #69
+''VERSION FOR SCRIPT UPDATE , EXE_REPROBE_KEY.VBS , REF #2 , REF #69 , FIXES #7 , FIXES #13 , FIXES #18
 strVER = 1
 strREPO = "CW_MSI"
 strBRCH = "dev"
@@ -33,7 +33,7 @@ set objARG = wscript.arguments
 set objWSH = createobject("wscript.shell")
 set objFSO = createobject("scripting.filesystemobject")
 ''PREPARE LOGFILE
-if (objFSO.fileexists("C:\temp\EXE_REPROBE_KEY")) then          ''LOGFILE EXISTS
+if (objFSO.fileexists("C:\temp\EXE_REPROBE_KEY")) then      ''LOGFILE EXISTS
   objFSO.deletefile "C:\temp\EXE_REPROBE_KEY", true
   set objLOG = objFSO.createtextfile("C:\temp\EXE_REPROBE_KEY")
   objLOG.close
@@ -85,8 +85,8 @@ if (errRET <> 0) then                                       ''NO ARGUMENTS PASSE
 elseif (errRET = 0) then                                    ''ARGUMENTS PASSED , CONTINUE SCRIPT
 	objOUT.write vbnewline & vbnewline & now & vbtab & " - EXECUTING : EXE_REPROBE_KEY"
 	objLOG.write vbnewline & vbnewline & now & vbtab & " - EXECUTING : EXE_REPROBE_KEY"
-	''AUTOMATIC UPDATE, EXE_REPROBE_KEY.VBS, REF #2 , REF #69 , REF #68 , FIXES #7
-  ''DOWNLOAD CHKAU.VBS SCRIPT, REF #2 , REF #69 , REF #68
+	''AUTOMATIC UPDATE, EXE_REPROBE_KEY.VBS, REF #2 , REF #68 , REF #69 , FIXES #7
+  ''DOWNLOAD CHKAU.VBS SCRIPT, REF #2 , REF #68 , REF #69
   call FILEDL("https://github.com/CW-Khristos/scripts/raw/dev/chkAU.vbs", "chkAU.vbs")
   ''EXECUTE CHKAU.VBS SCRIPT, REF #69
   objOUT.write vbnewline & now & vbtab & vbtab & " - CHECKING FOR UPDATE : EXE_REPROBE_KEY : " & strVER
@@ -95,7 +95,7 @@ elseif (errRET = 0) then                                    ''ARGUMENTS PASSED ,
     chr(34) & strREPO & chr(34) & " " & chr(34) & strBRCH & chr(34) & " " & chr(34) & strDIR & chr(34) & " " & _
     chr(34) & wscript.scriptname & chr(34) & " " & chr(34) & strVER & chr(34) & " " & _
     chr(34) & strCID & "|" & strCNM & "|" & strPRB & "|" & strUSR & "|" & strPWD & "|" & strSVR & chr(34), 0, true)
-  ''CHKAU RETURNED - NO UPDATE FOUND , REF #2 , REF #69 , REF #68
+  ''CHKAU RETURNED - NO UPDATE FOUND , REF #2 , REF #68 , REF #69
 	if (intRET = -1073741510) then
     ''VERIFY NETWORK WORKGROUP / DOMAIN SETTINGS , REF #7 , FIXES #12
     set objEXEC = objWSH.exec("net config workstation")
@@ -151,7 +151,7 @@ elseif (errRET = 0) then                                    ''ARGUMENTS PASSED ,
     ''INSTALL WINDOWS PROBE
     objOUT.write vbnewline & now & vbtab & vbtab & " - RE-CONFIGURING WINDOWS PROBE"
     objLOG.write vbnewline & now & vbtab & vbtab & " - RE-CONFIGURING WINDOWS PROBE"
-    ''WINDOWS PROBE RE-CONFIGURATION COMMAND, VALIDATED 08/13/2018, PROBE REQUIRES ADMIN USER PRIOR TO RUNNING, FIXES #6
+    ''WINDOWS PROBE RE-CONFIGURATION COMMAND, VALIDATED 08/13/2018, PROBE REQUIRES ADMIN USER PRIOR TO RUNNING, FIXES #6 , FIXES #18
     select case lcase(strPRB)
       case "local_windows"
         'strRCMD = chr(34) & "c:\temp\WindowsSoftwareProbe.exe" & chr(34) & " /s /v" & chr(34) & "  /qn /norestart /l*v c:\temp\probe_install.log CUSTOMERID=" & strCID & _

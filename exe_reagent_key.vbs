@@ -15,7 +15,7 @@ dim strIN, strOUT, strRCMD
 ''SCRIPT OBJECTS
 dim objIN, objOUT, objARG, objWSH, objFSO
 dim objLOG, objEXEC, objHOOK, objHTTP, objXML
-''VERSION FOR SCRIPT UPDATE , EXE_REAGENT_KEY.VBS , REF #2 , FIXES #8 , FIXES #13 , REF #69
+''VERSION FOR SCRIPT UPDATE , EXE_REAGENT_KEY.VBS , REF #2 , REF #69 , FIXES #8 , FIXES #13 , FIXES #19
 strVER = 1
 strREPO = "CW_MSI"
 strBRCH = "dev"
@@ -30,7 +30,7 @@ set objARG = wscript.arguments
 set objWSH = createobject("wscript.shell")
 set objFSO = createobject("scripting.filesystemobject")
 ''PREPARE LOGFILE
-if (objFSO.fileexists("C:\temp\EXE_REAGENT_KEY")) then          ''LOGFILE EXISTS
+if (objFSO.fileexists("C:\temp\EXE_REAGENT_KEY")) then      ''LOGFILE EXISTS
   objFSO.deletefile "C:\temp\EXE_REAGENT_KEY", true
   set objLOG = objFSO.createtextfile("C:\temp\EXE_REAGENT_KEY")
   objLOG.close
@@ -71,8 +71,8 @@ if (errRET <> 0) then                                       ''NO ARGUMENTS PASSE
 elseif (errRET = 0) then                                    ''ARGUMENTS PASSED, CONTINUE SCRIPT
 	objOUT.write vbnewline & vbnewline & now & vbtab & " - EXECUTING EXE_REAGENT_KEY"
 	objLOG.write vbnewline & vbnewline & now & vbtab & " - EXECUTING EXE_REAGENT_KEY"
-	''AUTOMATIC UPDATE, EXE_REAGENT_KEY.VBS, REF #2 , REF #69 , REF #68 , FIXES #8
-  ''DOWNLOAD CHKAU.VBS SCRIPT, REF #2 , REF #69 , REF #68
+	''AUTOMATIC UPDATE, EXE_REAGENT_KEY.VBS, REF #2 , REF #68 , REF #69 , FIXES #8
+  ''DOWNLOAD CHKAU.VBS SCRIPT, REF #2 , REF #68 , REF #69
   call FILEDL("https://github.com/CW-Khristos/scripts/raw/dev/chkAU.vbs", "chkAU.vbs")
   ''EXECUTE CHKAU.VBS SCRIPT, REF #69
   objOUT.write vbnewline & now & vbtab & vbtab & " - CHECKING FOR UPDATE : EXE_REAGENT_KEY : " & strVER
@@ -81,8 +81,8 @@ elseif (errRET = 0) then                                    ''ARGUMENTS PASSED, 
     chr(34) & strREPO & chr(34) & " " & chr(34) & strBRCH & chr(34) & " " & chr(34) & strDIR & chr(34) & " " & _
     chr(34) & wscript.scriptname & chr(34) & " " & chr(34) & strVER & chr(34) & " " & _
     chr(34) & strCID & "|" & strCNM & "|" & strSVR & chr(34), 0, true)
-  ''CHKAU RETURNED - NO UPDATE FOUND OR ERROR ENCOUNTERED IN AUTOMATED UPDATE, REF #2 , REF #69 , REF #68
-	if if ((intRET = -1073741510) or (intRET = 10) or (intRET = 11) or (intRET = 1)) then
+  ''CHKAU RETURNED - NO UPDATE FOUND OR ERROR ENCOUNTERED IN AUTOMATED UPDATE, REF #2 , REF #68 , REF #69
+	if ((intRET = -1073741510) or (intRET = 10) or (intRET = 11) or (intRET = 1)) then
     ''DOWNLOAD WINDOWS AGENT MSI , 'ERRRET'=2 , REF #2 , FIXES #13
     objOUT.write vbnewline & now & vbtab & vbtab & " - DOWNLOADING WINDOWS AGENT CUSTOMER-SPECIFIC EXE"
     objLOG.write vbnewline & now & vbtab & vbtab & " - DOWNLOADING WINDOWS AGENT CUSTOMER-SPECIFIC EXE"
@@ -93,10 +93,10 @@ elseif (errRET = 0) then                                    ''ARGUMENTS PASSED, 
     ''INSTALL WINDOWS AGENT
     objOUT.write vbnewline & now & vbtab & vbtab & " - RE-CONFIGURING WINDOWS AGENT"
     objLOG.write vbnewline & now & vbtab & vbtab & " - RE-CONFIGURING WINDOWS AGENT"
-    ''WINDOWS AGENT RE-CONFIGURATION COMMAND , REF #2 , FIXES #13
+    ''WINDOWS AGENT RE-CONFIGURATION COMMAND , REF #2 , FIXES #13 , FIXES #19
     'strRCMD = chr(34) & "c:\temp\" & strCID & "WindowsAgentSetup.exe" & chr(34) & " -ai"
-    strRCMD = chr(34) & "c:\temp\WindowsAgentSetup.exe" & chr(34) & " /s /v" & chr(34) & " /qn /norestart /l*v c:\temp\agent_install.log AGENTACTIVATIONKEY=" & strKEY & _
-      " SERVERPROTOCOL=HTTPS SERVERPORT=443 SERVERADDRESS=" & strSVR & " " & chr(34)
+    strRCMD = chr(34) & "c:\temp\WindowsAgentSetup.exe" & chr(34) & " /s /v" & chr(34) & " /qn /norestart /l*v c:\temp\agent_install.log" & _
+      " AGENTACTIVATIONKEY=" & strKEY & " SERVERPROTOCOL=HTTPS SERVERPORT=443 SERVERADDRESS=" & strSVR & " " & chr(34)
     'strRCMD = "msiexec /i " & chr(34) & "c:\temp\windows agent.msi" & chr(34) & " /qn CUSTOMERID=" & strCID & _
     '	" CUSTOMERNAME=" & chr(34) & strCNM & chr(34) & " SERVERPROTOCOL=https:// SERVERPORT=443 SERVERADDRESS=" & chr(34) & strSVR & chr(34) & _
     '  " /l*v c:\temp\agent_install.log ALLUSERS=2"
