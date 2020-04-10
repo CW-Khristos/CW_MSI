@@ -8,13 +8,14 @@
 on error resume next
 ''SCRIPT VARIABLES
 dim errRET, strVER
+dim strREPO, strBRCH, strDIR
 ''VARIABLES ACCEPTING PARAMETERS - CONFIGURES WINDOWS AGENT MSI
 dim strKEY, strSVR
 dim strIN, strOUT, strRCMD
 ''SCRIPT OBJECTS
 dim objIN, objOUT, objARG, objWSH, objFSO
 dim objLOG, objEXEC, objHOOK, objHTTP, objXML
-''VERSION FOR SCRIPT UPDATE , RE-AGENT.VBS , REF #2 , REF #69 , FIXES #8 , FIXES #13 , FIXES #19
+''VERSION FOR SCRIPT UPDATE , RE-AGENT.VBS , REF #2 , REF #69 , FIXES #19
 strVER = 1
 strREPO = "CW_MSI"
 strBRCH = "dev"
@@ -93,7 +94,6 @@ elseif (errRET = 0) then                                    ''ARGUMENTS PASSED, 
     objOUT.write vbnewline & now & vbtab & vbtab & " - RE-CONFIGURING WINDOWS AGENT"
     objLOG.write vbnewline & now & vbtab & vbtab & " - RE-CONFIGURING WINDOWS AGENT"
     ''WINDOWS AGENT RE-CONFIGURATION COMMAND , REF #2 , FIXES #13 , FIXES #19
-    'strRCMD = "c:\temp\" & strCID & "WindowsAgentSetup.exe -ai"
     strRCMD = "msiexec /i " & chr(34) & "c:\temp\windows agent.msi" & chr(34) & " /qn" & _
       " AGENTACTIVATIONKEY=" & chr(34) & strKEY & chr(34) & " SERVERPROTOCOL=https:// SERVERPORT=443 SERVERADDRESS=" & chr(34) & strSVR & chr(34) & _
       " /l*v c:\temp\agent_install.log ALLUSERS=2"

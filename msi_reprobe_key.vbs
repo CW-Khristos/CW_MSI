@@ -12,6 +12,7 @@
 on error resume next
 ''SCRIPT VARIABLES
 dim errRET, strVER
+dim strREPO, strBRCH, strDIR
 ''VARIABLES ACCEPTING PARAMETERS - CONFIGURES WINDOWS SOFTWARE PROBE MSI
 dim strKEY, strSVR
 dim strIN, strOUT, strRCMD
@@ -97,7 +98,7 @@ elseif (errRET = 0) then                                    ''ARGUMENTS PASSED ,
     chr(34) & wscript.scriptname & chr(34) & " " & chr(34) & strVER & chr(34) & " " & _
     chr(34) & strKEY & "|" & strPRB & "|" & strUSR & "|" & strPWD & "|" & strSVR & chr(34), 0, true)
   ''CHKAU RETURNED - NO UPDATE FOUND , REF #2 , REF #68 , REF #69
-	if (intRET = -1073741510) then
+	if ((intRET = -1073741510) or (intRET = 10) or (intRET = 11) or (intRET = 1)) then
     ''VERIFY NETWORK WORKGROUP / DOMAIN SETTINGS , REF #7 , FIXES #12
     set objEXEC = objWSH.exec("net config workstation")
     while (not objEXEC.stdout.atendofstream)
@@ -151,15 +152,23 @@ elseif (errRET = 0) then                                    ''ARGUMENTS PASSED ,
     objLOG.write vbnewline & now & vbtab & vbtab & " - RE-CONFIGURING WINDOWS PROBE"
     ''WINDOWS PROBE RE-CONFIGURATION COMMAND, VALIDATED 08/13/2018, PROBE REQUIRES ADMIN USER PRIOR TO RUNNING, FIXES #6 , FIXES #18
     select case lcase(strPRB)
+      ''LOCAL ONLY
       case "local_windows"
         strRCMD = "msiexec /i " & chr(34) & "c:\temp\windows software probe.msi" & chr(34) & " /qn AGENTACTIVATIONKEY=" & strKEY & _
           " SERVERPROTOCOL=" & chr(34) & "HTTPS" & chr(34) & " SERVERPORT=443 SERVERADDRESS=" & chr(34) & strSVR & chr(34) & " PROBETYPE=" & chr(34) & strPRB & chr(34) & _
           " AGENTUSERNAME=" & chr(34) & strUSR & chr(34) & " AGENTPASSWORD=" & chr(34) & strPWD & chr(34) & " /l*v c:\temp\probe_install.log ALLUSERS=2"
+      ''WORKGROUP ENVIRONMENT
       case "workgroup_windows"
         ''WORKGROUP_WINDOWS - " AGENTUSERNAME=" & chr(34) & split(strUSR, "\")(1) - STRIP RETRIEVED "LOGON DOMAIN" INFORMATION FROM 'STRUSR' PRIOR TO EXECUTING MSIEXEC , FIXES #12
+        if (instr(1, strUSR, "\")) then
+          strSUSR = split(strUSR, "\")(1)
+        elseif (instr(1, strUSR, "\") = 0) then
+          strSUSR = strUSR
+        end if
         strRCMD = "msiexec /i " & chr(34) & "c:\temp\windows software probe.msi" & chr(34) & " /qn AGENTACTIVATIONKEY=" & strKEY & _
           " SERVERPROTOCOL=" & chr(34) & "HTTPS" & chr(34) & " SERVERPORT=443 SERVERADDRESS=" & chr(34) & strSVR & chr(34) & " PROBETYPE=" & chr(34) & strPRB & chr(34) & _
-          " AGENTUSERNAME=" & chr(34) & strUSR & chr(34) & " AGENTPASSWORD=" & chr(34) & strPWD & chr(34) & " /l*v c:\temp\probe_install.log ALLUSERS=2"
+          " AGENTUSERNAME=" & chr(34) & strSUSR & chr(34) & " AGENTPASSWORD=" & chr(34) & strPWD & chr(34) & " /l*v c:\temp\probe_install.log ALLUSERS=2"
+      ''DOMAIN ENVIRONMENT
       case "network_windows"
         strRCMD = "msiexec /i " & chr(34) & "c:\temp\windows software probe.msi" & chr(34) & " /qn AGENTACTIVATIONKEY=" & strKEY & _
           " SERVERPROTOCOL=" & chr(34) & "HTTPS" & chr(34) & " SERVERPORT=443 SERVERADDRESS=" & chr(34) & strSVR & chr(34) & " PROBETYPE=" & chr(34) & strPRB & chr(34) & _

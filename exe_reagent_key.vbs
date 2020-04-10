@@ -15,7 +15,7 @@ dim strIN, strOUT, strRCMD
 ''SCRIPT OBJECTS
 dim objIN, objOUT, objARG, objWSH, objFSO
 dim objLOG, objEXEC, objHOOK, objHTTP, objXML
-''VERSION FOR SCRIPT UPDATE , EXE_REAGENT_KEY.VBS , REF #2 , REF #69 , FIXES #8 , FIXES #13 , FIXES #19
+''VERSION FOR SCRIPT UPDATE , EXE_REAGENT_KEY.VBS , REF #2 , REF #69 , FIXES #19
 strVER = 1
 strREPO = "CW_MSI"
 strBRCH = "dev"
@@ -94,13 +94,8 @@ elseif (errRET = 0) then                                    ''ARGUMENTS PASSED, 
     objOUT.write vbnewline & now & vbtab & vbtab & " - RE-CONFIGURING WINDOWS AGENT"
     objLOG.write vbnewline & now & vbtab & vbtab & " - RE-CONFIGURING WINDOWS AGENT"
     ''WINDOWS AGENT RE-CONFIGURATION COMMAND , REF #2 , FIXES #13 , FIXES #19
-    'strRCMD = chr(34) & "c:\temp\" & strCID & "WindowsAgentSetup.exe" & chr(34) & " -ai"
     strRCMD = chr(34) & "c:\temp\WindowsAgentSetup.exe" & chr(34) & " /s /v" & chr(34) & " /qn /norestart /l*v c:\temp\agent_install.log" & _
       " AGENTACTIVATIONKEY=" & strKEY & " SERVERPROTOCOL=HTTPS SERVERPORT=443 SERVERADDRESS=" & strSVR & " " & chr(34)
-    'strRCMD = "msiexec /i " & chr(34) & "c:\temp\windows agent.msi" & chr(34) & " /qn CUSTOMERID=" & strCID & _
-    '	" CUSTOMERNAME=" & chr(34) & strCNM & chr(34) & " SERVERPROTOCOL=https:// SERVERPORT=443 SERVERADDRESS=" & chr(34) & strSVR & chr(34) & _
-    '  " /l*v c:\temp\agent_install.log ALLUSERS=2"
-    ''RE-CONFIGURE WINDOWS AGENT , 'ERRRET'=3
     objOUT.write vbnewline & now & vbtab & vbtab & " - EXECUTING : " & strRCMD
     objLOG.write vbnewline & now & vbtab & vbtab & " - EXECUTING : " & strRCMD
     call HOOK(strRCMD)

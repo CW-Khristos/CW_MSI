@@ -1,6 +1,6 @@
-''REAGENT.VBS
+''RE-AGENT.VBS
 ''DESIGNED TO AUTOMATE DOWNLOAD AND INSTALL OF WINDOWS AGENT SOFTWARE
-''UTILIZES THE CUSTOMER SPECIFIC WINDOWS AGENT EXE INSTALLER
+''UTILIZES THE CUSTOMER SPECIFIC WINDOWS AGENT EXE INSTALLER WITH CUSTOMER ID
 ''ACCEPTS 2 PARAMETERS , REQUIRES 1 PARAMETERS
 ''REQUIRED PARAMETER : 'STRCID' , STRING TO SET CUSTOMER ID
 ''OPTIONAL PARAMETER : 'STRSVR' , STRING TO SET SERVER ADDRESS
@@ -8,14 +8,18 @@
 on error resume next
 ''SCRIPT VARIABLES
 dim errRET, strVER
+dim strREPO, strBRCH, strDIR
 ''VARIABLES ACCEPTING PARAMETERS - CONFIGURES WINDOWS AGENT MSI
 dim strIN, strOUT, strRCMD
 dim strCID, strCNM, strSVR
 ''SCRIPT OBJECTS
 dim objIN, objOUT, objARG, objWSH, objFSO
 dim objLOG, objEXEC, objHOOK, objHTTP, objXML
-''VERSION FOR SCRIPT UPDATE , RE-AGENT.VBS , REF #2 , FIXES #8 , FIXES #13
-strVER = 11
+''VERSION FOR SCRIPT UPDATE , RE-AGENT.VBS , REF #2 , REF #69 , FIXES #8 , FIXES #13
+strVER = 12
+strREPO = "CW_MSI"
+strBRCH = "dev"
+strDIR = vbnullstring
 ''DEFAULT SUCCESS
 errRET = 0
 ''STDIN / STDOUT
@@ -26,15 +30,15 @@ set objARG = wscript.arguments
 set objWSH = createobject("wscript.shell")
 set objFSO = createobject("scripting.filesystemobject")
 ''PREPARE LOGFILE
-if (objFSO.fileexists("C:\temp\reagent")) then              ''LOGFILE EXISTS
-  objFSO.deletefile "C:\temp\reagent", true
-  set objLOG = objFSO.createtextfile("C:\temp\reagent")
+if (objFSO.fileexists("C:\temp\REAGENT")) then              ''LOGFILE EXISTS
+  objFSO.deletefile "C:\temp\REAGENT", true
+  set objLOG = objFSO.createtextfile("C:\temp\REAGENT")
   objLOG.close
-  set objLOG = objFSO.opentextfile("C:\temp\reagent", 8)
+  set objLOG = objFSO.opentextfile("C:\temp\REAGENT", 8)
 else                                                        ''LOGFILE NEEDS TO BE CREATED
-  set objLOG = objFSO.createtextfile("C:\temp\reagent")
+  set objLOG = objFSO.createtextfile("C:\temp\REAGENT")
   objLOG.close
-  set objLOG = objFSO.opentextfile("C:\temp\reagent", 8)
+  set objLOG = objFSO.opentextfile("C:\temp\REAGENT", 8)
 end if
 ''READ PASSED COMMANDLINE ARGUMENTS
 if (wscript.arguments.count > 0) then                       ''ARGUMENTS WERE PASSED
@@ -56,38 +60,47 @@ if (wscript.arguments.count > 0) then                       ''ARGUMENTS WERE PAS
   else                                                      ''NOT ENOUGH ARGUMENTS PASSED , END SCRIPT , 'ERRRET'=1
     call LOGERR(1)
   end if
+else                                                        ''NOT ENOUGH ARGUMENTS PASSED , END SCRIPT , 'ERRRET'=1
+  call LOGERR(1)
 end if
 
 ''------------
 ''BEGIN SCRIPT
-if (errRET <> 0) then                                      ''NO ARGUMENTS PASSED, END SCRIPT , 'ERRRET'=1
+if (errRET <> 0) then                                       ''NO ARGUMENTS PASSED, END SCRIPT , 'ERRRET'=1
   call CLEANUP()
-elseif (errRET = 0) then                                   ''ARGUMENTS PASSED, CONTINUE SCRIPT
+elseif (errRET = 0) then                                    ''ARGUMENTS PASSED, CONTINUE SCRIPT
 	objOUT.write vbnewline & vbnewline & now & vbtab & " - EXECUTING RE-AGENT"
 	objLOG.write vbnewline & vbnewline & now & vbtab & " - EXECUTING RE-AGENT"
-	''AUTOMATIC UPDATE, RE-AGENT.VBS, REF #2 , FIXES #8
-	call CHKAU()
-	''DOWNLOAD WINDOWS AGENT MSI , 'ERRRET'=2 , REF #2 , FIXES #13
-	objOUT.write vbnewline & now & vbtab & vbtab & " - DOWNLOADING WINDOWS AGENT CUSTOMER-SPECIFIC EXE"
-  objLOG.write vbnewline & now & vbtab & vbtab & " - DOWNLOADING WINDOWS AGENT CUSTOMER-SPECIFIC EXE"
-  call FILEDL("http://ncentral.cwitsupport.com/dms/FileDownload?customerID=" & strCID & "&softwareID=101", strCID & "WindowsAgentSetup.exe")
-  if (errRET <> 0) then
-    call LOGERR(2)
-  end if
-  ''INSTALL WINDOWS AGENT
-  objOUT.write vbnewline & now & vbtab & vbtab & " - RE-CONFIGURING WINDOWS AGENT"
-  objLOG.write vbnewline & now & vbtab & vbtab & " - RE-CONFIGURING WINDOWS AGENT"
-  ''WINDOWS AGENT RE-CONFIGURATION COMMAND , REF #2 , FIXES #13
-  strRCMD = "c:\temp\" & strCID & "WindowsAgentSetup.exe -ai"
-	'strRCMD = "msiexec /i " & chr(34) & "c:\temp\windows agent.msi" & chr(34) & " /qn CUSTOMERID=" & strCID & _
-	'	" CUSTOMERNAME=" & chr(34) & strCNM & chr(34) & " SERVERPROTOCOL=https:// SERVERPORT=443 SERVERADDRESS=" & chr(34) & strSVR & chr(34) & _
-  '  " /l*v c:\temp\agent_install.log ALLUSERS=2"
-	''RE-CONFIGURE WINDOWS AGENT , 'ERRRET'=3
-	objOUT.write vbnewline & now & vbtab & vbtab & " - EXECUTING : " & strRCMD
-	objLOG.write vbnewline & now & vbtab & vbtab & " - EXECUTING : " & strRCMD
-	call HOOK(strRCMD)
-  if (errRET <> 0) then
-    call LOGERR(3)
+	''AUTOMATIC UPDATE, RE-AGENT.VBS, REF #2 , REF #68 , REF #69 , FIXES #8
+  ''DOWNLOAD CHKAU.VBS SCRIPT, REF #2 , REF #68 , REF #69
+  call FILEDL("https://github.com/CW-Khristos/scripts/raw/dev/chkAU.vbs", "chkAU.vbs")
+  ''EXECUTE CHKAU.VBS SCRIPT, REF #69
+  objOUT.write vbnewline & now & vbtab & vbtab & " - CHECKING FOR UPDATE : RE-AGENT : " & strVER
+  objLOG.write vbnewline & now & vbtab & vbtab & " - CHECKING FOR UPDATE : RE-AGENT : " & strVER
+  intRET = objWSH.run ("cmd.exe /C " & chr(34) & "cscript.exe " & chr(34) & "C:\temp\chkAU.vbs" & chr(34) & " " & _
+    chr(34) & strREPO & chr(34) & " " & chr(34) & strBRCH & chr(34) & " " & chr(34) & strDIR & chr(34) & " " & _
+    chr(34) & wscript.scriptname & chr(34) & " " & chr(34) & strVER & chr(34) & " " & _
+    chr(34) & strCID & "|" & strCNM & "|" & strSVR & chr(34), 0, true)
+  ''CHKAU RETURNED - NO UPDATE FOUND OR ERROR ENCOUNTERED IN AUTOMATED UPDATE, REF #2 , REF #68 , REF #69
+	if ((intRET = -1073741510) or (intRET = 10) or (intRET = 11) or (intRET = 1)) then
+    ''DOWNLOAD WINDOWS AGENT MSI , 'ERRRET'=2 , REF #2 , FIXES #13
+    objOUT.write vbnewline & now & vbtab & vbtab & " - DOWNLOADING WINDOWS AGENT CUSTOMER-SPECIFIC EXE"
+    objLOG.write vbnewline & now & vbtab & vbtab & " - DOWNLOADING WINDOWS AGENT CUSTOMER-SPECIFIC EXE"
+    call FILEDL("http://ncentral.cwitsupport.com/dms/FileDownload?customerID=" & strCID & "&softwareID=101", strCID & "WindowsAgentSetup.exe")
+    if (errRET <> 0) then
+      call LOGERR(2)
+    end if
+    ''INSTALL WINDOWS AGENT
+    objOUT.write vbnewline & now & vbtab & vbtab & " - RE-CONFIGURING WINDOWS AGENT"
+    objLOG.write vbnewline & now & vbtab & vbtab & " - RE-CONFIGURING WINDOWS AGENT"
+    ''WINDOWS AGENT RE-CONFIGURATION COMMAND , REF #2 , FIXES #13
+    strRCMD = "c:\temp\" & strCID & "WindowsAgentSetup.exe -ai"
+    objOUT.write vbnewline & now & vbtab & vbtab & " - EXECUTING : " & strRCMD
+    objLOG.write vbnewline & now & vbtab & vbtab & " - EXECUTING : " & strRCMD
+    call HOOK(strRCMD)
+    if (errRET <> 0) then
+      call LOGERR(3)
+    end if
   end if
 end if
 ''END SCRIPT
