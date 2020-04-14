@@ -324,6 +324,7 @@ sub LOGERR(intSTG)                                          ''CALL HOOK TO MONIT
 end sub
 
 sub CLEANUP()                                               ''SCRIPT CLEANUP
+  on error resume next
   if (errRET = 0) then         															''EXE_REPROBE COMPLETED SUCCESSFULLY
     objOUT.write vbnewline & "EXE_REPROBE SUCCESSFUL : " & errRET & " : " & now
     err.clear

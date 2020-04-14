@@ -319,6 +319,7 @@ sub LOGERR(intSTG)                                          ''CALL HOOK TO MONIT
 end sub
 
 sub CLEANUP()                                               ''SCRIPT CLEANUP
+  on error resume next
   if (errRET = 0) then         															''MSI_REPROBE_KEY COMPLETED SUCCESSFULLY
     objOUT.write vbnewline & "RE-PROBE SUCCESSFUL : " & errRET & " : " & now
     objLOG.write vbnewline & "RE-PROBE SUCCESSFUL : " & errRET & " : " & now
