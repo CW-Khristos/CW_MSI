@@ -100,7 +100,8 @@ elseif (errRET = 0) then                                    ''ARGUMENTS PASSED ,
     chr(34) & wscript.scriptname & chr(34) & " " & chr(34) & strVER & chr(34) & " " & _
     chr(34) & strCID & "|" & strCNM & "|" & strPRB & "|" & strUSR & "|" & strPWD & "|" & strSVR & chr(34), 0, true)
   ''CHKAU RETURNED - NO UPDATE FOUND , REF #2 , REF #69 , REF #68
-	if ((intRET = -1073741510) or (intRET = 10) or (intRET = 11) or (intRET = 1)) then
+  intRET = (intRET - vbObjectError)
+  if ((intRET = 4) or (intRET = 10) or (intRET = 11) or (intRET = 1)) then
     ''VERIFY NETWORK WORKGROUP / DOMAIN SETTINGS , REF #7 , FIXES #12
     set objEXEC = objWSH.exec("net config workstation")
     while (not objEXEC.stdout.atendofstream)
