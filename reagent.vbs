@@ -174,9 +174,11 @@ sub CLEANUP()                                               ''SCRIPT CLEANUP
   on error resume next
   if (errRET = 0) then         															''RE-AGENT COMPLETED SUCCESSFULLY
     objOUT.write vbnewline & "RE-AGENT SUCCESSFUL : " & errRET & " : " & now
+    objLOG.write vbnewline & "RE-AGENT SUCCESSFUL : " & errRET & " : " & now
     err.clear
   elseif (errRET <> 0) then    															''RE-AGENT FAILED
     objOUT.write vbnewline & "RE-AGENT FAILURE : " & errRET & " : " & now
+    objLOG.write vbnewline & "RE-AGENT FAILURE : " & errRET & " : " & now
     ''RAISE CUSTOMIZED ERROR CODE, ERROR CODE WILL BE DEFINE RESTOP NUMBER INDICATING WHICH SECTION FAILED
     call err.raise(vbObjectError + errRET, "RE-AGENT", "FAILURE")
   end if
