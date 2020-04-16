@@ -15,8 +15,8 @@ dim strCID, strCNM, strSVR
 ''SCRIPT OBJECTS
 dim objIN, objOUT, objARG, objWSH, objFSO
 dim objLOG, objEXEC, objHOOK, objHTTP, objXML
-''VERSION FOR SCRIPT UPDATE , RE-AGENT.VBS , REF #2 , FIXES #8 , FIXES #13
-strVER = 11
+''VERSION FOR SCRIPT UPDATE , RE-AGENT.VBS , REF #2 , REF #69 , FIXES #8 , FIXES #13
+strVER = 12
 ''DEFAULT SUCCESS
 errRET = 0
 ''STDIN / STDOUT
@@ -43,32 +43,42 @@ if (wscript.arguments.count > 0) then                       ''ARGUMENTS WERE PAS
     objOUT.write vbnewline & now & vbtab & " - ARGUMENT " & (x + 1) & " (ITEM " & x & ") " & " PASSED : " & ucase(objARG.item(x))
     objLOG.write vbnewline & now & vbtab & " - ARGUMENT " & (x + 1) & " (ITEM " & x & ") " & " PASSED : " & ucase(objARG.item(x))
   next 
-  if (wscript.arguments.count > 0) then                     ''SET REQUIRED VARIABLES ACCEPTING ARGUMENTS
+  if (wscript.arguments.count >= 2) then                    ''SET REQUIRED VARIABLES ACCEPTING ARGUMENTS
     strCID = objARG.item(0)                                 ''SET REQUIRED PARAMETER 'STRCID' , CUSTOMER ID
     strCNM = objARG.item(1)                                 ''SET REQUIRED PARAMETER 'STRCNM' , CUSTOMER NAME
     if (wscript.arguments.count = 2) then                   ''NO OPTIONAL ARGUMENTS PASSED
       strSVR = "ncentral.cwitsupport.com"                   ''SET OPTIONAL PARAMETER 'STRSVR' , 'DEFAULT' SERVER ADDRESS
-    elseif (wscript.arguments.count = 3) then               ''OPTIONAL ARGUMENTS PASSED
+    elseif (wscript.arguments.count > 2) then               ''OPTIONAL ARGUMENTS PASSED
+      strSVR = objARG.item(1)                               ''SET OPTIONAL PARAMETER 'STRSVR' , PASSED SERVER ADDRESS ; SEPARATE MULTIPLES WITH ','
       if (strSVR = vbnullstring) then                       ''OPTIONAL 'STRSVR' ARGUMENT EMPTY
         strSVR = "ncentral.cwitsupport.com"                 ''SET OPTIONAL PARAMETER 'STRSVR' , 'DEFAULT' SERVER ADDRESS
-      elseif (strSVR <> vbnullstring) then                  ''OPTIONAL 'STRSVR' ARGUMENT NOT EMPTY
-        strSVR = objARG.item(1)                             ''SET OPTIONAL PARAMETER 'STRSVR' , PASSED SERVER ADDRESS ; SEPARATE MULTIPLES WITH ','
       end if
     end if
-  else                                                      ''NOT ENOUGH ARGUMENTS PASSED , END SCRIPT , 'ERRRET'=1
+  elseif (wscript.arguments.count < 2) then                 ''NOT ENOUGH ARGUMENTS PASSED , END SCRIPT , 'ERRRET'=1
     call LOGERR(1)
   end if
+elseif (wscript.arguments.count = 0) then                   ''NOT ENOUGH ARGUMENTS PASSED , END SCRIPT , 'ERRRET'=1
+  call LOGERR(1)
 end if
 
 ''------------
 ''BEGIN SCRIPT
-if (errRET <> 0) then                                      ''NO ARGUMENTS PASSED, END SCRIPT , 'ERRRET'=1
-  call CLEANUP()
-elseif (errRET = 0) then                                   ''ARGUMENTS PASSED, CONTINUE SCRIPT
+if (errRET = 0) then                                        ''ARGUMENTS PASSED, CONTINUE SCRIPT
 	objOUT.write vbnewline & vbnewline & now & vbtab & " - EXECUTING MSI_REAGENT"
 	objLOG.write vbnewline & vbnewline & now & vbtab & " - EXECUTING MSI_REAGENT"
-	''AUTOMATIC UPDATE, MSI_REAGENT.VBS, REF #2 , FIXES #8
-	call CHKAU()
+	''AUTOMATIC UPDATE, MSI_REAGENT.VBS, REF #2 , REF #68 , REF #69 , FIXES #8
+  ''DOWNLOAD CHKAU.VBS SCRIPT, REF #2 , REF #68 , REF #69
+  call FILEDL("https://github.com/CW-Khristos/scripts/raw/dev/chkAU.vbs", "chkAU.vbs")
+  ''EXECUTE CHKAU.VBS SCRIPT, REF #69
+  objOUT.write vbnewline & now & vbtab & vbtab & " - CHECKING FOR UPDATE : MSI_REAGENT : " & strVER
+  objLOG.write vbnewline & now & vbtab & vbtab & " - CHECKING FOR UPDATE : MSI_REAGENT : " & strVER
+  intRET = objWSH.run ("cmd.exe /C " & chr(34) & "cscript.exe " & chr(34) & "C:\temp\chkAU.vbs" & chr(34) & " " & _
+    chr(34) & strREPO & chr(34) & " " & chr(34) & strBRCH & chr(34) & " " & chr(34) & strDIR & chr(34) & " " & _
+    chr(34) & wscript.scriptname & chr(34) & " " & chr(34) & strVER & chr(34) & " " & _
+    chr(34) & strCID & "|" & strCNM & "|" & strSVR & chr(34), 0, true)
+  ''CHKAU RETURNED - NO UPDATE FOUND , REF #2 , REF #69 , REF #68
+  intRET = (intRET - vbObjectError)
+  if ((intRET = 4) or (intRET = 10) or (intRET = 11) or (intRET = 1)) then
 	''DOWNLOAD WINDOWS AGENT MSI , 'ERRRET'=2 , REF #2 , FIXES #13
 	objOUT.write vbnewline & now & vbtab & vbtab & " - DOWNLOADING WINDOWS AGENT SYSTEM-SPECIFIC MSI"
   objLOG.write vbnewline & now & vbtab & vbtab & " - DOWNLOADING WINDOWS AGENT SYSTEM-SPECIFIC MSI"
@@ -91,6 +101,8 @@ elseif (errRET = 0) then                                   ''ARGUMENTS PASSED, C
   if (errRET <> 0) then
     call LOGERR(3)
   end if
+if (errRET <> 0) then                                       ''NO ARGUMENTS PASSED, END SCRIPT , 'ERRRET'=1
+  call LOGERR(errRET)
 end if
 ''END SCRIPT
 call CLEANUP()
@@ -98,63 +110,6 @@ call CLEANUP()
 ''------------
 
 ''SUB-ROUTINES
-sub CHKAU()																									''CHECK FOR SCRIPT UPDATE , 'ERRRET'=10 , MSI_REAGENT.VBS , REF #2 , FIXES #8
-  ''REMOVE WINDOWS AGENT CACHED VERSION OF SCRIPT
-  if (objFSO.fileexists("C:\Program Files (x86)\N-Able Technologies\Windows Agent\cache\" & wscript.scriptname)) then
-    objFSO.deletefile "C:\Program Files (x86)\N-Able Technologies\Windows Agent\cache\" & wscript.scriptname, true
-  end if
-	''ADD WINHTTP SECURE CHANNEL TLS REGISTRY KEYS
-	call HOOK("reg add " & chr(34) & "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Internet Settings\WinHttp" & chr(34) & _
-		" /f /v DefaultSecureProtocols /t REG_DWORD /d 0x00000A00 /reg:32")
-	call HOOK("reg add " & chr(34) & "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Internet Settings\WinHttp" & chr(34) & _
-		" /f /v DefaultSecureProtocols /t REG_DWORD /d 0x00000A00 /reg:64")
-	''SCRIPT OBJECT FOR PARSING XML
-	set objXML = createobject("Microsoft.XMLDOM")
-	''FORCE SYNCHRONOUS
-	objXML.async = false
-	''LOAD SCRIPT VERSIONS DATABASE XML
-	if objXML.load("https://github.com/CW-Khristos/scripts/raw/dev/version.xml") then
-		set colVER = objXML.documentelement
-		for each objSCR in colVER.ChildNodes
-			''LOCATE CURRENTLY RUNNING SCRIPT
-			if (lcase(objSCR.nodename) = lcase(wscript.scriptname)) then
-				''CHECK LATEST VERSION
-        objOUT.write vbnewline & now & vbtab & " - MSI_REAGENT :  " & strVER & " : GitHub : " & objSCR.text & vbnewline
-        objLOG.write vbnewline & now & vbtab & " - MSI_REAGENT :  " & strVER & " : GitHub : " & objSCR.text & vbnewline
-				if (cint(objSCR.text) > cint(strVER)) then
-					objOUT.write vbnewline & now & vbtab & " - UPDATING " & objSCR.nodename & " : " & objSCR.text & vbnewline
-					objLOG.write vbnewline & now & vbtab & " - UPDATING " & objSCR.nodename & " : " & objSCR.text & vbnewline
-					''DOWNLOAD LATEST VERSION OF SCRIPT
-					call FILEDL("https://github.com/CW-Khristos/CW_MSI/raw/dev/msi_reagent.vbs", wscript.scriptname)
-					''RUN LATEST VERSION
-					if (wscript.arguments.count > 0) then             ''ARGUMENTS WERE PASSED
-						for x = 0 to (wscript.arguments.count - 1)
-							strTMP = strTMP & " " & chr(34) & objARG.item(x) & chr(34)
-						next
-            objOUT.write vbnewline & now & vbtab & " - RE-EXECUTING " & objSCR.nodename & " : " & objSCR.text & vbnewline
-            objLOG.write vbnewline & now & vbtab & " - RE-EXECUTING  " & objSCR.nodename & " : " & objSCR.text & vbnewline
-						objWSH.run "cscript.exe //nologo " & chr(34) & "c:\temp\" & wscript.scriptname & chr(34) & strTMP, 0, false
-					elseif (wscript.arguments.count = 0) then         ''NO ARGUMENTS WERE PASSED
-            objOUT.write vbnewline & now & vbtab & " - RE-EXECUTING  " & objSCR.nodename & " : " & objSCR.text & vbnewline
-            objLOG.write vbnewline & now & vbtab & " - RE-EXECUTING  " & objSCR.nodename & " : " & objSCR.text & vbnewline
-						objWSH.run "cscript.exe //nologo " & chr(34) & "c:\temp\" & wscript.scriptname & chr(34), 0, false
-					end if
-          if (err.number <> 0) then
-            call LOGERR(10)
-          end if
-					''END SCRIPT
-					call CLEANUP()
-				end if
-			end if
-		next
-	end if
-	set colVER = nothing
-	set objXML = nothing
-  if (err.number <> 0) then                                 ''ERROR RETURNED DURING UPDATE CHECK , 'ERRRET'=10
-    call LOGERR(10)
-  end if
-end sub
-
 sub FILEDL(strURL, strFILE)                                 ''CALL HOOK TO DOWNLOAD FILE FROM URL , 'ERRRET'=11
   strSAV = vbnullstring
   ''SET DOWNLOAD PATH
@@ -215,6 +170,7 @@ sub HOOK(strCMD)                                            ''CALL HOOK TO MONIT
 end sub
 
 sub LOGERR(intSTG)                                          ''CALL HOOK TO MONITOR OUTPUT OF CALLED COMMAND
+  errRET = intSTG
   if (err.number <> 0) then
     objOUT.write vbnewline & now & vbtab & vbtab & vbtab & err.number & vbtab & err.description & vbnewline
     objLOG.write vbnewline & now & vbtab & vbtab & vbtab & err.number & vbtab & err.description & vbnewline
@@ -222,19 +178,20 @@ sub LOGERR(intSTG)                                          ''CALL HOOK TO MONIT
   end if
   select case intSTG
     case 1                                                  '' 'ERRRET'=1 - NOT ENOUGH ARGUMENTS
-      objOUT.write vbnewline & vbnewline & now & vbtab & " - SCRIPT REQUIRES CUSTOMER ID"
-      objLOG.write vbnewline & vbnewline & now & vbtab & " - SCRIPT REQUIRES CUSTOMER ID"
+      objOUT.write vbnewline & vbnewline & now & vbtab & " - SCRIPT REQUIRES CUSTOMER ID AND CUSTOMER NAME"
+      objLOG.write vbnewline & vbnewline & now & vbtab & " - SCRIPT REQUIRES CUSTOMER ID AND CUSTOMER NAME"
   end select
-  errRET = intSTG
 end sub
 
 sub CLEANUP()                                               ''SCRIPT CLEANUP
   on error resume next
   if (errRET = 0) then         															''MSI_REAGENT COMPLETED SUCCESSFULLY
     objOUT.write vbnewline & "MSI_REAGENT SUCCESSFUL : " & errRET & " : " & now
+    objLOG.write vbnewline & "MSI_REAGENT SUCCESSFUL : " & errRET & " : " & now
     err.clear
   elseif (errRET <> 0) then    															''MSI_REAGENT FAILED
     objOUT.write vbnewline & "MSI_REAGENT FAILURE : " & errRET & " : " & now
+    objLOG.write vbnewline & "MSI_REAGENT FAILURE : " & errRET & " : " & now
     ''RAISE CUSTOMIZED ERROR CODE, ERROR CODE WILL BE DEFINE RESTOP NUMBER INDICATING WHICH SECTION FAILED
     call err.raise(vbObjectError + errRET, "MSI_REAGENT", "FAILURE")
   end if
