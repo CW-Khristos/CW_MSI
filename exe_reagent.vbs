@@ -52,11 +52,10 @@ if (wscript.arguments.count > 0) then                       ''ARGUMENTS WERE PAS
     strCNM = objARG.item(1)                                 ''SET REQUIRED PARAMETER 'STRCNM' , CUSTOMER NAME
     if (wscript.arguments.count = 2) then                   ''NO OPTIONAL ARGUMENTS PASSED
       strSVR = "ncentral.cwitsupport.com"                   ''SET OPTIONAL PARAMETER 'STRSVR' , 'DEFAULT' SERVER ADDRESS
-    elseif (wscript.arguments.count = 3) then               ''OPTIONAL ARGUMENTS PASSED
+    elseif (wscript.arguments.count > 2) then               ''OPTIONAL ARGUMENTS PASSED
+      strSVR = objARG.item(1)                               ''SET OPTIONAL PARAMETER 'STRSVR' , PASSED SERVER ADDRESS ; SEPARATE MULTIPLES WITH ','
       if (strSVR = vbnullstring) then                       ''OPTIONAL 'STRSVR' ARGUMENT EMPTY
         strSVR = "ncentral.cwitsupport.com"                 ''SET OPTIONAL PARAMETER 'STRSVR' , 'DEFAULT' SERVER ADDRESS
-      elseif (strSVR <> vbnullstring) then                  ''OPTIONAL 'STRSVR' ARGUMENT NOT EMPTY
-        strSVR = objARG.item(1)                             ''SET OPTIONAL PARAMETER 'STRSVR' , PASSED SERVER ADDRESS ; SEPARATE MULTIPLES WITH ','
       end if
     end if
   elseif (wscript.arguments.count < 2) then                 ''NOT ENOUGH ARGUMENTS PASSED , END SCRIPT , 'ERRRET'=1
