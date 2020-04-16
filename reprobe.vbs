@@ -6,7 +6,7 @@
 ''REQUIRED PARAMETER : 'STRCNM' , STRING TO SET CUSTOMER NAME
 ''REQUIRED PARAMETER : 'STRPRB' , STRING TO SET PROBE TYPE
 ''REQUIRED PARAMETER : 'STRDMN' , STRING TO SET DOMAIN
-''REQUIRED PARAMETER : 'STRUSR' , STRING TO SET USER
+''REQUIRED PARAMETER : 'STRUSR' , STRING TO SET USER; 'LOCAL' - PASS 'USERNAME' ONLY; AND 'DOMAIN' - 'DOMAIN\USER' DOMAIN LOGON
 ''REQUIRED PARAMETER : 'STRPWD' , STRING TO SET PASSWORD
 ''OPTIONAL PARAMETER : 'STRSVR' , STRING TO SET SERVER ADDRESS
 ''WRITTEN BY : CJ BLEDSOE / CJ<@>THECOMPUTERWARRIORS.COM
@@ -20,8 +20,11 @@ dim strPRB, strDMN, strUSR, strPWD
 ''SCRIPT OBJECTS
 dim objIN, objOUT, objARG, objWSH, objFSO
 dim objLOG, objEXEC, objHOOK, objHTTP, objXML
-''VERSION FOR SCRIPT UPDATE , RE-PROBE.VBS , REF #2 , FIXES #7
-strVER = 14
+''VERSION FOR SCRIPT UPDATE , RE-PROBE.VBS , REF #2 , REF #69 , FIXES #7
+strVER = 15
+strREPO = "CW_MSI"
+strBRCH = "dev"
+strDIR = vbnullstring
 ''DEFAULT SUCCESS
 errRET = 0
 ''STDIN / STDOUT
@@ -59,16 +62,18 @@ if (wscript.arguments.count > 0) then                       ''ARGUMENTS WERE PAS
     end if
     strUSR = objARG.item(3)                                 ''SET REQUIRED PARAMETER 'STRUSR' , TARGET USER
     if (instr(1, strUSR, "\")) then                         ''INPUT VALIDATION FOR 'STRUSR'
+      strDMN = split(strUSR, "\")(0)                        '' 'LOCAL' - PASS 'USERNAME' ONLY; AND 'DOMAIN' - 'DOMAIN\USER' DOMAIN LOGON
       strUSR = split(strUSR, "\")(1)                        ''STRIP WORKGROUP / DOMAIN FROM PASSED VARIABLE TO ENSURE WE HAVE USER NAME ONLY
+    elseif (instr(1, strUSR, "\") = 0) then                 ''INPUT VALIDATION FOR 'STRUSR'
+      strDMN = "."                                          '' CONVERT 'LOCAL' FOR SCRIPT RE-EXECUTION IN CHKAU.VBS
     end if
     strPWD = objARG.item(4)                                 ''SET REQUIRED PARAMETER 'STRPWD' , USER PASSWORD
     if (wscript.arguments.count = 5) then                   ''NO OPTIONAL ARGUMENT PASSED
       strSVR = "ncentral.cwitsupport.com"                   ''SET OPTIONAL PARAMETER 'STRSVR' , 'DEFAULT' SERVER ADDRESS
-    elseif (wscript.arguments.count = 6) then               ''OPTIONAL ARGUMENT PASSED
+    elseif (wscript.arguments.count > 5) then               ''OPTIONAL ARGUMENTS PASSED
+      strSVR = objARG.item(5)                               ''SET OPTIONAL PARAMETER 'STRSVR' , PASSED SERVER ADDRESS; SEPARATE MULTIPLES WITH ','
       if (strSVR = vbnullstring) then                       ''OPTIONAL 'STRSVR' ARGUMENT EMPTY
         strSVR = "ncentral.cwitsupport.com"                 ''SET OPTIONAL PARAMETER 'STRSVR' , 'DEFAULT' SERVER ADDRESS
-      elseif (strSVR <> vbnullstring) then                  ''OPTIONAL 'STRSVR' ARGUMENT NOT EMPTY
-        strSVR = objARG.item(5)                             ''SET OPTIONAL PARAMETER 'STRSVR' , PASSED SERVER ADDRESS; SEPARATE MULTIPLES WITH ','
       end if
     end if
   else                                                      ''NOT ENOUGH ARGUMENTS PASSED , END SCRIPT , 'ERRRET'=1
@@ -94,33 +99,34 @@ elseif (errRET = 0) then                                    ''ARGUMENTS PASSED ,
   intRET = objWSH.run ("cmd.exe /C " & chr(34) & "cscript.exe " & chr(34) & "C:\temp\chkAU.vbs" & chr(34) & " " & _
     chr(34) & strREPO & chr(34) & " " & chr(34) & strBRCH & chr(34) & " " & chr(34) & strDIR & chr(34) & " " & _
     chr(34) & wscript.scriptname & chr(34) & " " & chr(34) & strVER & chr(34) & " " & _
-    chr(34) & strCID & "|" & strCNM & "|" & strPRB & "|" & strUSR & "|" & strPWD & "|" & strSVR & chr(34), 0, true)
+    chr(34) & strCID & "|" & strCNM & "|" & strPRB & "|" & strDMN & "\" & strUSR & "|" & strPWD & "|" & strSVR & chr(34), 0, true)
   ''CHKAU RETURNED - NO UPDATE FOUND , REF #2 , REF #69 , REF #68
   intRET = (intRET - vbObjectError)
   if ((intRET = 4) or (intRET = 10) or (intRET = 11) or (intRET = 1)) then
+    ''DISABLED VERIFY NETWORK SETTINGS; WILL BE PASSING NETWORK TYPE AS PARAMETER , REF #71
     ''VERIFY NETWORK WORKGROUP / DOMAIN SETTINGS , REF #7 , FIXES #12
-    set objEXEC = objWSH.exec("net config workstation")
-    while (not objEXEC.stdout.atendofstream)
-      strIN = objEXEC.stdout.readline
-      'objOUT.write vbnewline & now & vbtab & vbtab & strIN
-      'objLOG.write vbnewline & now & vbtab & vbtab & strIN
-      if ((trim(strIN) <> vbnullstring) and (instr(1, lcase(strIN), "logon domain"))) then
-        objOUT.write vbnewline & now & vbtab & vbtab & strIN
-        objLOG.write vbnewline & now & vbtab & vbtab & strIN
-        strDMN = (split(strIN, " ")(ubound(split(strIN, " "))))
-        ''HANDLE "\" IN PASSED 'STRUSR'
-        if (instr(1, lcase(strUSR), "\")) then
-          strUSR = strDMN & "\" & split(strUSR, "\")(1)
-        ''HANDLE NO "\" IN PASSED 'STRUSR'
-        elseif (instr(1, lcase(strUSR), "\") = 0) then
-          strUSR = strDMN & "\" & strUSR
-        end if
-      end if
-      if (err.number <> 0) then
-        call LOGERR(2)
-      end if
-    wend
-    set objEXEC = nothing
+    'set objEXEC = objWSH.exec("net config workstation")
+    'while (not objEXEC.stdout.atendofstream)
+    '  strIN = objEXEC.stdout.readline
+    '  'objOUT.write vbnewline & now & vbtab & vbtab & strIN
+    '  'objLOG.write vbnewline & now & vbtab & vbtab & strIN
+    '  if ((trim(strIN) <> vbnullstring) and (instr(1, lcase(strIN), "logon domain"))) then
+    '    objOUT.write vbnewline & now & vbtab & vbtab & strIN
+    '    objLOG.write vbnewline & now & vbtab & vbtab & strIN
+    '    strDMN = (split(strIN, " ")(ubound(split(strIN, " "))))
+    '    ''HANDLE "\" IN PASSED 'STRUSR'
+    '    if (instr(1, lcase(strUSR), "\")) then
+    '      strUSR = strDMN & "\" & split(strUSR, "\")(1)
+    '    ''HANDLE NO "\" IN PASSED 'STRUSR'
+    '    elseif (instr(1, lcase(strUSR), "\") = 0) then
+    '      strUSR = strDMN & "\" & strUSR
+    '    end if
+    '  end if
+    '  if (err.number <> 0) then
+    '    call LOGERR(2)
+    '  end if
+    'wend
+    'set objEXEC = nothing
     ''DOWNLOAD SVCPERM.VBS SCRIPT TO GRANT USER SERVICE LOGON , 'ERRRET'=2
     objOUT.write vbnewline & now & vbtab & vbtab & " - DOWNLOADING SERVICE LOGON SCRIPT : SVCPERM"
     objLOG.write vbnewline & now & vbtab & vbtab & " - DOWNLOADING SERVICE LOGON SCRIPT : SVCPERM"
@@ -132,9 +138,9 @@ elseif (errRET = 0) then                                    ''ARGUMENTS PASSED ,
     objOUT.write vbnewline & now & vbtab & vbtab & " - EXECUTING SERVICE LOGON SCRIPT : SVCPERM"
     objLOG.write vbnewline & now & vbtab & vbtab & " - EXECUTING SERVICE LOGON SCRIPT : SVCPERM"
     if ((strDMN <> vbnullstring) and (strDMN <> ".")) then   ''EXECUTE SVCPERM.VBS AT DOMAIN LEVEL
-      call HOOK("cscript.exe //nologo " & chr(34) & "c:\temp\svcperm.vbs" & chr(34) & " " & chr(34) & strUSR & chr(34))
+      call HOOK("cscript.exe //nologo " & chr(34) & "c:\temp\svcperm.vbs" & chr(34) & " " & chr(34) & strDMN & "\" & strUSR & chr(34) & " " & chr(34) & "domain" & chr(34))
     elseif ((strDMN = vbnullstring) or (strDMN = ".")) then  ''EXECUTE SVCPERM.VBS AT LOCAL LEVEL
-      call HOOK("cscript.exe //nologo " & chr(34) & "c:\temp\svcperm.vbs" & chr(34) & " " & chr(34) & strUSR & chr(34))
+      call HOOK("cscript.exe //nologo " & chr(34) & "c:\temp\svcperm.vbs" & chr(34) & " " & chr(34) & strUSR & chr(34) & " " & chr(34) & "local" & chr(34))
     end if
     if (errRET <> 0) then
       call LOGERR(3)
@@ -188,61 +194,6 @@ call CLEANUP()
 ''------------
 
 ''SUB-ROUTINES
-sub CHKAU()																									''CHECK FOR SCRIPT UPDATE , 'ERRRET'=10 , RE-PROBE.VBS, REF #2 , FIXES #7
-  ''REMOVE WINDOWS AGENT CACHED VERSION OF SCRIPT
-  if (objFSO.fileexists("C:\Program Files (x86)\N-Able Technologies\Windows Agent\cache\" & wscript.scriptname)) then
-    objFSO.deletefile "C:\Program Files (x86)\N-Able Technologies\Windows Agent\cache\" & wscript.scriptname, true
-  end if
-	''ADD WINHTTP SECURE CHANNEL TLS REGISTRY KEYS
-	call HOOK("reg add " & chr(34) & "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Internet Settings\WinHttp" & chr(34) & _
-		" /f /v DefaultSecureProtocols /t REG_DWORD /d 0x00000A00 /reg:32")
-	call HOOK("reg add " & chr(34) & "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Internet Settings\WinHttp" & chr(34) & _
-		" /f /v DefaultSecureProtocols /t REG_DWORD /d 0x00000A00 /reg:64")
-	''SCRIPT OBJECT FOR PARSING XML
-	set objXML = createobject("Microsoft.XMLDOM")
-	''FORCE SYNCHRONOUS
-	objXML.async = false
-	''LOAD SCRIPT VERSIONS DATABASE XML
-	if objXML.load("https://github.com/CW-Khristos/scripts/raw/master/version.xml") then
-		set colVER = objXML.documentelement
-		for each objSCR in colVER.ChildNodes
-			''LOCATE CURRENTLY RUNNING SCRIPT
-			if (lcase(objSCR.nodename) = lcase(wscript.scriptname)) then
-				''CHECK LATEST VERSION
-        objOUT.write vbnewline & now & vbtab & " - Re-Probe :  " & strVER & " : GitHub : " & objSCR.text & vbnewline
-        objLOG.write vbnewline & now & vbtab & " - Re-Probe :  " & strVER & " : GitHub : " & objSCR.text & vbnewline
-				if (cint(objSCR.text) > cint(strVER)) then
-					objOUT.write vbnewline & now & vbtab & " - UPDATING " & objSCR.nodename & " : " & objSCR.text & vbnewline
-					objLOG.write vbnewline & now & vbtab & " - UPDATING " & objSCR.nodename & " : " & objSCR.text & vbnewline
-					''DOWNLOAD LATEST VERSION OF SCRIPT
-					call FILEDL("https://github.com/CW-Khristos/CW_MSI/raw/master/reprobe.vbs", wscript.scriptname)
-					''RUN LATEST VERSION
-					if (wscript.arguments.count > 0) then             ''ARGUMENTS WERE PASSED
-						for x = 0 to (wscript.arguments.count - 1)
-							strTMP = strTMP & " " & chr(34) & objARG.item(x) & chr(34)
-						next
-            objOUT.write vbnewline & now & vbtab & " - RE-EXECUTING  " & objSCR.nodename & " : " & objSCR.text & vbnewline
-            objLOG.write vbnewline & now & vbtab & " - RE-EXECUTING  " & objSCR.nodename & " : " & objSCR.text & vbnewline
-						objWSH.run "cscript.exe //nologo " & chr(34) & "c:\temp\" & wscript.scriptname & chr(34) & strTMP, 0, false
-					elseif (wscript.arguments.count = 0) then         ''NO ARGUMENTS WERE PASSED
-            objOUT.write vbnewline & now & vbtab & " - RE-EXECUTING  " & objSCR.nodename & " : " & objSCR.text & vbnewline
-            objLOG.write vbnewline & now & vbtab & " - RE-EXECUTING  " & objSCR.nodename & " : " & objSCR.text & vbnewline
-						objWSH.run "cscript.exe //nologo " & chr(34) & "c:\temp\" & wscript.scriptname & chr(34), 0, false
-					end if
-					''SET 'ERRRET'=11, END SCRIPT
-          errRET = 11
-					call CLEANUP()
-				end if
-			end if
-		next
-	end if
-	set colVER = nothing
-	set objXML = nothing
-  if (err.number <> 0) then                                 ''ERROR RETURNED DURING UPDATE CHECK , 'ERRRET'=10
-    call LOGERR(10)
-  end if
-end sub
-
 sub FILEDL(strURL, strFILE)                                 ''CALL HOOK TO DOWNLOAD FILE FROM URL , 'ERRRET'=11
   strSAV = vbnullstring
   ''SET DOWNLOAD PATH
@@ -320,9 +271,11 @@ sub CLEANUP()                                               ''SCRIPT CLEANUP
   on error resume next
   if (errRET = 0) then         															''RE-PROBE COMPLETED SUCCESSFULLY
     objOUT.write vbnewline & "RE-PROBE SUCCESSFUL : " & errRET & " : " & now
+    objLOG.write vbnewline & "RE-PROBE SUCCESSFUL : " & errRET & " : " & now
     err.clear
   elseif (errRET <> 0) then    															''RE-PROBE FAILED
     objOUT.write vbnewline & "RE-PROBE FAILURE : " & errRET & " : " & now
+    objLOG.write vbnewline & "RE-PROBE FAILURE : " & errRET & " : " & now
     ''RAISE CUSTOMIZED ERROR CODE, ERROR CODE WILL BE DEFINE RESTOP NUMBER INDICATING WHICH SECTION FAILED
     call err.raise(vbObjectError + errRET, "RE-PROBE", "FAILURE")
   end if
