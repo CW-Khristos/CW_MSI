@@ -94,7 +94,7 @@ if (errRET = 0) then                                        ''ARGUMENTS PASSED, 
     ''WINDOWS AGENT RE-CONFIGURATION COMMAND , REF #2 , FIXES #13
     'strRCMD = "c:\temp\" & strCID & "WindowsAgentSetup.exe -ai"
     strRCMD = "msiexec /i " & chr(34) & "c:\temp\windows agent.msi" & chr(34) & " /qn CUSTOMERID=" & strCID & _
-      " CUSTOMERNAME=" & chr(34) & strCNM & chr(34) & " SERVERPROTOCOL=https:// SERVERPORT=443 SERVERADDRESS=" & chr(34) & strSVR & chr(34) & _
+      " CUSTOMERNAME=" & chr(34) & strCNM & chr(34) & " SERVERPROTOCOL=HTTPS SERVERPORT=443 SERVERADDRESS=" & chr(34) & strSVR & chr(34) & _
       " /l*v c:\temp\agent_install.log ALLUSERS=2"
     ''RE-CONFIGURE WINDOWS AGENT , 'ERRRET'=3
     objOUT.write vbnewline & now & vbtab & vbtab & " - EXECUTING : " & strRCMD
