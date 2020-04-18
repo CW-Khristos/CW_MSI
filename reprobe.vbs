@@ -55,7 +55,7 @@ if (wscript.arguments.count > 0) then                       ''ARGUMENTS WERE PAS
     strCID = objARG.item(0)                                 ''SET REQUIRED PARAMTERS 'STRCID' , CUSTOMER ID
     strCNM = objARG.item(1)                                 ''SET REQUIRED PARAMETER 'STRCNM' , CUSTOMER NAME
     strPRB = objARG.item(2)                                 ''SET REQUIRED PARAMETER 'STRPRB' , PROBE TYPE - WORKGROUP_WINDOWS / NETWORK_WINDOWS
-    if (lcase(strPRB) = "workgroup") then
+    if ((lcase(strPRB) = "workgroup") or (lcase(strPRB) = "local")) then
       strPRB = "Workgroup_Windows"
     elseif ((lcase(strPRB) = "network") or (lcase(strPRB) = "domain")) then
       strPRB= "Network_Windows"
