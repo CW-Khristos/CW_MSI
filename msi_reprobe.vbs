@@ -20,8 +20,11 @@ dim strPRB, strDMN, strUSR, strPWD
 ''SCRIPT OBJECTS
 dim objIN, objOUT, objARG, objWSH, objFSO
 dim objLOG, objEXEC, objHOOK, objHTTP, objXML
-''VERSION FOR SCRIPT UPDATE , MSI_REPROBE.VBS , REF #2 , FIXES #7
+''VERSION FOR SCRIPT UPDATE , MSI_REPROBE.VBS , REF #2 , REF #69 , FIXES #7
 strVER = 13
+strREPO = "CW_MSI"
+strBRCH = "dev"
+strDIR = vbnullstring
 ''DEFAULT SUCCESS
 errRET = 0
 ''STDIN / STDOUT
@@ -59,7 +62,10 @@ if (wscript.arguments.count > 0) then                       ''ARGUMENTS WERE PAS
     end if
     strUSR = objARG.item(3)                                 ''SET REQUIRED PARAMETER 'STRUSR' , TARGET USER
     if (instr(1, strUSR, "\")) then                         ''INPUT VALIDATION FOR 'STRUSR'
+      strDMN = split(strUSR, "\")(0)                        '' 'LOCAL' - PASS 'USERNAME' ONLY; AND 'DOMAIN' - 'DOMAIN\USER' DOMAIN LOGON
       strUSR = split(strUSR, "\")(1)                        ''STRIP WORKGROUP / DOMAIN FROM PASSED VARIABLE TO ENSURE WE HAVE USER NAME ONLY
+    elseif (instr(1, strUSR, "\") = 0) then                 ''INPUT VALIDATION FOR 'STRUSR'
+      strDMN = "."                                          '' CONVERT 'LOCAL' FOR SCRIPT RE-EXECUTION IN CHKAU.VBS
     end if
     strPWD = objARG.item(4)                                 ''SET REQUIRED PARAMETER 'STRPWD' , USER PASSWORD
     if (wscript.arguments.count = 5) then                   ''NO OPTIONAL ARGUMENT PASSED
@@ -80,87 +86,102 @@ end if
 
 ''------------
 ''BEGIN SCRIPT
-if (errRET <> 0) then                                       ''NO ARGUMENTS PASSED , END SCRIPT , 'ERRRET'=1
-  call CLEANUP()
-elseif (errRET = 0) then                                    ''ARGUMENTS PASSED , CONTINUE SCRIPT
+if (errRET = 0) then                                        ''ARGUMENTS PASSED , CONTINUE SCRIPT
 	objOUT.write vbnewline & vbnewline & now & vbtab & " - EXECUTING : MSI_REPROBE"
 	objLOG.write vbnewline & vbnewline & now & vbtab & " - EXECUTING : MSI_REPROBE"
-	''AUTOMATIC UPDATE, MSI_REPROBE.VBS, REF #2 , FIXES #7
-	call CHKAU()
-  ''VERIFY NETWORK WORKGROUP / DOMAIN SETTINGS , REF #7 , FIXES #12
-  set objEXEC = objWSH.exec("net config workstation")
-  while (not objEXEC.stdout.atendofstream)
-    strIN = objEXEC.stdout.readline
-    'objOUT.write vbnewline & now & vbtab & vbtab & strIN
-    'objLOG.write vbnewline & now & vbtab & vbtab & strIN
-    if ((trim(strIN) <> vbnullstring) and (instr(1, lcase(strIN), "logon domain"))) then
-      objOUT.write vbnewline & now & vbtab & vbtab & strIN
-      objLOG.write vbnewline & now & vbtab & vbtab & strIN
-      strDMN = (split(strIN, " ")(ubound(split(strIN, " "))))
-      ''HANDLE "\" IN PASSED 'STRUSR'
-      if (instr(1, lcase(strUSR), "\")) then
-        strUSR = strDMN & "\" & split(strUSR, "\")(1)
-      ''HANDLE NO "\" IN PASSED 'STRUSR'
-      elseif (instr(1, lcase(strUSR), "\") = 0) then
-        strUSR = strDMN & "\" & strUSR
-      end if
-    end if
-    if (err.number <> 0) then
+	''AUTOMATIC UPDATE, MSI_REPROBE.VBS, REF #2 , REF #68 , REF #69 , FIXES #7
+  ''DOWNLOAD CHKAU.VBS SCRIPT, REF #2 , REF #68 , REF #69
+  call FILEDL("https://github.com/CW-Khristos/scripts/raw/dev/chkAU.vbs", "chkAU.vbs")
+  ''EXECUTE CHKAU.VBS SCRIPT, REF #69
+  objOUT.write vbnewline & now & vbtab & vbtab & " - CHECKING FOR UPDATE : MSI_REPROBE : " & strVER
+  objLOG.write vbnewline & now & vbtab & vbtab & " - CHECKING FOR UPDATE : MSI_REPROBE : " & strVER
+  intRET = objWSH.run ("cmd.exe /C " & chr(34) & "cscript.exe " & chr(34) & "C:\temp\chkAU.vbs" & chr(34) & " " & _
+    chr(34) & strREPO & chr(34) & " " & chr(34) & strBRCH & chr(34) & " " & chr(34) & strDIR & chr(34) & " " & _
+    chr(34) & wscript.scriptname & chr(34) & " " & chr(34) & strVER & chr(34) & " " & _
+    chr(34) & strCID & "|" & strCNM & "|" & strPRB & "|" & strDMN & "\" & strUSR & "|" & strPWD & "|" & strSVR & chr(34) & chr(34), 0, true)
+  ''CHKAU RETURNED - NO UPDATE FOUND , REF #2 , REF #68 , REF #69
+  intRET = (intRET - vbObjectError)
+  if ((intRET = 4) or (intRET = 10) or (intRET = 11) or (intRET = 1)) then
+    objOUT.write vbnewline & now & vbtab & vbtab & " - NO UPDATE FOUND : MSI_REPROBE : " & strVER
+    objLOG.write vbnewline & now & vbtab & vbtab & " - NO UPDATE FOUND : MSI_REPROBE : " & strVER
+    ''DISABLED VERIFY NETWORK SETTINGS; WILL BE PASSING NETWORK TYPE AS PARAMETER , REF #71
+    ''VERIFY NETWORK WORKGROUP / DOMAIN SETTINGS , REF #7 , FIXES #12
+    'set objEXEC = objWSH.exec("net config workstation")
+    'while (not objEXEC.stdout.atendofstream)
+    '  strIN = objEXEC.stdout.readline
+    '  'objOUT.write vbnewline & now & vbtab & vbtab & strIN
+    '  'objLOG.write vbnewline & now & vbtab & vbtab & strIN
+    '  if ((trim(strIN) <> vbnullstring) and (instr(1, lcase(strIN), "logon domain"))) then
+    '    objOUT.write vbnewline & now & vbtab & vbtab & strIN
+    '    objLOG.write vbnewline & now & vbtab & vbtab & strIN
+    '    strDMN = (split(strIN, " ")(ubound(split(strIN, " "))))
+    '    ''HANDLE "\" IN PASSED 'STRUSR'
+    '    if (instr(1, lcase(strUSR), "\")) then
+    '      strUSR = strDMN & "\" & split(strUSR, "\")(1)
+    '    ''HANDLE NO "\" IN PASSED 'STRUSR'
+    '    elseif (instr(1, lcase(strUSR), "\") = 0) then
+    '      strUSR = strDMN & "\" & strUSR
+    '    end if
+    '  end if
+    '  if (err.number <> 0) then
+    '    call LOGERR(2)
+    '  end if
+    'wend
+    'set objEXEC = nothing
+    ''DOWNLOAD SVCPERM.VBS SCRIPT TO GRANT USER SERVICE LOGON , 'ERRRET'=2
+    objOUT.write vbnewline & now & vbtab & vbtab & " - DOWNLOADING SERVICE LOGON SCRIPT : SVCPERM"
+    objLOG.write vbnewline & now & vbtab & vbtab & " - DOWNLOADING SERVICE LOGON SCRIPT : SVCPERM"
+    call FILEDL("https://github.com/CW-Khristos/scripts/raw/dev/SVCperm.vbs", "SVCperm.vbs")
+    if (errRET <> 0) then
       call LOGERR(2)
     end if
-  wend
-  set objEXEC = nothing
-  ''DOWNLOAD SVCPERM.VBS SCRIPT TO GRANT USER SERVICE LOGON , 'ERRRET'=2
-  objOUT.write vbnewline & now & vbtab & vbtab & " - DOWNLOADING SERVICE LOGON SCRIPT : SVCPERM"
-  objLOG.write vbnewline & now & vbtab & vbtab & " - DOWNLOADING SERVICE LOGON SCRIPT : SVCPERM"
-  call FILEDL("https://github.com/CW-Khristos/scripts/raw/dev/SVCperm.vbs", "SVCperm.vbs")
-  if (errRET <> 0) then
-    call LOGERR(2)
+    ''EXECUTE SERVICE LOGON SCRIPT : SVCPERM , 'ERRRET'=3
+    objOUT.write vbnewline & now & vbtab & vbtab & " - EXECUTING SERVICE LOGON SCRIPT : SVCPERM"
+    objLOG.write vbnewline & now & vbtab & vbtab & " - EXECUTING SERVICE LOGON SCRIPT : SVCPERM"
+    if ((strDMN <> vbnullstring) and (strDMN <> ".")) then   ''EXECUTE SVCPERM.VBS AT DOMAIN LEVEL
+      call HOOK("cscript.exe //nologo " & chr(34) & "c:\temp\svcperm.vbs" & chr(34) & " " & chr(34) & strUSR & chr(34))
+    elseif ((strDMN = vbnullstring) or (strDMN = ".")) then  ''EXECUTE SVCPERM.VBS AT LOCAL LEVEL
+      call HOOK("cscript.exe //nologo " & chr(34) & "c:\temp\svcperm.vbs" & chr(34) & " " & chr(34) & strUSR & chr(34))
+    end if
+    if (errRET <> 0) then
+      call LOGERR(3)
+    end if
+    ''DOWNLOAD WINDOWS PROBE MSI , 'ERRRET'=4
+    objOUT.write vbnewline & now & vbtab & vbtab & " - DOWNLOADING WINDOWS PROBE SYSTEM-SPECIFIC MSI"
+    objLOG.write vbnewline & now & vbtab & vbtab & " - DOWNLOADING WINDOWS PROBE SYSTEM-SPECIFIC MSI"
+    call FILEDL("https://github.com/CW-Khristos/CW_MSI/raw/master/Windows%20Software%20Probe.msi", "windows software probe.msi")
+    if (errRET <> 0) then
+      call LOGERR(4)
+    end if
+    ''INSTALL WINDOWS PROBE
+    objOUT.write vbnewline & now & vbtab & vbtab & " - RE-CONFIGURING WINDOWS PROBE"
+    objLOG.write vbnewline & now & vbtab & vbtab & " - RE-CONFIGURING WINDOWS PROBE"
+    ''WINDOWS PROBE RE-CONFIGURATION COMMAND, VALIDATED 08/13/2018, PROBE REQUIRES ADMIN USER PRIOR TO RUNNING, FIXES #6
+    select case lcase(strPRB)
+      case "local_windows"
+        strRCMD = "msiexec /i " & chr(34) & "c:\temp\windows software probe.msi" & chr(34) & " /qn CUSTOMERID=" & strCID & " CUSTOMERNAME=" & chr(34) & strCNM & chr(34) & _
+          " SERVERPROTOCOL=" & chr(34) & "HTTPS" & chr(34) & " SERVERPORT=443 SERVERADDRESS=" & chr(34) & strSVR & chr(34) & " PROBETYPE=" & chr(34) & strPRB & chr(34) & _
+          " AGENTUSERNAME=" & chr(34) & strUSR & chr(34) & " AGENTPASSWORD=" & chr(34) & strPWD & chr(34) & " /l*v c:\temp\probe_install.log ALLUSERS=2"
+      case "workgroup_windows"
+        ''WORKGROUP_WINDOWS - " AGENTUSERNAME=" & chr(34) & split(strUSR, "\")(1) - STRIP RETRIEVED "LOGON DOMAIN" INFORMATION FROM 'STRUSR' PRIOR TO EXECUTING MSIEXEC , FIXES #12
+        strRCMD = "msiexec /i " & chr(34) & "c:\temp\windows software probe.msi" & chr(34) & " /qn CUSTOMERID=" & strCID & " CUSTOMERNAME=" & chr(34) & strCNM & chr(34) & _
+          " SERVERPROTOCOL=" & chr(34) & "HTTPS" & chr(34) & " SERVERPORT=443 SERVERADDRESS=" & chr(34) & strSVR & chr(34) & " PROBETYPE=" & chr(34) & strPRB & chr(34) & _
+          " AGENTUSERNAME=" & chr(34) & strUSR & chr(34) & " AGENTPASSWORD=" & chr(34) & strPWD & chr(34) & " /l*v c:\temp\probe_install.log ALLUSERS=2"
+      case "network_windows"
+        strRCMD = "msiexec /i " & chr(34) & "c:\temp\windows software probe.msi" & chr(34) & " /qn CUSTOMERID=" & strCID & " CUSTOMERNAME=" & chr(34) & strCNM & chr(34) & _
+          " SERVERPROTOCOL=" & chr(34) & "HTTPS" & chr(34) & " SERVERPORT=443 SERVERADDRESS=" & chr(34) & strSVR & chr(34) & " PROBETYPE=" & chr(34) & strPRB & chr(34) & _
+          " AGENTDOMAIN=" & chr(34) & strDMN & chr(34) & " AGENTUSERNAME=" & chr(34) & strUSR & chr(34) & " AGENTPASSWORD=" & chr(34) & strPWD & chr(34) & " /l*v c:\temp\probe_install.log ALLUSERS=2"
+    end select
+    ''RE-CONFIGURE WINDOWS PROBE , 'ERRRET'=5
+    objOUT.write vbnewline & now & vbtab & vbtab & " - EXECUTING : " & strRCMD
+    objLOG.write vbnewline & now & vbtab & vbtab & " - EXECUTING : " & strRCMD
+    call HOOK(strRCMD)
+    if (errRET <> 0) then
+      call LOGERR(5)
+    end if
   end if
-  ''EXECUTE SERVICE LOGON SCRIPT : SVCPERM , 'ERRRET'=3
-  objOUT.write vbnewline & now & vbtab & vbtab & " - EXECUTING SERVICE LOGON SCRIPT : SVCPERM"
-  objLOG.write vbnewline & now & vbtab & vbtab & " - EXECUTING SERVICE LOGON SCRIPT : SVCPERM"
-  if ((strDMN <> vbnullstring) and (strDMN <> ".")) then   ''EXECUTE SVCPERM.VBS AT DOMAIN LEVEL
-    call HOOK("cscript.exe //nologo " & chr(34) & "c:\temp\svcperm.vbs" & chr(34) & " " & chr(34) & strUSR & chr(34))
-  elseif ((strDMN = vbnullstring) or (strDMN = ".")) then  ''EXECUTE SVCPERM.VBS AT LOCAL LEVEL
-    call HOOK("cscript.exe //nologo " & chr(34) & "c:\temp\svcperm.vbs" & chr(34) & " " & chr(34) & strUSR & chr(34))
-  end if
-  if (errRET <> 0) then
-    call LOGERR(3)
-  end if
-	''DOWNLOAD WINDOWS PROBE MSI , 'ERRRET'=4
-	objOUT.write vbnewline & now & vbtab & vbtab & " - DOWNLOADING WINDOWS PROBE SYSTEM-SPECIFIC MSI"
-	objLOG.write vbnewline & now & vbtab & vbtab & " - DOWNLOADING WINDOWS PROBE SYSTEM-SPECIFIC MSI"
-  call FILEDL("https://github.com/CW-Khristos/CW_MSI/raw/master/Windows%20Software%20Probe.msi", "windows software probe.msi")
-  if (errRET <> 0) then
-    call LOGERR(4)
-  end if
-  ''INSTALL WINDOWS PROBE
-  objOUT.write vbnewline & now & vbtab & vbtab & " - RE-CONFIGURING WINDOWS PROBE"
-  objLOG.write vbnewline & now & vbtab & vbtab & " - RE-CONFIGURING WINDOWS PROBE"
-  ''WINDOWS PROBE RE-CONFIGURATION COMMAND, VALIDATED 08/13/2018, PROBE REQUIRES ADMIN USER PRIOR TO RUNNING, FIXES #6
-  select case lcase(strPRB)
-    case "local_windows"
-      strRCMD = "msiexec /i " & chr(34) & "c:\temp\windows software probe.msi" & chr(34) & " /qn CUSTOMERID=" & strCID & " CUSTOMERNAME=" & chr(34) & strCNM & chr(34) & _
-        " SERVERPROTOCOL=" & chr(34) & "HTTPS" & chr(34) & " SERVERPORT=443 SERVERADDRESS=" & chr(34) & strSVR & chr(34) & " PROBETYPE=" & chr(34) & strPRB & chr(34) & _
-        " AGENTUSERNAME=" & chr(34) & strUSR & chr(34) & " AGENTPASSWORD=" & chr(34) & strPWD & chr(34) & " /l*v c:\temp\probe_install.log ALLUSERS=2"
-    case "workgroup_windows"
-      ''WORKGROUP_WINDOWS - " AGENTUSERNAME=" & chr(34) & split(strUSR, "\")(1) - STRIP RETRIEVED "LOGON DOMAIN" INFORMATION FROM 'STRUSR' PRIOR TO EXECUTING MSIEXEC , FIXES #12
-      strRCMD = "msiexec /i " & chr(34) & "c:\temp\windows software probe.msi" & chr(34) & " /qn CUSTOMERID=" & strCID & " CUSTOMERNAME=" & chr(34) & strCNM & chr(34) & _
-        " SERVERPROTOCOL=" & chr(34) & "HTTPS" & chr(34) & " SERVERPORT=443 SERVERADDRESS=" & chr(34) & strSVR & chr(34) & " PROBETYPE=" & chr(34) & strPRB & chr(34) & _
-        " AGENTUSERNAME=" & chr(34) & strUSR & chr(34) & " AGENTPASSWORD=" & chr(34) & strPWD & chr(34) & " /l*v c:\temp\probe_install.log ALLUSERS=2"
-    case "network_windows"
-      strRCMD = "msiexec /i " & chr(34) & "c:\temp\windows software probe.msi" & chr(34) & " /qn CUSTOMERID=" & strCID & " CUSTOMERNAME=" & chr(34) & strCNM & chr(34) & _
-        " SERVERPROTOCOL=" & chr(34) & "HTTPS" & chr(34) & " SERVERPORT=443 SERVERADDRESS=" & chr(34) & strSVR & chr(34) & " PROBETYPE=" & chr(34) & strPRB & chr(34) & _
-        " AGENTDOMAIN=" & chr(34) & strDMN & chr(34) & " AGENTUSERNAME=" & chr(34) & strUSR & chr(34) & " AGENTPASSWORD=" & chr(34) & strPWD & chr(34) & " /l*v c:\temp\probe_install.log ALLUSERS=2"
-  end select
-  ''RE-CONFIGURE WINDOWS PROBE , 'ERRRET'=5
-	objOUT.write vbnewline & now & vbtab & vbtab & " - EXECUTING : " & strRCMD
-	objLOG.write vbnewline & now & vbtab & vbtab & " - EXECUTING : " & strRCMD
-  call HOOK(strRCMD)
-  if (errRET <> 0) then
-    call LOGERR(5)
-  end if
+elseif (errRET <> 0) then                                   ''NO ARGUMENTS PASSED , END SCRIPT , 'ERRRET'=1
+  call LOGERR(errRET)
 end if
 ''END SCRIPT
 call CLEANUP()
@@ -168,61 +189,6 @@ call CLEANUP()
 ''------------
 
 ''SUB-ROUTINES
-sub CHKAU()																									''CHECK FOR SCRIPT UPDATE , 'ERRRET'=10 , MSI_REPROBE.VBS, REF #2 , FIXES #7
-  ''REMOVE WINDOWS AGENT CACHED VERSION OF SCRIPT
-  if (objFSO.fileexists("C:\Program Files (x86)\N-Able Technologies\Windows Agent\cache\" & wscript.scriptname)) then
-    objFSO.deletefile "C:\Program Files (x86)\N-Able Technologies\Windows Agent\cache\" & wscript.scriptname, true
-  end if
-	''ADD WINHTTP SECURE CHANNEL TLS REGISTRY KEYS
-	call HOOK("reg add " & chr(34) & "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Internet Settings\WinHttp" & chr(34) & _
-		" /f /v DefaultSecureProtocols /t REG_DWORD /d 0x00000A00 /reg:32")
-	call HOOK("reg add " & chr(34) & "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Internet Settings\WinHttp" & chr(34) & _
-		" /f /v DefaultSecureProtocols /t REG_DWORD /d 0x00000A00 /reg:64")
-	''SCRIPT OBJECT FOR PARSING XML
-	set objXML = createobject("Microsoft.XMLDOM")
-	''FORCE SYNCHRONOUS
-	objXML.async = false
-	''LOAD SCRIPT VERSIONS DATABASE XML
-	if objXML.load("https://github.com/CW-Khristos/scripts/raw/dev/version.xml") then
-		set colVER = objXML.documentelement
-		for each objSCR in colVER.ChildNodes
-			''LOCATE CURRENTLY RUNNING SCRIPT
-			if (lcase(objSCR.nodename) = lcase(wscript.scriptname)) then
-				''CHECK LATEST VERSION
-        objOUT.write vbnewline & now & vbtab & " - MSI Re-Probe :  " & strVER & " : GitHub : " & objSCR.text & vbnewline
-        objLOG.write vbnewline & now & vbtab & " - MSI Re-Probe :  " & strVER & " : GitHub : " & objSCR.text & vbnewline
-				if (cint(objSCR.text) > cint(strVER)) then
-					objOUT.write vbnewline & now & vbtab & " - UPDATING " & objSCR.nodename & " : " & objSCR.text & vbnewline
-					objLOG.write vbnewline & now & vbtab & " - UPDATING " & objSCR.nodename & " : " & objSCR.text & vbnewline
-					''DOWNLOAD LATEST VERSION OF SCRIPT
-					call FILEDL("https://github.com/CW-Khristos/CW_MSI/raw/dev/msi_reprobe.vbs", wscript.scriptname)
-					''RUN LATEST VERSION
-					if (wscript.arguments.count > 0) then             ''ARGUMENTS WERE PASSED
-						for x = 0 to (wscript.arguments.count - 1)
-							strTMP = strTMP & " " & chr(34) & objARG.item(x) & chr(34)
-						next
-            objOUT.write vbnewline & now & vbtab & " - RE-EXECUTING  " & objSCR.nodename & " : " & objSCR.text & vbnewline
-            objLOG.write vbnewline & now & vbtab & " - RE-EXECUTING  " & objSCR.nodename & " : " & objSCR.text & vbnewline
-						objWSH.run "cscript.exe //nologo " & chr(34) & "c:\temp\" & wscript.scriptname & chr(34) & strTMP, 0, false
-					elseif (wscript.arguments.count = 0) then         ''NO ARGUMENTS WERE PASSED
-            objOUT.write vbnewline & now & vbtab & " - RE-EXECUTING  " & objSCR.nodename & " : " & objSCR.text & vbnewline
-            objLOG.write vbnewline & now & vbtab & " - RE-EXECUTING  " & objSCR.nodename & " : " & objSCR.text & vbnewline
-						objWSH.run "cscript.exe //nologo " & chr(34) & "c:\temp\" & wscript.scriptname & chr(34), 0, false
-					end if
-					''SET 'ERRRET'=11, END SCRIPT
-          errRET = 11
-					call CLEANUP()
-				end if
-			end if
-		next
-	end if
-	set colVER = nothing
-	set objXML = nothing
-  if (err.number <> 0) then                                 ''ERROR RETURNED DURING UPDATE CHECK , 'ERRRET'=10
-    call LOGERR(10)
-  end if
-end sub
-
 sub FILEDL(strURL, strFILE)                                 ''CALL HOOK TO DOWNLOAD FILE FROM URL , 'ERRRET'=11
   strSAV = vbnullstring
   ''SET DOWNLOAD PATH
@@ -283,10 +249,10 @@ sub HOOK(strCMD)                                            ''CALL HOOK TO MONIT
 end sub
 
 sub LOGERR(intSTG)                                          ''CALL HOOK TO MONITOR OUTPUT OF CALLED COMMAND
+  errRET = intSTG
   if (err.number <> 0) then
     objOUT.write vbnewline & now & vbtab & vbtab & vbtab & err.number & vbtab & err.description & vbnewline
     objLOG.write vbnewline & now & vbtab & vbtab & vbtab & err.number & vbtab & err.description & vbnewline
-		errRET = intSTG
 		err.clear
   end if
   select case intSTG
@@ -299,10 +265,12 @@ end sub
 sub CLEANUP()                                               ''SCRIPT CLEANUP
   on error resume next
   if (errRET = 0) then         															''MSI_REPROBE COMPLETED SUCCESSFULLY
-    objOUT.write vbnewline & "RE-PROBE SUCCESSFUL : " & errRET & " : " & now
+    objOUT.write vbnewline & "MSI_REPROBE SUCCESSFUL : " & errRET & " : " & now
+    objLOG.write vbnewline & "MSI_REPROBE SUCCESSFUL : " & errRET & " : " & now
     err.clear
   elseif (errRET <> 0) then    															''MSI_REPROBE FAILED
-    objOUT.write vbnewline & "RE-PROBE FAILURE : " & errRET & " : " & now
+    objOUT.write vbnewline & "MSI_REPROBEE FAILURE : " & errRET & " : " & now
+    objLOG.write vbnewline & "MSI_REPROBE FAILURE : " & errRET & " : " & now
     ''RAISE CUSTOMIZED ERROR CODE, ERROR CODE WILL BE DEFINE RESTOP NUMBER INDICATING WHICH SECTION FAILED
     call err.raise(vbObjectError + errRET, "RE-PROBE", "FAILURE")
   end if
