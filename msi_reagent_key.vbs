@@ -79,6 +79,8 @@ if (errRET = 0) then                                        ''ARGUMENTS PASSED, 
   ''CHKAU RETURNED - NO UPDATE FOUND OR ERROR ENCOUNTERED IN AUTOMATED UPDATE, REF #2 , REF #68 , REF #69
   intRET = (intRET - vbObjectError)
   if ((intRET = 4) or (intRET = 10) or (intRET = 11) or (intRET = 1)) then
+    objOUT.write vbnewline & now & vbtab & vbtab & " - NO UPDATE FOUND : MSI_REAGENT_KEY : " & strVER
+    objLOG.write vbnewline & now & vbtab & vbtab & " - NO UPDATE FOUND : MSI_REAGENT_KEY : " & strVER
     ''DOWNLOAD WINDOWS AGENT MSI , 'ERRRET'=2 , REF #2 , FIXES #13
     objOUT.write vbnewline & now & vbtab & vbtab & " - DOWNLOADING WINDOWS AGENT SYSTEM-SPECIFIC MSI"
     objLOG.write vbnewline & now & vbtab & vbtab & " - DOWNLOADING WINDOWS AGENT SYSTEM-SPECIFIC MSI"
