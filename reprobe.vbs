@@ -85,17 +85,15 @@ end if
 
 ''------------
 ''BEGIN SCRIPT
-if (errRET <> 0) then                                       ''NO ARGUMENTS PASSED , END SCRIPT , 'ERRRET'=1
-  call CLEANUP()
-elseif (errRET = 0) then                                    ''ARGUMENTS PASSED , CONTINUE SCRIPT
+if (errRET = 0) then                                        ''ARGUMENTS PASSED , CONTINUE SCRIPT
 	objOUT.write vbnewline & vbnewline & now & vbtab & " - EXECUTING : RE-PROBE"
 	objLOG.write vbnewline & vbnewline & now & vbtab & " - EXECUTING : RE-PROBE"
-	''AUTOMATIC UPDATE, EXE_REPROBE.VBS, REF #2 , REF #69 , REF #68 , FIXES #7
+	''AUTOMATIC UPDATE, RE-PROBE.VBS, REF #2 , REF #69 , REF #68 , FIXES #7
   ''DOWNLOAD CHKAU.VBS SCRIPT, REF #2 , REF #69 , REF #68
   call FILEDL("https://github.com/CW-Khristos/scripts/raw/dev/chkAU.vbs", "chkAU.vbs")
   ''EXECUTE CHKAU.VBS SCRIPT, REF #69
-  objOUT.write vbnewline & now & vbtab & vbtab & " - CHECKING FOR UPDATE : EXE_REPROBE : " & strVER
-  objLOG.write vbnewline & now & vbtab & vbtab & " - CHECKING FOR UPDATE : EXE_REPROBE : " & strVER
+  objOUT.write vbnewline & now & vbtab & vbtab & " - CHECKING FOR UPDATE : RE-PROBE : " & strVER
+  objLOG.write vbnewline & now & vbtab & vbtab & " - CHECKING FOR UPDATE : RE-PROBE : " & strVER
   intRET = objWSH.run ("cmd.exe /C " & chr(34) & "cscript.exe " & chr(34) & "C:\temp\chkAU.vbs" & chr(34) & " " & _
     chr(34) & strREPO & chr(34) & " " & chr(34) & strBRCH & chr(34) & " " & chr(34) & strDIR & chr(34) & " " & _
     chr(34) & wscript.scriptname & chr(34) & " " & chr(34) & strVER & chr(34) & " " & _
@@ -103,6 +101,8 @@ elseif (errRET = 0) then                                    ''ARGUMENTS PASSED ,
   ''CHKAU RETURNED - NO UPDATE FOUND , REF #2 , REF #69 , REF #68
   intRET = (intRET - vbObjectError)
   if ((intRET = 4) or (intRET = 10) or (intRET = 11) or (intRET = 1)) then
+    objOUT.write vbnewline & now & vbtab & vbtab & " - NO UPDATE FOUND : RE-PROBE : " & strVER
+    objLOG.write vbnewline & now & vbtab & vbtab & " - NO UPDATE FOUND : RE-PROBE : " & strVER
     ''DISABLED VERIFY NETWORK SETTINGS; WILL BE PASSING NETWORK TYPE AS PARAMETER , REF #71
     ''VERIFY NETWORK WORKGROUP / DOMAIN SETTINGS , REF #7 , FIXES #12
     'set objEXEC = objWSH.exec("net config workstation")
@@ -187,6 +187,8 @@ elseif (errRET = 0) then                                    ''ARGUMENTS PASSED ,
       call LOGERR(5)
     end if
   end if
+elseif (errRET <> 0) then                                   ''NO ARGUMENTS PASSED , END SCRIPT , 'ERRRET'=1
+  call LOGERR(errRET)
 end if
 ''END SCRIPT
 call CLEANUP()
