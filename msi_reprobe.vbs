@@ -55,7 +55,7 @@ if (wscript.arguments.count > 0) then                       ''ARGUMENTS WERE PAS
     strCID = objARG.item(0)                                 ''SET REQUIRED PARAMTERS 'STRCID' , CUSTOMER ID
     strCNM = objARG.item(1)                                 ''SET REQUIRED PARAMETER 'STRCNM' , CUSTOMER NAME
     strPRB = objARG.item(2)                                 ''SET REQUIRED PARAMETER 'STRPRB' , PROBE TYPE - WORKGROUP_WINDOWS / NETWORK_WINDOWS
-    if (lcase(strPRB) = "workgroup") then
+    if ((lcase(strPRB) = "workgroup") or (lcase(strPRB) = "local")) then
       strPRB = "Workgroup_Windows"
     elseif ((lcase(strPRB) = "network") or (lcase(strPRB) = "domain")) then
       strPRB= "Network_Windows"
@@ -139,9 +139,9 @@ if (errRET = 0) then                                        ''ARGUMENTS PASSED ,
     objOUT.write vbnewline & now & vbtab & vbtab & " - EXECUTING SERVICE LOGON SCRIPT : SVCPERM"
     objLOG.write vbnewline & now & vbtab & vbtab & " - EXECUTING SERVICE LOGON SCRIPT : SVCPERM"
     if ((strDMN <> vbnullstring) and (strDMN <> ".")) then   ''EXECUTE SVCPERM.VBS AT DOMAIN LEVEL
-      call HOOK("cscript.exe //nologo " & chr(34) & "c:\temp\svcperm.vbs" & chr(34) & " " & chr(34) & strUSR & chr(34))
+      call HOOK("cscript.exe //nologo " & chr(34) & "c:\temp\svcperm.vbs" & chr(34) & " " & chr(34) & strUSR & chr(34) & " " & chr(34) & "domain" & chr(34))
     elseif ((strDMN = vbnullstring) or (strDMN = ".")) then  ''EXECUTE SVCPERM.VBS AT LOCAL LEVEL
-      call HOOK("cscript.exe //nologo " & chr(34) & "c:\temp\svcperm.vbs" & chr(34) & " " & chr(34) & strUSR & chr(34))
+      call HOOK("cscript.exe //nologo " & chr(34) & "c:\temp\svcperm.vbs" & chr(34) & " " & chr(34) & strUSR & chr(34) & " " & chr(34) & "local" & chr(34))
     end if
     if (errRET <> 0) then
       call LOGERR(3)
