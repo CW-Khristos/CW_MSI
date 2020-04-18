@@ -75,7 +75,7 @@ if (errRET = 0) then                                        ''ARGUMENTS PASSED, 
   intRET = objWSH.run ("cmd.exe /C " & chr(34) & "cscript.exe " & chr(34) & "C:\temp\chkAU.vbs" & chr(34) & " " & _
     chr(34) & strREPO & chr(34) & " " & chr(34) & strBRCH & chr(34) & " " & chr(34) & strDIR & chr(34) & " " & _
     chr(34) & wscript.scriptname & chr(34) & " " & chr(34) & strVER & chr(34) & " " & _
-    chr(34) & strCID & "|" & strCNM & "|" & strSVR & chr(34), 0, true)
+    chr(34) & strCID & "|" & strCNM & "|" & strSVR & chr(34) & chr(34), 0, true)
   ''CHKAU RETURNED - NO UPDATE FOUND , REF #2 , REF #69 , REF #68
   intRET = (intRET - vbObjectError)
   if ((intRET = 4) or (intRET = 10) or (intRET = 11) or (intRET = 1)) then
