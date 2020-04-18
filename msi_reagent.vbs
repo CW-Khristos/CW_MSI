@@ -79,29 +79,32 @@ if (errRET = 0) then                                        ''ARGUMENTS PASSED, 
   ''CHKAU RETURNED - NO UPDATE FOUND , REF #2 , REF #69 , REF #68
   intRET = (intRET - vbObjectError)
   if ((intRET = 4) or (intRET = 10) or (intRET = 11) or (intRET = 1)) then
-	''DOWNLOAD WINDOWS AGENT MSI , 'ERRRET'=2 , REF #2 , FIXES #13
-	objOUT.write vbnewline & now & vbtab & vbtab & " - DOWNLOADING WINDOWS AGENT SYSTEM-SPECIFIC MSI"
-  objLOG.write vbnewline & now & vbtab & vbtab & " - DOWNLOADING WINDOWS AGENT SYSTEM-SPECIFIC MSI"
-  call FILEDL("https://github.com/CW-Khristos/CW_MSI/raw/master/Windows%20Agent.msi", "windows agent.msi")
-  if (errRET <> 0) then
-    call LOGERR(2)
+    objOUT.write vbnewline & now & vbtab & vbtab & " - NO UPDATE FOUND : EXE_REAGENT_KEY : " & strVER
+    objLOG.write vbnewline & now & vbtab & vbtab & " - NO UPDATE FOUND : EXE_REAGENT_KEY : " & strVER
+    ''DOWNLOAD WINDOWS AGENT MSI , 'ERRRET'=2 , REF #2 , FIXES #13
+    objOUT.write vbnewline & now & vbtab & vbtab & " - DOWNLOADING WINDOWS AGENT SYSTEM-SPECIFIC MSI"
+    objLOG.write vbnewline & now & vbtab & vbtab & " - DOWNLOADING WINDOWS AGENT SYSTEM-SPECIFIC MSI"
+    call FILEDL("https://github.com/CW-Khristos/CW_MSI/raw/master/Windows%20Agent.msi", "windows agent.msi")
+    if (errRET <> 0) then
+      call LOGERR(2)
+    end if
+    ''INSTALL WINDOWS AGENT
+    objOUT.write vbnewline & now & vbtab & vbtab & " - RE-CONFIGURING WINDOWS AGENT"
+    objLOG.write vbnewline & now & vbtab & vbtab & " - RE-CONFIGURING WINDOWS AGENT"
+    ''WINDOWS AGENT RE-CONFIGURATION COMMAND , REF #2 , FIXES #13
+    'strRCMD = "c:\temp\" & strCID & "WindowsAgentSetup.exe -ai"
+    strRCMD = "msiexec /i " & chr(34) & "c:\temp\windows agent.msi" & chr(34) & " /qn CUSTOMERID=" & strCID & _
+      " CUSTOMERNAME=" & chr(34) & strCNM & chr(34) & " SERVERPROTOCOL=https:// SERVERPORT=443 SERVERADDRESS=" & chr(34) & strSVR & chr(34) & _
+      " /l*v c:\temp\agent_install.log ALLUSERS=2"
+    ''RE-CONFIGURE WINDOWS AGENT , 'ERRRET'=3
+    objOUT.write vbnewline & now & vbtab & vbtab & " - EXECUTING : " & strRCMD
+    objLOG.write vbnewline & now & vbtab & vbtab & " - EXECUTING : " & strRCMD
+    call HOOK(strRCMD)
+    if (errRET <> 0) then
+      call LOGERR(3)
+    end if
   end if
-  ''INSTALL WINDOWS AGENT
-  objOUT.write vbnewline & now & vbtab & vbtab & " - RE-CONFIGURING WINDOWS AGENT"
-  objLOG.write vbnewline & now & vbtab & vbtab & " - RE-CONFIGURING WINDOWS AGENT"
-  ''WINDOWS AGENT RE-CONFIGURATION COMMAND , REF #2 , FIXES #13
-  'strRCMD = "c:\temp\" & strCID & "WindowsAgentSetup.exe -ai"
-	strRCMD = "msiexec /i " & chr(34) & "c:\temp\windows agent.msi" & chr(34) & " /qn CUSTOMERID=" & strCID & _
-		" CUSTOMERNAME=" & chr(34) & strCNM & chr(34) & " SERVERPROTOCOL=https:// SERVERPORT=443 SERVERADDRESS=" & chr(34) & strSVR & chr(34) & _
-    " /l*v c:\temp\agent_install.log ALLUSERS=2"
-	''RE-CONFIGURE WINDOWS AGENT , 'ERRRET'=3
-	objOUT.write vbnewline & now & vbtab & vbtab & " - EXECUTING : " & strRCMD
-	objLOG.write vbnewline & now & vbtab & vbtab & " - EXECUTING : " & strRCMD
-	call HOOK(strRCMD)
-  if (errRET <> 0) then
-    call LOGERR(3)
-  end if
-if (errRET <> 0) then                                       ''NO ARGUMENTS PASSED, END SCRIPT , 'ERRRET'=1
+elseif (errRET <> 0) then                                   ''NO ARGUMENTS PASSED, END SCRIPT , 'ERRRET'=1
   call LOGERR(errRET)
 end if
 ''END SCRIPT
