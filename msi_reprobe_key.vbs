@@ -21,7 +21,7 @@ dim strPRB, strDMN, strUSR, strPWD
 dim objIN, objOUT, objARG, objWSH, objFSO
 dim objLOG, objEXEC, objHOOK, objHTTP, objXML
 ''VERSION FOR SCRIPT UPDATE , MSI_REPROBE_KEY.VBS , REF #2 , REF #69 , FIXES #7 , FIXES #18
-strVER = 2
+strVER = 3
 strREPO = "CW_MSI"
 strBRCH = "dev"
 strDIR = vbnullstring
