@@ -16,7 +16,7 @@ dim strIN, strOUT, strRCMD
 dim objIN, objOUT, objARG, objWSH, objFSO
 dim objLOG, objEXEC, objHOOK, objHTTP, objXML
 ''VERSION FOR SCRIPT UPDATE , EXE_REAGENT_KEY.VBS , REF #2 , REF #69 , FIXES #19
-strVER = 3
+strVER = 4
 strREPO = "CW_MSI"
 strBRCH = "dev"
 strDIR = vbnullstring
