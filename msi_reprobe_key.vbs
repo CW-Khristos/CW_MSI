@@ -34,7 +34,7 @@ set objARG = wscript.arguments
 ''CREATE SCRIPTING OBJECTS
 set objWSH = createobject("wscript.shell")
 set objFSO = createobject("scripting.filesystemobject")
-''CHECK 'PERSISTENT' FOLDERS
+''CHECK 'PERSISTENT' FOLDERS , REF #2 , REF #73
 if (not (objFSO.folderexists("C:\IT\"))) then
   objFSO.createfolder("C:\IT\")
 end if
@@ -105,10 +105,13 @@ if (errRET = 0) then                                        ''ARGUMENTS PASSED ,
     chr(34) & strREPO & chr(34) & " " & chr(34) & strBRCH & chr(34) & " " & chr(34) & strDIR & chr(34) & " " & _
     chr(34) & wscript.scriptname & chr(34) & " " & chr(34) & strVER & chr(34) & " " & _
     chr(34) & strKEY & "|" & strPRB & "|" & strDMN & "\" & strUSR & "|" & strPWD & "|" & strSVR & chr(34) & chr(34), 0, true)
-  ''CHKAU RETURNED - NO UPDATE FOUND , REF #2 , REF #68 , REF #69
+  ''CHKAU RETURNED - NO UPDATE FOUND , REF #2 , REF #69 , REF #68
   objOUT.write vbnewline & "errRET='" & intRET & "'"
   objLOG.write vbnewline & "errRET='" & intRET & "'"
-  if ((intRET = 4) or (intRET = 10) or (intRET = 11) or (intRET = 1) or (intRET = 2147221517)) then
+  intRET = (intRET - vbObjectError)
+  objOUT.write vbnewline & "errRET='" & intRET & "'"
+  objLOG.write vbnewline & "errRET='" & intRET & "'"
+  if ((intRET = 4) or (intRET = 10) or (intRET = 11) or (intRET = 1) or (intRET = 2147221505) or (intRET = 2147221517)) then
     objOUT.write vbnewline & now & vbtab & vbtab & " - NO UPDATE FOUND : MSI_REPROBE_KEY : " & strVER
     objLOG.write vbnewline & now & vbtab & vbtab & " - NO UPDATE FOUND : MSI_REPROBE_KEY : " & strVER
     ''DISABLED VERIFY NETWORK SETTINGS; WILL BE PASSING NETWORK TYPE AS PARAMETER , REF #71
