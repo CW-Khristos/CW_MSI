@@ -26,7 +26,7 @@ set objARG = wscript.arguments
 ''OBJECTS FOR LOCATING FOLDERS
 set objWSH = createobject("wscript.shell")
 set objFSO = createobject("scripting.filesystemobject")
-''CHECK 'PERSISTENT' FOLDERS
+''CHECK 'PERSISTENT' FOLDERS , REF #2 , REF #73
 if (not (objFSO.folderexists("C:\IT\"))) then
   objFSO.createfolder("C:\IT\")
 end if
@@ -86,7 +86,10 @@ if (errRET = 0) then                                        ''ARGUMENTS PASSED, 
   ''CHKAU RETURNED - NO UPDATE FOUND , REF #2 , REF #69 , REF #68
   objOUT.write vbnewline & "errRET='" & intRET & "'"
   objLOG.write vbnewline & "errRET='" & intRET & "'"
-  if ((intRET = 4) or (intRET = 10) or (intRET = 11) or (intRET = 1) or (intRET = 2147221517)) then
+  intRET = (intRET - vbObjectError)
+  objOUT.write vbnewline & "errRET='" & intRET & "'"
+  objLOG.write vbnewline & "errRET='" & intRET & "'"
+  if ((intRET = 4) or (intRET = 10) or (intRET = 11) or (intRET = 1) or (intRET = 2147221505) or (intRET = 2147221517)) then
     objOUT.write vbnewline & now & vbtab & vbtab & " - NO UPDATE FOUND : EXE_REAGENT_KEY : " & strVER
     objLOG.write vbnewline & now & vbtab & vbtab & " - NO UPDATE FOUND : EXE_REAGENT_KEY : " & strVER
     ''DOWNLOAD WINDOWS AGENT MSI , 'ERRRET'=2 , REF #2 , FIXES #13
