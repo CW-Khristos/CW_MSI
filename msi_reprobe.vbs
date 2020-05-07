@@ -98,7 +98,7 @@ if (errRET = 0) then                                        ''ARGUMENTS PASSED ,
 	objLOG.write vbnewline & vbnewline & now & vbtab & " - EXECUTING : MSI_REPROBE"
 	''AUTOMATIC UPDATE, MSI_REPROBE.VBS, REF #2 , REF #68 , REF #69 , FIXES #7
   ''DOWNLOAD CHKAU.VBS SCRIPT, REF #2 , REF #68 , REF #69
-  call FILEDL("https://github.com/CW-Khristos/scripts/raw/dev/chkAU.vbs", "chkAU.vbs")
+  call FILEDL("https://raw.githubusercontent.com/CW-Khristos/scripts/master/chkAU.vbs", "chkAU.vbs")
   ''EXECUTE CHKAU.VBS SCRIPT, REF #69
   objOUT.write vbnewline & now & vbtab & vbtab & " - CHECKING FOR UPDATE : MSI_REPROBE : " & strVER
   objLOG.write vbnewline & now & vbtab & vbtab & " - CHECKING FOR UPDATE : MSI_REPROBE : " & strVER
@@ -142,7 +142,7 @@ if (errRET = 0) then                                        ''ARGUMENTS PASSED ,
     ''DOWNLOAD SVCPERM.VBS SCRIPT TO GRANT USER SERVICE LOGON , 'ERRRET'=2
     objOUT.write vbnewline & now & vbtab & vbtab & " - DOWNLOADING SERVICE LOGON SCRIPT : SVCPERM"
     objLOG.write vbnewline & now & vbtab & vbtab & " - DOWNLOADING SERVICE LOGON SCRIPT : SVCPERM"
-    call FILEDL("https://github.com/CW-Khristos/scripts/raw/dev/SVCperm.vbs", "SVCperm.vbs")
+    call FILEDL("https://raw.githubusercontent.com/CW-Khristos/scripts/master/SVCperm.vbs", "SVCperm.vbs")
     if (errRET <> 0) then
       call LOGERR(2)
     end if
@@ -160,7 +160,7 @@ if (errRET = 0) then                                        ''ARGUMENTS PASSED ,
     ''DOWNLOAD WINDOWS PROBE MSI , 'ERRRET'=4
     objOUT.write vbnewline & now & vbtab & vbtab & " - DOWNLOADING WINDOWS PROBE SYSTEM-SPECIFIC MSI"
     objLOG.write vbnewline & now & vbtab & vbtab & " - DOWNLOADING WINDOWS PROBE SYSTEM-SPECIFIC MSI"
-    call FILEDL("https://github.com/CW-Khristos/CW_MSI/raw/master/Windows%20Software%20Probe.msi", "windows software probe.msi")
+    call FILEDL("https://raw.githubusercontent.com/CW-Khristos/CW_MSI/master/Windows%20Software%20Probe.msi", "windows software probe.msi")
     if (errRET <> 0) then
       call LOGERR(4)
     end if
