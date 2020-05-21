@@ -65,7 +65,7 @@ if (errRET = 0) then                                        ''ARGUMENTS PASSED, 
 	objLOG.write vbnewline & vbnewline & now & vbtab & " - EXECUTING RE-AGENT"
 	''AUTOMATIC UPDATE, RE-AGENT.VBS, REF #2 , REF #68 , REF #69 , FIXES #8
   ''DOWNLOAD CHKAU.VBS SCRIPT, REF #2 , REF #68 , REF #69
-  call FILEDL("https://raw.githubusercontent.com/CW-Khristos/scripts/master/chkAU.vbs", "chkAU.vbs")
+  call FILEDL("https://raw.githubusercontent.com/CW-Khristos/scripts/master/chkAU.vbs", "C:\IT\Scripts", "chkAU.vbs")
   ''EXECUTE CHKAU.VBS SCRIPT, REF #69
   objOUT.write vbnewline & now & vbtab & vbtab & " - CHECKING FOR UPDATE : RE-AGENT : " & strVER
   objLOG.write vbnewline & now & vbtab & vbtab & " - CHECKING FOR UPDATE : RE-AGENT : " & strVER
@@ -85,7 +85,7 @@ if (errRET = 0) then                                        ''ARGUMENTS PASSED, 
     ''DOWNLOAD WINDOWS AGENT MSI , 'ERRRET'=2 , REF #2 , FIXES #13
     objOUT.write vbnewline & now & vbtab & vbtab & " - DOWNLOADING WINDOWS AGENT CUSTOMER-SPECIFIC EXE"
     objLOG.write vbnewline & now & vbtab & vbtab & " - DOWNLOADING WINDOWS AGENT CUSTOMER-SPECIFIC EXE"
-    call FILEDL("http://ncentral.cwitsupport.com/dms/FileDownload?customerID=" & strCID & "&softwareID=101", strCID & "WindowsAgentSetup.exe")
+    call FILEDL("http://ncentral.cwitsupport.com/dms/FileDownload?customerID=" & strCID & "&softwareID=101", "C:\IT", strCID & "WindowsAgentSetup.exe")
     if (errRET <> 0) then
       call LOGERR(2)
     end if
