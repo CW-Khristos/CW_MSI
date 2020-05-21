@@ -22,9 +22,9 @@ dim strPRB, strDMN, strUSR, strPWD
 dim objIN, objOUT, objARG, objWSH, objFSO
 dim objLOG, objEXEC, objHOOK, objHTTP, objXML
 ''VERSION FOR SCRIPT UPDATE , EXE_REPROBE.VBS , REF #2 , FIXES #7 , FIXES #13 , REF #69
-strVER = 14
+strVER = 15
 strREPO = "CW_MSI"
-strBRCH = "dev"
+strBRCH = "master"
 strDIR = vbnullstring
 ''DEFAULT SUCCESS
 errRET = 0
@@ -106,7 +106,7 @@ if (errRET = 0) then                                        ''ARGUMENTS PASSED ,
   ''EXECUTE CHKAU.VBS SCRIPT, REF #69
   objOUT.write vbnewline & now & vbtab & vbtab & " - CHECKING FOR UPDATE : EXE_REPROBE : " & strVER
   objLOG.write vbnewline & now & vbtab & vbtab & " - CHECKING FOR UPDATE : EXE_REPROBE : " & strVER
-  intRET = objWSH.run ("cmd.exe /C " & chr(34) & "cscript.exe " & chr(34) & "C:\temp\chkAU.vbs" & chr(34) & " " & _
+  intRET = objWSH.run ("cmd.exe /C " & chr(34) & "cscript.exe " & chr(34) & "C:\IT\Scripts\chkAU.vbs" & chr(34) & " " & _
     chr(34) & strREPO & chr(34) & " " & chr(34) & strBRCH & chr(34) & " " & chr(34) & strDIR & chr(34) & " " & _
     chr(34) & wscript.scriptname & chr(34) & " " & chr(34) & strVER & chr(34) & " " & _
     chr(34) & strCID & "|" & strCNM & "|" & strPRB & "|" & strDMN & "\" & strUSR & "|" & strPWD & "|" & strSVR & chr(34), 0, true)
@@ -157,9 +157,9 @@ if (errRET = 0) then                                        ''ARGUMENTS PASSED ,
     objOUT.write vbnewline & now & vbtab & vbtab & " - EXECUTING SERVICE LOGON SCRIPT : SVCPERM"
     objLOG.write vbnewline & now & vbtab & vbtab & " - EXECUTING SERVICE LOGON SCRIPT : SVCPERM"
     if ((strDMN <> vbnullstring) and (strDMN <> ".")) then   ''EXECUTE SVCPERM.VBS AT DOMAIN LEVEL
-      call HOOK("cscript.exe //nologo " & chr(34) & "c:\temp\svcperm.vbs" & chr(34) & " " & chr(34) & strDMN & "\" & strUSR & chr(34) & " " & chr(34) & "domain" & chr(34))
+      call HOOK("cscript.exe //nologo " & chr(34) & "c:\IT\Scripts\svcperm.vbs" & chr(34) & " " & chr(34) & strDMN & "\" & strUSR & chr(34) & " " & chr(34) & "domain" & chr(34))
     elseif ((strDMN = vbnullstring) or (strDMN = ".")) then  ''EXECUTE SVCPERM.VBS AT LOCAL LEVEL
-      call HOOK("cscript.exe //nologo " & chr(34) & "c:\temp\svcperm.vbs" & chr(34) & " " & chr(34) & strUSR & chr(34) & " " & chr(34) & "local" & chr(34))
+      call HOOK("cscript.exe //nologo " & chr(34) & "c:\IT\Scripts\svcperm.vbs" & chr(34) & " " & chr(34) & strUSR & chr(34) & " " & chr(34) & "local" & chr(34))
     end if
     if (errRET <> 0) then
       call LOGERR(3)
@@ -178,7 +178,7 @@ if (errRET = 0) then                                        ''ARGUMENTS PASSED ,
     select case lcase(strPRB)
       ''LOCAL ONLY
       case "local_windows"
-        strRCMD = chr(34) & "c:\temp\WindowsSoftwareProbe.exe" & chr(34) & " /s /v" & chr(34) & " /qn /norestart /l*v c:\temp\probe_install.log CUSTOMERID=" & strCID & _
+        strRCMD = chr(34) & "c:\IT\WindowsSoftwareProbe.exe" & chr(34) & " /s /v" & chr(34) & " /qn /norestart /l*v c:\temp\probe_install.log CUSTOMERID=" & strCID & _
           " CUSTOMERNAME=\" & chr(34) & strCNM & "\" & chr(34) & " SERVERPROTOCOL=HTTPS SERVERPORT=443 SERVERADDRESS=" & strSVR & " PROBETYPE=" & strPRB & _
           " AGENTUSERNAME=\" & chr(34) & strUSR & "\" & chr(34) & " AGENTPASSWORD=\" & chr(34) & strPWD & "\" & chr(34) & " " & chr(34)
       ''WORKGROUP ENVIRONMENT
@@ -190,12 +190,12 @@ if (errRET = 0) then                                        ''ARGUMENTS PASSED ,
         elseif (instr(1, strUSR, "\") = 0) then
           strSUSR = strUSR
         end if
-        strRCMD = chr(34) & "c:\temp\WindowsSoftwareProbe.exe" & chr(34) & " /s /v" & chr(34) & " /qn /norestart /l*v c:\temp\probe_install.log CUSTOMERID=" & strCID & _
+        strRCMD = chr(34) & "c:\IT\WindowsSoftwareProbe.exe" & chr(34) & " /s /v" & chr(34) & " /qn /norestart /l*v c:\temp\probe_install.log CUSTOMERID=" & strCID & _
           " CUSTOMERNAME=\" & chr(34) & strCNM & "\" & chr(34) & " SERVERPROTOCOL=HTTPS SERVERPORT=443 SERVERADDRESS=" & strSVR & " PROBETYPE=" & strPRB & _
           " AGENTUSERNAME=\" & chr(34) & strSUSR & "\" & chr(34) & " AGENTPASSWORD=\" & chr(34) & strPWD & "\" & chr(34) & " " & chr(34)
       ''DOMAIN ENVIRONMENT
       case "network_windows"
-        strRCMD = chr(34) & "c:\temp\WindowsSoftwareProbe.exe" & chr(34) & " /s /v" & chr(34) & " /qn /norestart /l*v c:\temp\probe_install.log CUSTOMERID=" & strCID & _
+        strRCMD = chr(34) & "c:\IT\WindowsSoftwareProbe.exe" & chr(34) & " /s /v" & chr(34) & " /qn /norestart /l*v c:\temp\probe_install.log CUSTOMERID=" & strCID & _
           " CUSTOMERNAME=\" & chr(34) & strCNM & "\" & chr(34) & " SERVERPROTOCOL=HTTPS SERVERPORT=443 SERVERADDRESS=" & strSVR & " PROBETYPE=" & strPRB & _
           " AGENTDOMAIN=" & strDMN & " AGENTUSERNAME=\" & chr(34) & strUSR & "\" & chr(34) & " AGENTPASSWORD=\" & chr(34) & strPWD & "\" & chr(34) & " " & chr(34)
     end select
@@ -216,13 +216,15 @@ call CLEANUP()
 ''------------
 
 ''SUB-ROUTINES
-sub FILEDL(strURL, strFILE)                                 ''CALL HOOK TO DOWNLOAD FILE FROM URL , 'ERRRET'=11
+sub FILEDL(strURL, strDL, strFILE)                          ''CALL HOOK TO DOWNLOAD FILE FROM URL , 'ERRRET'=11
   strSAV = vbnullstring
   ''SET DOWNLOAD PATH
-  strSAV = "C:\temp\" & strFILE
+  strSAV = strDL & "\" & strFILE
   objOUT.write vbnewline & now & vbtab & vbtab & vbtab & "HTTPDOWNLOAD-------------DOWNLOAD : " & strURL & " : SAVE AS :  " & strSAV
   objLOG.write vbnewline & now & vbtab & vbtab & vbtab & "HTTPDOWNLOAD-------------DOWNLOAD : " & strURL & " : SAVE AS :  " & strSAV
+  ''CHECK IF FILE ALREADY EXISTS
   if objFSO.fileexists(strSAV) then
+    ''DELETE FILE FOR OVERWRITE
     objFSO.deletefile(strSAV)
   end if
   ''CREATE HTTP OBJECT
@@ -255,22 +257,26 @@ end sub
 
 sub HOOK(strCMD)                                            ''CALL HOOK TO MONITOR OUTPUT OF CALLED COMMAND , 'ERRRET'=12
   on error resume next
+  objOUT.write vbnewline & now & vbtab & vbtab & "EXECUTING : " & strCMD
+  objLOG.write vbnewline & now & vbtab & vbtab & "EXECUTING : " & strCMD
   set objHOOK = objWSH.exec(strCMD)
-	while (not objHOOK.stdout.atendofstream)
-		strIN = objHOOK.stdout.readline
-		if (strIN <> vbnullstring) then
-			objOUT.write vbnewline & now & vbtab & vbtab & strIN 
-			objLOG.write vbnewline & now & vbtab & vbtab & strIN 
-		end if
-	wend
-	wscript.sleep 10
-  strIN = objHOOK.stdout.readall
-  if (strIN <> vbnullstring) then
-    objOUT.write vbnewline & now & vbtab & vbtab & strIN 
-    objLOG.write vbnewline & now & vbtab & vbtab & strIN 
+  if (instr(1, strCMD, "takeown /F ") = 0) then             ''SUPPRESS 'TAKEOWN' SUCCESS MESSAGES
+    while (not objHOOK.stdout.atendofstream)
+      strIN = objHOOK.stdout.readline
+      if (strIN <> vbnullstring) then
+        objOUT.write vbnewline & now & vbtab & vbtab & vbtab & strIN 
+        objLOG.write vbnewline & now & vbtab & vbtab & vbtab & strIN 
+      end if
+    wend
+    wscript.sleep 10
+    strIN = objHOOK.stdout.readall
+    if (strIN <> vbnullstring) then
+      objOUT.write vbnewline & now & vbtab & vbtab & vbtab & strIN 
+      objLOG.write vbnewline & now & vbtab & vbtab & vbtab & strIN 
+    end if
   end if
   set objHOOK = nothing
-  if (err.number <> 0) then                                 ''ERROR RETURNED , 'ERRRET'=12
+  if (err.number <> 0) then                                 ''ERROR RETURNED DURING UPDATE CHECK , 'ERRRET'=12
     call LOGERR(12)
   end if
 end sub
@@ -282,6 +288,7 @@ sub LOGERR(intSTG)                                          ''CALL HOOK TO MONIT
     objLOG.write vbnewline & now & vbtab & vbtab & vbtab & err.number & vbtab & err.description & vbnewline
 		err.clear
   end if
+  ''CUSTOM ERROR CODES
   select case intSTG
     case 1                                                  '' 'ERRRET'=1 - NOT ENOUGH ARGUMENTS
       objOUT.write vbnewline & vbnewline & now & vbtab & " - SCRIPT REQUIRES CUSTOMER ID, CUSTOMER NAME, DOMAIN, USER, AND PASSWORD"
