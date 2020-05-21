@@ -79,7 +79,7 @@ if (errRET = 0) then                                        ''ARGUMENTS PASSED, 
 	objLOG.write vbnewline & vbnewline & now & vbtab & " - EXECUTING EXE_REAGENT"
 	''AUTOMATIC UPDATE, EXE_REAGENT.VBS, REF #2 , REF #68 , REF #69 , FIXES #8
   ''DOWNLOAD CHKAU.VBS SCRIPT, REF #2 , REF #68 , REF #69
-  call FILEDL("https://raw.githubusercontent.com/CW-Khristos/scripts/master/chkAU.vbs", "chkAU.vbs")
+  call FILEDL("https://raw.githubusercontent.com/CW-Khristos/scripts/master/chkAU.vbs", "C:\IT\Scripts", "chkAU.vbs")
   ''EXECUTE CHKAU.VBS SCRIPT, REF #69
   objOUT.write vbnewline & now & vbtab & vbtab & " - CHECKING FOR UPDATE : EXE_REAGENT : " & strVER
   objLOG.write vbnewline & now & vbtab & vbtab & " - CHECKING FOR UPDATE : EXE_REAGENT : " & strVER
@@ -99,7 +99,7 @@ if (errRET = 0) then                                        ''ARGUMENTS PASSED, 
     ''DOWNLOAD WINDOWS AGENT MSI , 'ERRRET'=2 , REF #2 , FIXES #13
     objOUT.write vbnewline & now & vbtab & vbtab & " - DOWNLOADING WINDOWS AGENT SYSTEM-SPECIFIC EXE"
     objLOG.write vbnewline & now & vbtab & vbtab & " - DOWNLOADING WINDOWS AGENT SYSTEM-SPECIFIC EXE"
-    call FILEDL("https://raw.githubusercontent.com/CW-Khristos/CW_MSI/master/WindowsAgentSetup.exe", strCID & "WindowsAgentSetup.exe")
+    call FILEDL("https://raw.githubusercontent.com/CW-Khristos/CW_MSI/master/WindowsAgentSetup.exe", "C:\IT", strCID & "WindowsAgentSetup.exe")
     if (errRET <> 0) then
       call LOGERR(2)
     end if
