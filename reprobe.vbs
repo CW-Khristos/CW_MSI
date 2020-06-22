@@ -21,7 +21,7 @@ dim strPRB, strDMN, strUSR, strPWD
 dim objIN, objOUT, objARG, objWSH, objFSO
 dim objLOG, objEXEC, objHOOK, objHTTP, objXML
 ''VERSION FOR SCRIPT UPDATE , RE-PROBE.VBS , REF #2 , REF #69 , FIXES #7
-strVER = 16
+strVER = 17
 strREPO = "CW_MSI"
 strBRCH = "master"
 strDIR = vbnullstring
@@ -57,10 +57,11 @@ else                                                        ''LOGFILE NEEDS TO B
 end if
 ''READ PASSED COMMANDLINE ARGUMENTS
 if (wscript.arguments.count > 0) then                       ''ARGUMENTS WERE PASSED
-  for x = 0 to (wscript.arguments.count - 1)
-    objOUT.write vbnewline & now & vbtab & " - ARGUMENT " & (x + 1) & " (ITEM " & x & ") " & " PASSED : " & ucase(objARG.item(x))
-    objLOG.write vbnewline & now & vbtab & " - ARGUMENT " & (x + 1) & " (ITEM " & x & ") " & " PASSED : " & ucase(objARG.item(x))
-  next 
+  ''ARGUMENT OUTPUT DISABLED TO SANITIZE
+  'for x = 0 to (wscript.arguments.count - 1)
+  '  objOUT.write vbnewline & now & vbtab & " - ARGUMENT " & (x + 1) & " (ITEM " & x & ") " & " PASSED : " & ucase(objARG.item(x))
+  '  objLOG.write vbnewline & now & vbtab & " - ARGUMENT " & (x + 1) & " (ITEM " & x & ") " & " PASSED : " & ucase(objARG.item(x))
+  'next 
   if (wscript.arguments.count > 4) then                     ''SET REQUIRED VARIABLES ACCEPTING ARGUMENTS
     strCID = objARG.item(0)                                 ''SET REQUIRED PARAMTERS 'STRCID' , CUSTOMER ID
     strCNM = objARG.item(1)                                 ''SET REQUIRED PARAMETER 'STRCNM' , CUSTOMER NAME
@@ -194,8 +195,8 @@ if (errRET = 0) then                                        ''ARGUMENTS PASSED ,
           " AGENTDOMAIN=" & chr(34) & strDMN & chr(34) & " AGENTUSERNAME=" & chr(34) & strUSR & chr(34) & " AGENTPASSWORD=" & chr(34) & strPWD & chr(34) & " /l*v c:\temp\probe_install.log ALLUSERS=2"
     end select
     ''RE-CONFIGURE WINDOWS PROBE , 'ERRRET'=5
-    objOUT.write vbnewline & now & vbtab & vbtab & " - EXECUTING : " & strRCMD
-    objLOG.write vbnewline & now & vbtab & vbtab & " - EXECUTING : " & strRCMD
+    objOUT.write vbnewline & now & vbtab & vbtab & " - EXECUTING : REPROBE" '& strRCMD
+    objLOG.write vbnewline & now & vbtab & vbtab & " - EXECUTING : REPROBE" '& strRCMD
     call HOOK(strRCMD)
     if (errRET <> 0) then
       call LOGERR(5)
@@ -251,8 +252,8 @@ end sub
 
 sub HOOK(strCMD)                                            ''CALL HOOK TO MONITOR OUTPUT OF CALLED COMMAND , 'ERRRET'=12
   on error resume next
-  objOUT.write vbnewline & now & vbtab & vbtab & "EXECUTING : " & strCMD
-  objLOG.write vbnewline & now & vbtab & vbtab & "EXECUTING : " & strCMD
+  objOUT.write vbnewline & now & vbtab & vbtab & "EXECUTING : HOOK" '& strCMD
+  objLOG.write vbnewline & now & vbtab & vbtab & "EXECUTING : HOOK" '& strCMD
   set objHOOK = objWSH.exec(strCMD)
   if (instr(1, strCMD, "takeown /F ") = 0) then             ''SUPPRESS 'TAKEOWN' SUCCESS MESSAGES
     while (not objHOOK.stdout.atendofstream)
