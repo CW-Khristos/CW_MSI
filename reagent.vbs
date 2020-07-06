@@ -97,8 +97,6 @@ if (errRET = 0) then                                        ''ARGUMENTS PASSED, 
     objLOG.write vbnewline & now & vbtab & vbtab & " - RE-CONFIGURING WINDOWS AGENT"
     ''WINDOWS AGENT RE-CONFIGURATION COMMAND , REF #2 , FIXES #13
     strRCMD = "c:\IT\" & strCID & "WindowsAgentSetup.exe -ai"
-    objOUT.write vbnewline & now & vbtab & vbtab & " - EXECUTING : " & strRCMD
-    objLOG.write vbnewline & now & vbtab & vbtab & " - EXECUTING : " & strRCMD
     call HOOK(strRCMD)
     if (errRET <> 0) then
       call LOGERR(3)
@@ -154,8 +152,8 @@ end sub
 
 sub HOOK(strCMD)                                            ''CALL HOOK TO MONITOR OUTPUT OF CALLED COMMAND , 'ERRRET'=12
   on error resume next
-  objOUT.write vbnewline & now & vbtab & vbtab & "EXECUTING : " & strCMD
-  objLOG.write vbnewline & now & vbtab & vbtab & "EXECUTING : " & strCMD
+  objOUT.write vbnewline & now & vbtab & vbtab & " - EXECUTING : HOOK : " & strCMD
+  objLOG.write vbnewline & now & vbtab & vbtab & " - EXECUTING : HOOK : " & strCMD
   set objHOOK = objWSH.exec(strCMD)
   if (instr(1, strCMD, "takeown /F ") = 0) then             ''SUPPRESS 'TAKEOWN' SUCCESS MESSAGES
     while (not objHOOK.stdout.atendofstream)

@@ -114,8 +114,6 @@ if (errRET = 0) then                                        ''ARGUMENTS PASSED, 
       " CUSTOMERNAME=" & chr(34) & strCNM & chr(34) & " SERVERPROTOCOL=HTTPS SERVERPORT=443 SERVERADDRESS=" & chr(34) & strSVR & chr(34) & _
       " /l*v c:\temp\agent_install.log ALLUSERS=2"
     ''RE-CONFIGURE WINDOWS AGENT , 'ERRRET'=3
-    objOUT.write vbnewline & now & vbtab & vbtab & " - EXECUTING : " & strRCMD
-    objLOG.write vbnewline & now & vbtab & vbtab & " - EXECUTING : " & strRCMD
     call HOOK(strRCMD)
     if (errRET <> 0) then
       call LOGERR(3)
@@ -171,8 +169,8 @@ end sub
 
 sub HOOK(strCMD)                                            ''CALL HOOK TO MONITOR OUTPUT OF CALLED COMMAND , 'ERRRET'=12
   on error resume next
-  objOUT.write vbnewline & now & vbtab & vbtab & "EXECUTING : " & strCMD
-  objLOG.write vbnewline & now & vbtab & vbtab & "EXECUTING : " & strCMD
+  objOUT.write vbnewline & now & vbtab & vbtab & " - EXECUTING : HOOK : " & strCMD
+  objLOG.write vbnewline & now & vbtab & vbtab & " - EXECUTING : HOOK : " & strCMD
   set objHOOK = objWSH.exec(strCMD)
   if (instr(1, strCMD, "takeown /F ") = 0) then             ''SUPPRESS 'TAKEOWN' SUCCESS MESSAGES
     while (not objHOOK.stdout.atendofstream)

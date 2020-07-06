@@ -195,8 +195,6 @@ if (errRET = 0) then                                        ''ARGUMENTS PASSED ,
           " AGENTDOMAIN=" & chr(34) & strDMN & chr(34) & " AGENTUSERNAME=" & chr(34) & strUSR & chr(34) & " AGENTPASSWORD=" & chr(34) & strPWD & chr(34) & " /l*v c:\temp\probe_install.log ALLUSERS=2"
     end select
     ''RE-CONFIGURE WINDOWS PROBE , 'ERRRET'=5 , 'STRCMD' OUTPUT DISABLED TO SANITIZE
-    objOUT.write vbnewline & now & vbtab & vbtab & " - EXECUTING : MSI_REPROBE_KEY" '& strRCMD
-    objLOG.write vbnewline & now & vbtab & vbtab & " - EXECUTING : MSI_REPROBE_KEY" '& strRCMD
     call HOOK(strRCMD)
     if (errRET <> 0) then
       call LOGERR(5)
@@ -252,8 +250,8 @@ end sub
 
 sub HOOK(strCMD)                                            ''CALL HOOK TO MONITOR OUTPUT OF CALLED COMMAND , 'ERRRET'=12
   on error resume next
-  objOUT.write vbnewline & now & vbtab & vbtab & "EXECUTING : HOOK" '& strCMD
-  objLOG.write vbnewline & now & vbtab & vbtab & "EXECUTING : HOOK" '& strCMD
+  objOUT.write vbnewline & now & vbtab & vbtab & " - EXECUTING : HOOK" '& strCMD
+  objLOG.write vbnewline & now & vbtab & vbtab & " - EXECUTING : HOOK" '& strCMD
   set objHOOK = objWSH.exec(strCMD)
   if (instr(1, strCMD, "takeown /F ") = 0) then             ''SUPPRESS 'TAKEOWN' SUCCESS MESSAGES
     while (not objHOOK.stdout.atendofstream)
