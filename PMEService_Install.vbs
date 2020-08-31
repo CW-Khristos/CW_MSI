@@ -126,11 +126,11 @@ if (errRET = 0) then                                        ''NO ERRORS DURING I
     ''DOWNLOAD PME SERVICE SUPPORTING FILES
     objOUT.write vbnewline & vbnewline & now & vbtab & " - DOWNLOADING PME SERVICE SUPPORTING FILES" & vbnewline
     objLOG.write vbnewline & vbnewline & now & vbtab & " - DOWNLOADING PME SERVICE SUPPORTING FILES" & vbnewline
-    call FILEDL("https://raw.githubusercontent.com/CW-Khristos/scripts/master/PMEService.zip", "C:\IT", "PMEService.zip")
+    call FILEDL("https://raw.githubusercontent.com/CW-Khristos/CW_MSI/master/PMEService.zip", "C:\IT", "PMEService.zip")
     wscript.sleep 5000
     ''DOWNLOAD SUPPORTING FILES
     if (not objFSO.fileexists("C:\IT\PMEService.zip")) then
-      call FILEDL("https://raw.githubusercontent.com/CW-Khristos/scripts/master/PMEService.zip", "C:\IT", "PMEService.zip")
+      call FILEDL("https://raw.githubusercontent.com/CW-Khristos/CW_MSI/master/PMEService.zip", "C:\IT", "PMEService.zip")
       wscript.sleep 10000
     end if
     if (objFSO.fileexists("C:\IT\PMEService.zip")) then
