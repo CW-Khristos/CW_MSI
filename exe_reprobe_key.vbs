@@ -286,8 +286,8 @@ sub LOGERR(intSTG)                                          ''CALL HOOK TO MONIT
   ''CUSTOM ERROR CODES
   select case intSTG
     case 1                                                  '' 'ERRRET'=1 - NOT ENOUGH ARGUMENTS
-      objOUT.write vbnewline & vbnewline & now & vbtab & " - SCRIPT REQUIRES CUSTOMER ID, CUSTOMER NAME, DOMAIN, USER, AND PASSWORD"
-      objLOG.write vbnewline & vbnewline & now & vbtab & " - SCRIPT REQUIRES CUSTOMER ID, CUSTOMER NAME, DOMAIN, USER, AND PASSWORD"
+      objOUT.write vbnewline & vbnewline & now & vbtab & " - SCRIPT REQUIRES PROBE ACTIVATION KEY, PROBE TYPE, USER, AND PASSWORD"
+      objLOG.write vbnewline & vbnewline & now & vbtab & " - SCRIPT REQUIRES PROBE ACTIVATION KEY, PROBE TYPE, USER, AND PASSWORD"
   end select
 end sub
 
