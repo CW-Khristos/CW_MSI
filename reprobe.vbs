@@ -101,7 +101,7 @@ if (errRET = 0) then                                        ''ARGUMENTS PASSED ,
 	objLOG.write vbnewline & vbnewline & now & vbtab & " - EXECUTING : RE-PROBE"
 	''AUTOMATIC UPDATE, RE-PROBE.VBS, REF #2 , REF #69 , REF #68 , FIXES #7
   ''DOWNLOAD CHKAU.VBS SCRIPT, REF #2 , REF #69 , REF #68
-  call FILEDL("https://raw.githubusercontent.com/CW-Khristos/scripts/master/chkAU.vbs", "C:\IT\Scripts", "chkAU.vbs")
+  'call FILEDL("https://raw.githubusercontent.com/CW-Khristos/scripts/master/chkAU.vbs", "C:\IT\Scripts", "chkAU.vbs")
   ''EXECUTE CHKAU.VBS SCRIPT, REF #69
   objOUT.write vbnewline & now & vbtab & vbtab & " - CHECKING FOR UPDATE : RE-PROBE : " & strVER
   objLOG.write vbnewline & now & vbtab & vbtab & " - CHECKING FOR UPDATE : RE-PROBE : " & strVER
@@ -145,7 +145,7 @@ if (errRET = 0) then                                        ''ARGUMENTS PASSED ,
     ''DOWNLOAD SVCPERM.VBS SCRIPT TO GRANT USER SERVICE LOGON , 'ERRRET'=2
     objOUT.write vbnewline & now & vbtab & vbtab & " - DOWNLOADING SERVICE LOGON SCRIPT : SVCPERM"
     objLOG.write vbnewline & now & vbtab & vbtab & " - DOWNLOADING SERVICE LOGON SCRIPT : SVCPERM"
-    call FILEDL("https://raw.githubusercontent.com/CW-Khristos/scripts/master/SVCperm.vbs", "C:\IT\Scripts", "SVCperm.vbs")
+    'call FILEDL("https://raw.githubusercontent.com/CW-Khristos/scripts/master/SVCperm.vbs", "C:\IT\Scripts", "SVCperm.vbs")
     if (errRET <> 0) then
       call LOGERR(2)
     end if
@@ -164,7 +164,7 @@ if (errRET = 0) then                                        ''ARGUMENTS PASSED ,
     objOUT.write vbnewline & now & vbtab & vbtab & " - DOWNLOADING WINDOWS PROBE SYSTEM-SPECIFIC MSI"
     objLOG.write vbnewline & now & vbtab & vbtab & " - DOWNLOADING WINDOWS PROBE SYSTEM-SPECIFIC MSI"
     ''call FILEDL("https://raw.githubusercontent.com/CW-Khristos/CW_MSI/master/Windows%20Software%20Probe.msi", "C:\IT", "windows software probe.msi")
-    call FILEDL("http://ncentral.cwitsupport.com/dms/FileDownload?customerID=" & strCID & "&softwareID=103", "C:\IT", strCID & "WindowsProbeSetup.exe")
+    'call FILEDL("http://ncentral.cwitsupport.com/dms/FileDownload?customerID=" & strCID & "&softwareID=103", "C:\IT", strCID & "WindowsProbeSetup.exe")
     if (errRET <> 0) then
       call LOGERR(4)
     end if
@@ -175,7 +175,7 @@ if (errRET = 0) then                                        ''ARGUMENTS PASSED ,
     select case lcase(strPRB)
       ''LOCAL ONLY
       case "local_windows"
-        strRCMD = chr(34) & "C:\IT\" & strCID & "WindowsProbeSetup.exe" & chr(34) & chr(34) & " /s /v" & chr(34) & " /qn /norestart /l*v c:\temp\probe_install.log CUSTOMERID=" & strCID & _
+        strRCMD = chr(34) & "C:\IT\" & strCID & "WindowsProbeSetup.exe" & chr(34) & " /quiet /v" & chr(34) & " /qn /norestart /l*v c:\temp\probe_install.log CUSTOMERID=" & strCID & _
           " CUSTOMERNAME=\" & chr(34) & strCNM & "\" & chr(34) & " SERVERPROTOCOL=HTTPS SERVERPORT=443 SERVERADDRESS=" & strSVR & " PROBETYPE=" & strPRB & _
           " AGENTUSERNAME=\" & chr(34) & strUSR & "\" & chr(34) & " AGENTPASSWORD=\" & chr(34) & strPWD & "\" & chr(34) & " " & chr(34)
         'strRCMD = "msiexec /i " & chr(34) & "c:\IT\windows software probe.msi" & chr(34) & " /qn CUSTOMERID=" & strCID & " CUSTOMERNAME=" & chr(34) & strCNM & chr(34) & _
@@ -189,7 +189,7 @@ if (errRET = 0) then                                        ''ARGUMENTS PASSED ,
         elseif (instr(1, strUSR, "\") = 0) then
           strSUSR = strUSR
         end if
-        strRCMD = chr(34) & "C:\IT\" & strCID & "WindowsProbeSetup.exe" & chr(34) & chr(34) & " /s /v" & chr(34) & " /qn /norestart /l*v c:\temp\probe_install.log CUSTOMERID=" & strCID & _
+        strRCMD = chr(34) & "C:\IT\" & strCID & "WindowsProbeSetup.exe" chr(34) & " /quiet /v" & chr(34) & " /qn /norestart /l*v c:\temp\probe_install.log CUSTOMERID=" & strCID & _
           " CUSTOMERNAME=\" & chr(34) & strCNM & "\" & chr(34) & " SERVERPROTOCOL=HTTPS SERVERPORT=443 SERVERADDRESS=" & strSVR & " PROBETYPE=" & strPRB & _
           " AGENTUSERNAME=\" & chr(34) & strUSR & "\" & chr(34) & " AGENTPASSWORD=\" & chr(34) & strPWD & "\" & chr(34) & " " & chr(34)
         'strRCMD = "msiexec /i " & chr(34) & "c:\IT\windows software probe.msi" & chr(34) & " /qn CUSTOMERID=" & strCID & " CUSTOMERNAME=" & chr(34) & strCNM & chr(34) & _
@@ -197,7 +197,7 @@ if (errRET = 0) then                                        ''ARGUMENTS PASSED ,
         '  " AGENTUSERNAME=" & chr(34) & strSUSR & chr(34) & " AGENTPASSWORD=" & chr(34) & strPWD & chr(34) & " /l*v c:\temp\probe_install.log ALLUSERS=2"
       ''DOMAIN ENVIRONMENT
       case "network_windows"
-        strRCMD = chr(34) & "C:\IT\" & strCID & "WindowsProbeSetup.exe" & chr(34) & chr(34) & " /s /v" & chr(34) & " /qn /norestart /l*v c:\temp\probe_install.log CUSTOMERID=" & strCID & _
+        strRCMD = chr(34) & "C:\IT\" & strCID & "WindowsProbeSetup.exe" & chr(34) & " /quiet /v" & chr(34) & " /qn /norestart /l*v c:\temp\probe_install.log CUSTOMERID=" & strCID & _
           " CUSTOMERNAME=\" & chr(34) & strCNM & "\" & chr(34) & " SERVERPROTOCOL=HTTPS SERVERPORT=443 SERVERADDRESS=" & strSVR & " PROBETYPE=" & strPRB & _
           " AGENTDOMAIN=" & strDMN & " AGENTUSERNAME=\" & chr(34) & strUSR & "\" & chr(34) & " AGENTPASSWORD=\" & chr(34) & strPWD & "\" & chr(34) & " " & chr(34)
         'strRCMD = "msiexec /i " & chr(34) & "c:\IT\windows software probe.msi" & chr(34) & " /qn CUSTOMERID=" & strCID & " CUSTOMERNAME=" & chr(34) & strCNM & chr(34) & _
