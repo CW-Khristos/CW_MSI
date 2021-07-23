@@ -163,7 +163,8 @@ if (errRET = 0) then                                        ''ARGUMENTS PASSED ,
     ''DOWNLOAD WINDOWS PROBE MSI , 'ERRRET'=4
     objOUT.write vbnewline & now & vbtab & vbtab & " - DOWNLOADING WINDOWS PROBE SYSTEM-SPECIFIC MSI"
     objLOG.write vbnewline & now & vbtab & vbtab & " - DOWNLOADING WINDOWS PROBE SYSTEM-SPECIFIC MSI"
-    call FILEDL("https://raw.githubusercontent.com/CW-Khristos/CW_MSI/master/Windows%20Software%20Probe.msi", "C:\IT", "windows software probe.msi")
+    ''call FILEDL("https://raw.githubusercontent.com/CW-Khristos/CW_MSI/master/Windows%20Software%20Probe.msi", "C:\IT", "windows software probe.msi")
+    call FILEDL("http://ncentral.cwitsupport.com/dms/FileDownload?customerID=" & strCID & "&softwareID=103", "C:\IT", strCID & "WindowsProbeSetup.exe")
     if (errRET <> 0) then
       call LOGERR(4)
     end if
@@ -174,9 +175,12 @@ if (errRET = 0) then                                        ''ARGUMENTS PASSED ,
     select case lcase(strPRB)
       ''LOCAL ONLY
       case "local_windows"
-        strRCMD = "msiexec /i " & chr(34) & "c:\IT\windows software probe.msi" & chr(34) & " /qn CUSTOMERID=" & strCID & " CUSTOMERNAME=" & chr(34) & strCNM & chr(34) & _
-          " SERVERPROTOCOL=" & chr(34) & "HTTPS" & chr(34) & " SERVERPORT=443 SERVERADDRESS=" & chr(34) & strSVR & chr(34) & " PROBETYPE=" & chr(34) & strPRB & chr(34) & _
-          " AGENTUSERNAME=" & chr(34) & strUSR & chr(34) & " AGENTPASSWORD=" & chr(34) & strPWD & chr(34) & " /l*v c:\temp\probe_install.log ALLUSERS=2"
+        strRCMD = chr(34) & "C:\IT\" & strCID & "WindowsProbeSetup.exe" & chr(34) & chr(34) & " /s /v" & chr(34) & " /qn /norestart /l*v c:\temp\probe_install.log CUSTOMERID=" & strCID & _
+          " CUSTOMERNAME=\" & chr(34) & strCNM & "\" & chr(34) & " SERVERPROTOCOL=HTTPS SERVERPORT=443 SERVERADDRESS=" & strSVR & " PROBETYPE=" & strPRB & _
+          " AGENTUSERNAME=\" & chr(34) & strUSR & "\" & chr(34) & " AGENTPASSWORD=\" & chr(34) & strPWD & "\" & chr(34) & " " & chr(34)
+        'strRCMD = "msiexec /i " & chr(34) & "c:\IT\windows software probe.msi" & chr(34) & " /qn CUSTOMERID=" & strCID & " CUSTOMERNAME=" & chr(34) & strCNM & chr(34) & _
+        '  " SERVERPROTOCOL=" & chr(34) & "HTTPS" & chr(34) & " SERVERPORT=443 SERVERADDRESS=" & chr(34) & strSVR & chr(34) & " PROBETYPE=" & chr(34) & strPRB & chr(34) & _
+        '  " AGENTUSERNAME=" & chr(34) & strUSR & chr(34) & " AGENTPASSWORD=" & chr(34) & strPWD & chr(34) & " /l*v c:\temp\probe_install.log ALLUSERS=2"
       ''WORKGROUP ENVIRONMENT
       case "workgroup_windows"
         ''WORKGROUP_WINDOWS - " AGENTUSERNAME=" & chr(34) & split(strUSR, "\")(1) - STRIP RETRIEVED "LOGON DOMAIN" INFORMATION FROM 'STRUSR' PRIOR TO EXECUTING MSIEXEC , FIXES #12
@@ -185,14 +189,20 @@ if (errRET = 0) then                                        ''ARGUMENTS PASSED ,
         elseif (instr(1, strUSR, "\") = 0) then
           strSUSR = strUSR
         end if
-        strRCMD = "msiexec /i " & chr(34) & "c:\IT\windows software probe.msi" & chr(34) & " /qn CUSTOMERID=" & strCID & " CUSTOMERNAME=" & chr(34) & strCNM & chr(34) & _
-          " SERVERPROTOCOL=" & chr(34) & "HTTPS" & chr(34) & " SERVERPORT=443 SERVERADDRESS=" & chr(34) & strSVR & chr(34) & " PROBETYPE=" & chr(34) & strPRB & chr(34) & _
-          " AGENTUSERNAME=" & chr(34) & strSUSR & chr(34) & " AGENTPASSWORD=" & chr(34) & strPWD & chr(34) & " /l*v c:\temp\probe_install.log ALLUSERS=2"
+        strRCMD = chr(34) & "C:\IT\" & strCID & "WindowsProbeSetup.exe" & chr(34) & chr(34) & " /s /v" & chr(34) & " /qn /norestart /l*v c:\temp\probe_install.log CUSTOMERID=" & strCID & _
+          " CUSTOMERNAME=\" & chr(34) & strCNM & "\" & chr(34) & " SERVERPROTOCOL=HTTPS SERVERPORT=443 SERVERADDRESS=" & strSVR & " PROBETYPE=" & strPRB & _
+          " AGENTUSERNAME=\" & chr(34) & strUSR & "\" & chr(34) & " AGENTPASSWORD=\" & chr(34) & strPWD & "\" & chr(34) & " " & chr(34)
+        'strRCMD = "msiexec /i " & chr(34) & "c:\IT\windows software probe.msi" & chr(34) & " /qn CUSTOMERID=" & strCID & " CUSTOMERNAME=" & chr(34) & strCNM & chr(34) & _
+        '  " SERVERPROTOCOL=" & chr(34) & "HTTPS" & chr(34) & " SERVERPORT=443 SERVERADDRESS=" & chr(34) & strSVR & chr(34) & " PROBETYPE=" & chr(34) & strPRB & chr(34) & _
+        '  " AGENTUSERNAME=" & chr(34) & strSUSR & chr(34) & " AGENTPASSWORD=" & chr(34) & strPWD & chr(34) & " /l*v c:\temp\probe_install.log ALLUSERS=2"
       ''DOMAIN ENVIRONMENT
       case "network_windows"
-        strRCMD = "msiexec /i " & chr(34) & "c:\IT\windows software probe.msi" & chr(34) & " /qn CUSTOMERID=" & strCID & " CUSTOMERNAME=" & chr(34) & strCNM & chr(34) & _
-          " SERVERPROTOCOL=" & chr(34) & "HTTPS" & chr(34) & " SERVERPORT=443 SERVERADDRESS=" & chr(34) & strSVR & chr(34) & " PROBETYPE=" & chr(34) & strPRB & chr(34) & _
-          " AGENTDOMAIN=" & chr(34) & strDMN & chr(34) & " AGENTUSERNAME=" & chr(34) & strUSR & chr(34) & " AGENTPASSWORD=" & chr(34) & strPWD & chr(34) & " /l*v c:\temp\probe_install.log ALLUSERS=2"
+        strRCMD = chr(34) & "C:\IT\" & strCID & "WindowsProbeSetup.exe" & chr(34) & chr(34) & " /s /v" & chr(34) & " /qn /norestart /l*v c:\temp\probe_install.log CUSTOMERID=" & strCID & _
+          " CUSTOMERNAME=\" & chr(34) & strCNM & "\" & chr(34) & " SERVERPROTOCOL=HTTPS SERVERPORT=443 SERVERADDRESS=" & strSVR & " PROBETYPE=" & strPRB & _
+          " AGENTDOMAIN=" & strDMN & " AGENTUSERNAME=\" & chr(34) & strUSR & "\" & chr(34) & " AGENTPASSWORD=\" & chr(34) & strPWD & "\" & chr(34) & " " & chr(34)
+        'strRCMD = "msiexec /i " & chr(34) & "c:\IT\windows software probe.msi" & chr(34) & " /qn CUSTOMERID=" & strCID & " CUSTOMERNAME=" & chr(34) & strCNM & chr(34) & _
+        '  " SERVERPROTOCOL=" & chr(34) & "HTTPS" & chr(34) & " SERVERPORT=443 SERVERADDRESS=" & chr(34) & strSVR & chr(34) & " PROBETYPE=" & chr(34) & strPRB & chr(34) & _
+        '  " AGENTDOMAIN=" & chr(34) & strDMN & chr(34) & " AGENTUSERNAME=" & chr(34) & strUSR & chr(34) & " AGENTPASSWORD=" & chr(34) & strPWD & chr(34) & " /l*v c:\temp\probe_install.log ALLUSERS=2"
     end select
     ''RE-CONFIGURE WINDOWS PROBE , 'ERRRET'=5
     call HOOK(strRCMD)
