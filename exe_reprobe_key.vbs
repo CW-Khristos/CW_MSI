@@ -176,7 +176,7 @@ if (errRET = 0) then                                        ''ARGUMENTS PASSED ,
     select case lcase(strPRB)
       ''LOCAL ONLY
       case "local_windows"
-        strRCMD = chr(34) & "c:\IT\WindowsSoftwareProbe.exe" & chr(34) & " /s /v" & chr(34) & " /qn /norestart /l*v c:\temp\probe_install.log" & _
+        strRCMD = chr(34) & "c:\IT\WindowsSoftwareProbe.exe" & chr(34) & " /quiet /v" & chr(34) & " /qn /norestart /l*v c:\temp\probe_install.log" & _
           " AGENTACTIVATIONKEY=" & strKEY & " SERVERPROTOCOL=HTTPS SERVERPORT=443 SERVERADDRESS=" & strSVR & " PROBETYPE=" & strPRB & _
           " AGENTUSERNAME=\" & chr(34) & strUSR & "\" & chr(34) & " AGENTPASSWORD=\" & chr(34) & strPWD & "\" & chr(34) & " " & chr(34)
       ''WORKGROUP ENVIRONMENT
@@ -187,12 +187,12 @@ if (errRET = 0) then                                        ''ARGUMENTS PASSED ,
           strSUSR = strUSR
         end if
         ''WORKGROUP_WINDOWS - " AGENTUSERNAME=" & chr(34) & split(strUSR, "\")(1) - STRIP RETRIEVED "LOGON DOMAIN" INFORMATION FROM 'STRUSR' PRIOR TO EXECUTING MSIEXEC , FIXES #12
-        strRCMD = chr(34) & "c:\IT\WindowsSoftwareProbe.exe" & chr(34) & " /s /v" & chr(34) & " /qn /norestart /l*v c:\temp\probe_install.log" & _
+        strRCMD = chr(34) & "c:\IT\WindowsSoftwareProbe.exe" & chr(34) & " /quiet /v" & chr(34) & " /qn /norestart /l*v c:\temp\probe_install.log" & _
           " AGENTACTIVATIONKEY=" & strKEY & " SERVERPROTOCOL=HTTPS SERVERPORT=443 SERVERADDRESS=" & strSVR & " PROBETYPE=" & strPRB & _
           " AGENTUSERNAME=\" & chr(34) & strSUSR & "\" & chr(34) & " AGENTPASSWORD=\" & chr(34) & strPWD & "\" & chr(34) & " " & chr(34)
       ''DOMAIN ENVIRONMENT
       case "network_windows"
-        strRCMD = chr(34) & "c:\IT\WindowsSoftwareProbe.exe" & chr(34) & " /s /v" & chr(34) & " /qn /norestart /l*v c:\temp\probe_install.log" & _
+        strRCMD = chr(34) & "c:\IT\WindowsSoftwareProbe.exe" & chr(34) & " /quiet /v" & chr(34) & " /qn /norestart /l*v c:\temp\probe_install.log" & _
           " AGENTACTIVATIONKEY=" & strKEY & " SERVERPROTOCOL=HTTPS SERVERPORT=443 SERVERADDRESS=" & strSVR & " PROBETYPE=" & strPRB & _
           " AGENTDOMAIN=" & strDMN & " AGENTUSERNAME=\" & chr(34) & strUSR & "\" & chr(34) & " AGENTPASSWORD=\" & chr(34) & strPWD & "\" & chr(34) & " " & chr(34)
     end select

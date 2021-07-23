@@ -179,7 +179,7 @@ if (errRET = 0) then                                        ''ARGUMENTS PASSED ,
     select case lcase(strPRB)
       ''LOCAL ONLY
       case "local_windows"
-        strRCMD = chr(34) & "c:\IT\WindowsSoftwareProbe.exe" & chr(34) & " /s /v" & chr(34) & " /qn /norestart /l*v c:\temp\probe_install.log CUSTOMERID=" & strCID & _
+        strRCMD = chr(34) & "c:\IT\WindowsSoftwareProbe.exe" & chr(34) & " /quiet /v" & chr(34) & " /qn /norestart /l*v c:\temp\probe_install.log CUSTOMERID=" & strCID & _
           " CUSTOMERNAME=\" & chr(34) & strCNM & "\" & chr(34) & " SERVERPROTOCOL=HTTPS SERVERPORT=443 SERVERADDRESS=" & strSVR & " PROBETYPE=" & strPRB & _
           " AGENTUSERNAME=\" & chr(34) & strUSR & "\" & chr(34) & " AGENTPASSWORD=\" & chr(34) & strPWD & "\" & chr(34) & " " & chr(34)
       ''WORKGROUP ENVIRONMENT
@@ -191,12 +191,12 @@ if (errRET = 0) then                                        ''ARGUMENTS PASSED ,
         elseif (instr(1, strUSR, "\") = 0) then
           strSUSR = strUSR
         end if
-        strRCMD = chr(34) & "c:\IT\WindowsSoftwareProbe.exe" & chr(34) & " /s /v" & chr(34) & " /qn /norestart /l*v c:\temp\probe_install.log CUSTOMERID=" & strCID & _
+        strRCMD = chr(34) & "c:\IT\WindowsSoftwareProbe.exe" & chr(34) & " /quiet /v" & chr(34) & " /qn /norestart /l*v c:\temp\probe_install.log CUSTOMERID=" & strCID & _
           " CUSTOMERNAME=\" & chr(34) & strCNM & "\" & chr(34) & " SERVERPROTOCOL=HTTPS SERVERPORT=443 SERVERADDRESS=" & strSVR & " PROBETYPE=" & strPRB & _
           " AGENTUSERNAME=\" & chr(34) & strSUSR & "\" & chr(34) & " AGENTPASSWORD=\" & chr(34) & strPWD & "\" & chr(34) & " " & chr(34)
       ''DOMAIN ENVIRONMENT
       case "network_windows"
-        strRCMD = chr(34) & "c:\IT\WindowsSoftwareProbe.exe" & chr(34) & " /s /v" & chr(34) & " /qn /norestart /l*v c:\temp\probe_install.log CUSTOMERID=" & strCID & _
+        strRCMD = chr(34) & "c:\IT\WindowsSoftwareProbe.exe" & chr(34) & " /quiet /v" & chr(34) & " /qn /norestart /l*v c:\temp\probe_install.log CUSTOMERID=" & strCID & _
           " CUSTOMERNAME=\" & chr(34) & strCNM & "\" & chr(34) & " SERVERPROTOCOL=HTTPS SERVERPORT=443 SERVERADDRESS=" & strSVR & " PROBETYPE=" & strPRB & _
           " AGENTDOMAIN=" & strDMN & " AGENTUSERNAME=\" & chr(34) & strUSR & "\" & chr(34) & " AGENTPASSWORD=\" & chr(34) & strPWD & "\" & chr(34) & " " & chr(34)
     end select

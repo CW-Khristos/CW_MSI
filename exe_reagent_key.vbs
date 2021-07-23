@@ -106,7 +106,7 @@ if (errRET = 0) then                                        ''ARGUMENTS PASSED, 
     objOUT.write vbnewline & now & vbtab & vbtab & " - RE-CONFIGURING WINDOWS AGENT"
     objLOG.write vbnewline & now & vbtab & vbtab & " - RE-CONFIGURING WINDOWS AGENT"
     ''WINDOWS AGENT RE-CONFIGURATION COMMAND , REF #2 , FIXES #13 , FIXES #19
-    strRCMD = chr(34) & "c:\IT\WindowsAgentSetup.exe" & chr(34) & " /s /v" & chr(34) & " /qn /norestart /l*v c:\temp\agent_install.log" & _
+    strRCMD = chr(34) & "c:\IT\WindowsAgentSetup.exe" & chr(34) & " /quiet /v" & chr(34) & " /qn /norestart /l*v c:\temp\agent_install.log" & _
       " AGENTACTIVATIONKEY=" & strKEY & " SERVERPROTOCOL=HTTPS SERVERPORT=443 SERVERADDRESS=" & strSVR & " " & chr(34)
     ''RE-CONFIGURE WINDOWS AGENT , 'ERRRET'=3
     call HOOK(strRCMD)
