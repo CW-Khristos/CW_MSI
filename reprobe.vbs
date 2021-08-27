@@ -307,12 +307,12 @@ end sub
 sub CLEANUP()                                               ''SCRIPT CLEANUP
   on error resume next
   if (errRET = 0) then         															''RE-PROBE COMPLETED SUCCESSFULLY
-    objOUT.write vbnewline & "RE-PROBE SUCCESSFUL : " & errRET & " : " & now
-    objLOG.write vbnewline & "RE-PROBE SUCCESSFUL : " & errRET & " : " & now
+    objOUT.write vbnewline & vbnewline & now & vbtab & "RE-PROBE SUCCESSFUL : " & errRET & " : " & now
+    objLOG.write vbnewline & vbnewline & now & vbtab & "RE-PROBE SUCCESSFUL : " & errRET & " : " & now
     err.clear
   elseif (errRET <> 0) then    															''RE-PROBE FAILED
-    objOUT.write vbnewline & "RE-PROBE FAILURE : " & errRET & " : " & now
-    objLOG.write vbnewline & "RE-PROBE FAILURE : " & errRET & " : " & now
+    objOUT.write vbnewline & vbnewline & now & vbtab & "RE-PROBE FAILURE : " & errRET & " : " & now
+    objLOG.write vbnewline & vbnewline & now & vbtab & "RE-PROBE FAILURE : " & errRET & " : " & now
     ''RAISE CUSTOMIZED ERROR CODE, ERROR CODE WILL BE DEFINE RESTOP NUMBER INDICATING WHICH SECTION FAILED
     call err.raise(vbObjectError + errRET, "RE-PROBE", "FAILURE")
   end if
