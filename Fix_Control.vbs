@@ -12,7 +12,7 @@ dim objLOG, objEXEC, objHOOK, objSIN, objSOUT
 ''VERSION FOR SCRIPT UPDATE, FIX_CONTROL.VBS, REF #2 , REF #68 , REF #69 , FIXES #21 , FIXES #31
 strVER = 1
 strREPO = "CW_MSI"
-strBRCH = "dev"
+strBRCH = "master"
 strDIR = vbnullstring
 ''DEFAULT SUCCESS
 errRET = 0
@@ -186,7 +186,7 @@ if (errRET = 0) then                                        ''NO ERRORS DURING I
     if (objFSO.folderexists(strPD & "\GetSupportService")) then
       objOUT.write vbnewline & now & vbtab & vbtab & " - REMOVING " & chr(34) & ucase(strPD & "\GetSupportService") & chr(34)
       objLOG.write vbnewline & now & vbtab & vbtab & " - REMOVING " & chr(34) & ucase(strPD & "\GetSupportService") & chr(34)
-      call HOOK("rmdir /s /q " & strPD & "\GetSupportService_N-Central")
+      call HOOK("rmdir /s /q " & strPD & "\GetSupportService")
       if (err.number <> 0) then
         call LOGERR(5)
       end if
