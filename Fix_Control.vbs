@@ -75,20 +75,19 @@ if (errRET = 0) then                                        ''NO ERRORS DURING I
   objLOG.write vbnewline & vbnewline & now & vbtab & " - EXECUTING FIX_CONTROL"
 	''AUTOMATIC UPDATE, FIX_CONTROL.VBS, REF #2 , REF #69 , REF #68
   ''DOWNLOAD CHKAU.VBS SCRIPT, REF #2 , REF #69 , REF #68
-  'call FILEDL("https://raw.githubusercontent.com/CW-Khristos/scripts/master/chkAU.vbs", "C:\IT\Scripts", "chkAU.vbs")
+  call FILEDL("https://raw.githubusercontent.com/CW-Khristos/scripts/master/chkAU.vbs", "C:\IT\Scripts", "chkAU.vbs")
   ''EXECUTE CHKAU.VBS SCRIPT, REF #69
   objOUT.write vbnewline & now & vbtab & vbtab & " - CHECKING FOR UPDATE : FIX_CONTROL : " & strVER
   objLOG.write vbnewline & now & vbtab & vbtab & " - CHECKING FOR UPDATE : FIX_CONTROL : " & strVER
-  'intRET = objWSH.run ("cmd.exe /C " & chr(34) & "cscript.exe " & chr(34) & "C:\IT\Scripts\chkAU.vbs" & chr(34) & " " & _
-  '  chr(34) & strREPO & chr(34) & " " & chr(34) & strBRCH & chr(34) & " " & chr(34) & strDIR & chr(34) & " " & _
-  '  chr(34) & wscript.scriptname & chr(34) & " " & chr(34) & strVER & chr(34) & chr(34), 0, true)
+  intRET = objWSH.run ("cmd.exe /C " & chr(34) & "cscript.exe " & chr(34) & "C:\IT\Scripts\chkAU.vbs" & chr(34) & " " & _
+    chr(34) & strREPO & chr(34) & " " & chr(34) & strBRCH & chr(34) & " " & chr(34) & strDIR & chr(34) & " " & _
+    chr(34) & wscript.scriptname & chr(34) & " " & chr(34) & strVER & chr(34) & chr(34), 0, true)
   '''CHKAU RETURNED - NO UPDATE FOUND , REF #2 , REF #69 , REF #68
-  'objOUT.write vbnewline & "errRET='" & intRET & "'"
-  'objLOG.write vbnewline & "errRET='" & intRET & "'"
-  'intRET = (intRET - vbObjectError)
-  'objOUT.write vbnewline & "errRET='" & intRET & "'"
-  'objLOG.write vbnewline & "errRET='" & intRET & "'"
-  intRET = 4
+  objOUT.write vbnewline & "errRET='" & intRET & "'"
+  objLOG.write vbnewline & "errRET='" & intRET & "'"
+  intRET = (intRET - vbObjectError)
+  objOUT.write vbnewline & "errRET='" & intRET & "'"
+  objLOG.write vbnewline & "errRET='" & intRET & "'"
   if ((intRET = 4) or (intRET = 10) or (intRET = 11) or (intRET = 1) or (intRET = 2147221505) or (intRET = 2147221517)) then
     ''STOP TAKE CONTROL SERVICES
     objOUT.write vbnewline & now & vbtab & vbtab & " - STOPPING TAKE CONTROL SERVICES"
