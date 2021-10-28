@@ -83,21 +83,77 @@ if (errRET = 0) then                                        ''NO ERRORS DURING I
       call HOOK("net stop " & chr(34) & "Windows Software Probe Service" & chr(34))
     end if
     wscript.sleep 5000
-    ''DOWNLOAD AND RUN 'CCLUTTERV2.VBS' WHICH INCLUDES NABLEPATCHCACHE AND NABLEUPDATECACHE DIRECTORIES
-    call FILEDL("https://raw.githubusercontent.com/CW-Khristos/scripts/dev/CClutterV2.vbs", "C:\IT\Scripts", "CClutterV2.vbs")
-    call HOOK("cscript.exe " & chr(34) & "C:\IT\Scripts\CClutterV2.vbs" & chr(34) & " " & chr(34) & "true" & chr(34))
+    ''DOWNLOAD PME_REMOVAL.VBS SCRIPT
+    call FILEDL("https://raw.githubusercontent.com/CW-Khristos/CW_MSI/dev/PME_Removal.vbs", "C:\IT\Scripts", "PME_Removal.vbs")
+    intRET = objWSH.run ("CMD.exe /C cscript.exe " & chr(34) & "C:\IT\Scripts\PME_Removal.vbs", 0, true)
+    if (intRET <> 0) then
+      call LOGERR(2)
+    end if
+    ''DOWNLOAD AND RUN 'CCLUTTER.VBS' WHICH INCLUDES NABLEPATCHCACHE AND NABLEUPDATECACHE DIRECTORIES
+    call FILEDL("https://raw.githubusercontent.com/CW-Khristos/scripts/master/CClutter.vbs", "C:\IT\Scripts", "CClutter.vbs")
+    call HOOK("cscript.exe " & chr(34) & "C:\IT\Scripts\CClutter.vbs" & chr(34) & " " & chr(34) & "true" & chr(34))
     ''REMOVE POSSIBLE TRASHED 'ARCHIVES'
     if (objFSO.fileexists(strPD & "\SolarWinds MSP\PME\Archives")) then
       objFSO.deletefile strPD & "\SolarWinds MSP\PME\Archives", true
     end if
+    if (objFSO.fileexists(strPD & "\MspPlatform\PME\Archives")) then
+      objFSO.deletefile strPD & "\MspPlatform\PME\Archives", true
+    end if
+    ''REMOVE PROGRAMDATA\SOLARWINDS MSP LOCATIONS
+    if (not (objFSO.folderexists(strPD & "\SolarWinds MSP\FileCacheServiceAgent"))) then
+      call HOOK("cmd.exe /C rd /s /q " & chr(34) & strPD & "\SolarWinds MSP\FileCacheServiceAgent" & chr(34))
+    end if
+    if (not (objFSO.folderexists(strPD & "\SolarWinds MSP\Perun"))) then
+      call HOOK("cmd.exe /C rd /s /q " & chr(34) & strPD & "\SolarWinds MSP\Perun" & chr(34))
+    end if
+    if (not (objFSO.folderexists(strPD & "\SolarWinds MSP\PME"))) then
+      call HOOK("cmd.exe /C rd /s /q " & chr(34) & strPD & "\SolarWinds MSP\PME" & chr(34))
+    end if
+    if (not (objFSO.folderexists(strPD & "\SolarWinds MSP\PME.Agent.PmeService"))) then
+      call HOOK("cmd.exe /C rd /s /q " & chr(34) & strPD & "\SolarWinds MSP\PME.Agent.PmeService" & chr(34))
+    end if
+    if (not (objFSO.folderexists(strPD & "\SolarWinds MSP\RequestHandlerAgent"))) then
+      call HOOK("cmd.exe /C rd /s /q " & chr(34) & strPD & "\SolarWinds MSP\RequestHandlerAgent" & chr(34))
+    end if
     if (not (objFSO.folderexists(strPD & "\SolarWinds MSP\SolarWinds.MSP.CacheService"))) then
       call HOOK("cmd.exe /C rd /s /q " & chr(34) & strPD & "\SolarWinds MSP\SolarWinds.MSP.CacheService" & chr(34))
     end if
-    if (not (objFSO.folderexists(strPD & "\SolarWinds MSP\SolarWinds.MSP.PME.Agent.PmeService"))) then
-      call HOOK("cmd.exe /C rd /s /q " & chr(34) & strPD & "\SolarWinds MSP\SolarWinds.MSP.PME.Agent.PmeService" & chr(34))
-    end if
     if (not (objFSO.folderexists(strPD & "\SolarWinds MSP\SolarWinds.MSP.RPCServerService"))) then
       call HOOK("cmd.exe /C rd /s /q " & chr(34) & strPD & "\SolarWinds MSP\SolarWinds.MSP.RPCServerService" & chr(34))
+    end if
+    if (not (objFSO.folderexists(strPD & "\SolarWinds MSP\Ecosystem Agent"))) then
+      call HOOK("cmd.exe /C rd /s /q " & chr(34) & strPD & "\SolarWinds MSP\Ecosystem Agent" & chr(34))
+    end if
+    if (not (objFSO.folderexists(strPD & "\SolarWinds MSP\N-central Agent"))) then
+      call HOOK("cmd.exe /C rd /s /q " & chr(34) & strPD & "\SolarWinds MSP\N-central Agent" & chr(34))
+    end if
+    ''REMOVE PROGRAMDATA\MSPPLATFORM LOCATIONS
+    if (not (objFSO.folderexists(strPD & "\MspPlatform\FileCacheServiceAgent"))) then
+      call HOOK("cmd.exe /C rd /s /q " & chr(34) & strPD & "\MspPlatform\FileCacheServiceAgent" & chr(34))
+    end if
+    if (not (objFSO.folderexists(strPD & "\MspPlatform\Perun"))) then
+      call HOOK("cmd.exe /C rd /s /q " & chr(34) & strPD & "\MspPlatform\Perun" & chr(34))
+    end if
+    if (not (objFSO.folderexists(strPD & "\MspPlatform\PME"))) then
+      call HOOK("cmd.exe /C rd /s /q " & chr(34) & strPD & "\MspPlatform\PME" & chr(34))
+    end if
+    if (not (objFSO.folderexists(strPD & "\MspPlatform\PME.Agent.PmeService"))) then
+      call HOOK("cmd.exe /C rd /s /q " & chr(34) & strPD & "\MspPlatform\PME.Agent.PmeService" & chr(34))
+    end if
+    if (not (objFSO.folderexists(strPD & "\MspPlatform\RequestHandlerAgent"))) then
+      call HOOK("cmd.exe /C rd /s /q " & chr(34) & strPD & "\MspPlatform\RequestHandlerAgent" & chr(34))
+    end if
+    if (not (objFSO.folderexists(strPD & "\MspPlatform\SolarWinds.MSP.CacheService"))) then
+      call HOOK("cmd.exe /C rd /s /q " & chr(34) & strPD & "\MspPlatform\SolarWinds.MSP.CacheService" & chr(34))
+    end if
+    if (not (objFSO.folderexists(strPD & "\MspPlatform\SolarWinds.MSP.RPCServerService"))) then
+      call HOOK("cmd.exe /C rd /s /q " & chr(34) & strPD & "\MspPlatform\SolarWinds.MSP.RPCServerService" & chr(34))
+    end if
+    if (not (objFSO.folderexists(strPD & "\MspPlatform\Ecosystem Agent"))) then
+      call HOOK("cmd.exe /C rd /s /q " & chr(34) & strPD & "\MspPlatform\Ecosystem Agent" & chr(34))
+    end if
+    if (not (objFSO.folderexists(strPD & "\MspPlatform\N-central Agent"))) then
+      call HOOK("cmd.exe /C rd /s /q " & chr(34) & strPD & "\MspPlatform\N-central Agent" & chr(34))
     end if
     ''MAKE NECESSARY REGISTRY CHANGES TO ALLOW POWERSHELL 'INVOKE-WEBREQUEST' CMDLET USED BY PME SERVICE TO DOWNLOAD FILES
     objOUT.write vbnewline & vbnewline & now & vbtab & " - CHANGING IE FIRST-RUN TO ALLOW POWERSHELL INVOKE-WEBREQUEST"
@@ -131,11 +187,11 @@ if (errRET = 0) then                                        ''NO ERRORS DURING I
     call FILEDL("http://sis.n-able.com/ComponentData/RMM/1/SecurityUpdates_details.xml", "C:\IT", "SecurityUpdates_details.xml")
     objOUT.write vbnewline & vbnewline & now & vbtab & " - DOWNLOADING SECURITYUPDATES.ZIP" & vbnewline
     objLOG.write vbnewline & vbnewline & now & vbtab & " - DOWNLOADING SECURITYUPDATES.ZIP" & vbnewline
-    call FILEDL("https://sis.n-able.com/PatchManagement/SecurityUpdates-2020.6.10.4.zip, "C:\IT", "SecurityUpdates.zip")
+    call FILEDL("https://sis.n-able.com/PatchManagement/SecurityUpdates-2021.10.15.4.zip, "C:\IT", "SecurityUpdates.zip")
     ''DOWNLOAD LATEST PME SERVICE UPDATE 1.1.14.2223
     objOUT.write vbnewline & vbnewline & now & vbtab & " - DOWNLOADING PME SERVICE UPDATE" & vbnewline
     objLOG.write vbnewline & vbnewline & now & vbtab & " - DOWNLOADING PME SERVICE UPDATE" & vbnewline
-    call FILEDL("https://sis.n-able.com/Components/MSP-PME/1.2.5.2346/PMESetup.exe", "C:\IT", "PMESetup.exe")
+    call FILEDL("https://sis.n-able.com/Components/MSP-PME/2.3.0.5120/PMESetup.exe", "C:\IT", "PMESetup.exe")
     ''RUN PME SERVICE UPDATE WITH /VERYSILENT SWITCH
     objOUT.write vbnewline & vbnewline & now & vbtab & " - EXECUTING PME SERVICE UPDATE" & vbnewline
     objLOG.write vbnewline & vbnewline & now & vbtab & " - EXECUTING PME SERVICE UPDATE" & vbnewline
@@ -153,10 +209,10 @@ if (errRET = 0) then                                        ''NO ERRORS DURING I
     call HOOK("net start bits")
     call HOOK("net start wuauserv")
     ''RESTART WINDOWS PROBE SERVICES
-    objOUT.write vbnewline & vbnewline & now & vbtab & " - RESTARTING WINDOWS PROBE SERVICES" & vbnewline
-    objLOG.write vbnewline & vbnewline & now & vbtab & " - RESTARTING WINDOWS PROBE SERVICES" & vbnewline
     intRET = objWSH.run("sc query " & chr(34) & "Windows Software Probe Service" & chr(34), 0, true)
     if (intRET = 0) then
+      objOUT.write vbnewline & vbnewline & now & vbtab & " - RESTARTING WINDOWS PROBE SERVICES" & vbnewline
+      objLOG.write vbnewline & vbnewline & now & vbtab & " - RESTARTING WINDOWS PROBE SERVICES" & vbnewline
       call HOOK("net start " & chr(34) & "N-able Patch Repository Service" & chr(34))
       call HOOK("net start " & chr(34) & "Windows Software Probe Maintenance Service" & chr(34))
       call HOOK("net start " & chr(34) & "Windows Software Probe Service" & chr(34))
@@ -274,6 +330,9 @@ sub LOGERR(intSTG)                                          ''CALL HOOK TO MONIT
     case 1                                                  '' 'ERRRET'=1 - NOT ENOUGH ARGUMENTS
       objOUT.write vbnewline & vbnewline & now & vbtab & " - NOT ENOUGH ARGUMENTS"
       objLOG.write vbnewline & vbnewline & now & vbtab & " - NOT ENOUGH ARGUMENTS"
+    case 2                                                  '' 'ERRRET'=2 - PME_REMOVAL.VBS ERROR
+      objOUT.write vbnewline & vbnewline & now & vbtab & " - PME_REMOVAL.VBS ERROR"
+      objLOG.write vbnewline & vbnewline & now & vbtab & " - PME_REMOVAL.VBS ERROR"
   end select
 end sub
 
