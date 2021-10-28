@@ -192,7 +192,10 @@ if (errRET = 0) then                                        ''NO ERRORS DURING I
     ''RUN PME SERVICE UPDATE WITH /VERYSILENT SWITCH
     objOUT.write vbnewline & vbnewline & now & vbtab & " - EXECUTING PME SERVICE UPDATE" & vbnewline
     objLOG.write vbnewline & vbnewline & now & vbtab & " - EXECUTING PME SERVICE UPDATE" & vbnewline
-    call HOOK("cmd.exe /C " & chr(34) & "C:\IT\PMESetup.exe" & chr(34) & " /verysilent /log=" & chr(34) & "C:\temp\PMESetup.log" & chr(34))
+    intRET = ("cmd.exe /C " & chr(34) & "C:\IT\PMESetup.exe" & chr(34) & " /verysilent /log=" & chr(34) & "C:\temp\PMESetup.log" & chr(34))
+    if (intRET <> 0) then
+      call LOGERR(3)
+    end if
     ''RESET WINDOWS UPDATE COMPONENTS
     objOUT.write vbnewline & vbnewline & now & vbtab & " - RESETTING WINDOWS UPDATE COMPONENTS" & vbnewline
     objLOG.write vbnewline & vbnewline & now & vbtab & " - RESETTING WINDOWS UPDATE COMPONENTS" & vbnewline
@@ -330,6 +333,9 @@ sub LOGERR(intSTG)                                          ''CALL HOOK TO MONIT
     case 2                                                  '' 'ERRRET'=2 - PME_REMOVAL.VBS ERROR
       objOUT.write vbnewline & vbnewline & now & vbtab & " - PME_REMOVAL.VBS ERROR"
       objLOG.write vbnewline & vbnewline & now & vbtab & " - PME_REMOVAL.VBS ERROR"
+    case 3                                                  '' 'ERRRET'=3 - PME_SETUP ERROR
+      objOUT.write vbnewline & vbnewline & now & vbtab & " - PME_SETUP ERROR"
+      objLOG.write vbnewline & vbnewline & now & vbtab & " - PME_SETUP ERROR"
   end select
 end sub
 
