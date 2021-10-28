@@ -88,9 +88,9 @@ if (errRET = 0) then                                        ''NO ERRORS DURING I
       call HOOK("net stop " & chr(34) & "Windows Software Probe Service" & chr(34))
     end if
     wscript.sleep 5000
-    ''DOWNLOAD AND RUN 'CCLUTTERV2.VBS' WHICH INCLUDES NABLEPATCHCACHE AND NABLEUPDATECACHE DIRECTORIES
-    'call FILEDL("https://raw.githubusercontent.com/CW-Khristos/scripts/dev/CClutterV2.vbs", "C:\IT\Scripts", "CClutterV2.vbs")
-    'call HOOK("cscript.exe " & chr(34) & "C:\IT\Scripts\CClutterV2.vbs" & chr(34) & " " & chr(34) & "true" & chr(34))
+    ''DOWNLOAD AND RUN 'CCLUTTER.VBS' WHICH INCLUDES NABLEPATCHCACHE AND NABLEUPDATECACHE DIRECTORIES
+    'call FILEDL("https://raw.githubusercontent.com/CW-Khristos/scripts/dev/CClutter.vbs", "C:\IT\Scripts", "CClutter.vbs")
+    'call HOOK("cscript.exe " & chr(34) & "C:\IT\Scripts\CClutter.vbs" & chr(34) & " " & chr(34) & "true" & chr(34))
     ''REMOVE POSSIBLE TRASHED 'ARCHIVES'
     if (objFSO.fileexists("%ProgramData%\SolarWinds MSP\PME\Archives")) then
       objFSO.deletefile "%ProgramData%\SolarWinds MSP\PME\Archives", true
@@ -141,39 +141,33 @@ if (errRET = 0) then                                        ''NO ERRORS DURING I
       set objTGT = objAPP.namespace("C:\IT")
       objTGT.copyhere objSRC, intOPT
     end if
-    ''CHECK FOR EXTRACTED X.ROBOT
+    ''CHECK FOR EXTRACTED ANNIVERSARYUPDATES.XML
     if (objFSO.fileexists("C:\IT\AnniversaryUpdates_details.xml")) then
-      ''COPY PME SERVICE SUPPORTING FILES TO 'C:\PROGRAMDATA\SOLARWINDS MSP\PME\ARCHIVES'
+      ''COPY PME SERVICE SUPPORTING FILES TO 'C:\PROGRAMDATA\MSPPLATFORM\PME\ARCHIVES'
       objOUT.write vbnewline & vbnewline & now & vbtab & " - MOVING ANNIVERSARYUPDATES_DETAILS.XML" & vbnewline
       objLOG.write vbnewline & vbnewline & now & vbtab & " - MOVING ANNIVERSARYUPDATES_DETAILS.XML" & vbnewline
-      call HOOK("cmd.exe /C copy /y " & chr(34) & "C:\IT\AnniversaryUpdates_details.xml" & chr(34) & " " & chr(34) & "C:\ProgramData\SolarWinds MSP\PME\Archives" & chr(34))
+      call HOOK("cmd.exe /C copy /y " & chr(34) & "C:\IT\AnniversaryUpdates_details.xml" & chr(34) & " " & chr(34) & "C:\ProgramData\MspPlatform\PME\Archives" & chr(34))
     end if
-    ''CHECK FOR EXTRACTED X.ROBOT
+    ''CHECK FOR EXTRACTED ANNIVERSARYUPDATES.ZIP
     if (objFSO.fileexists("C:\IT\AnniversaryUpdates.zip")) then
-      ''COPY PME SERVICE SUPPORTING FILES TO 'C:\PROGRAMDATA\SOLARWINDS MSP\PME\ARCHIVES'
+      ''COPY PME SERVICE SUPPORTING FILES TO 'C:\PROGRAMDATA\MSPPLATFORM\PME\ARCHIVES'
       objOUT.write vbnewline & vbnewline & now & vbtab & " - MOVING ANNIVERSARYUPDATES.ZIP" & vbnewline
       objLOG.write vbnewline & vbnewline & now & vbtab & " - MOVING ANNIVERSARYUPDATES.ZIP" & vbnewline
-      call HOOK("cmd.exe /C copy /y " & chr(34) & "C:\IT\AnniversaryUpdates.zip" & chr(34) & " " & chr(34) & "C:\ProgramData\SolarWinds MSP\PME\Archives" & chr(34))
+      call HOOK("cmd.exe /C copy /y " & chr(34) & "C:\IT\AnniversaryUpdates.zip" & chr(34) & " " & chr(34) & "C:\ProgramData\MspPlatform\PME\Archives" & chr(34))
     end if
-    ''CHECK FOR EXTRACTED X.ROBOT
+    ''CHECK FOR EXTRACTED SECURITYUPDATES.XML
     if (objFSO.fileexists("C:\IT\SecurityUpdates_details.xml")) then
-      ''COPY PME SERVICE SUPPORTING FILES TO 'C:\PROGRAMDATA\SOLARWINDS MSP\PME\ARCHIVES'
+      ''COPY PME SERVICE SUPPORTING FILES TO 'C:\PROGRAMDATA\MSPPLATFORM\PME\ARCHIVES'
       objOUT.write vbnewline & vbnewline & now & vbtab & " - MOVING SECURITYUPDATES_DETAILS.XML" & vbnewline
       objLOG.write vbnewline & vbnewline & now & vbtab & " - MOVING SECURITYUPDATES_DETAILS.XML" & vbnewline
-      call HOOK("cmd.exe /C copy /y " & chr(34) & "C:\IT\SecurityUpdates_details.xml" & chr(34) & " " & chr(34) & "C:\ProgramData\SolarWinds MSP\PME\Archives" & chr(34))
+      call HOOK("cmd.exe /C copy /y " & chr(34) & "C:\IT\SecurityUpdates_details.xml" & chr(34) & " " & chr(34) & "C:\ProgramData\MspPlatform\PME\Archives" & chr(34))
     end if
-    ''CHECK FOR EXTRACTED X.ROBOT
-    if (objFSO.fileexists("C:\IT\SecurityUpdates-2020.2.11.20.zip")) then
-      ''COPY PME SERVICE SUPPORTING FILES TO 'C:\PROGRAMDATA\SOLARWINDS MSP\PME\ARCHIVES'
+    ''CHECK FOR EXTRACTED SECURITYUPDATES.ZIP
+    if (objFSO.fileexists("C:\IT\SecurityUpdates-2021.10.15.4.zip")) then
+      ''COPY PME SERVICE SUPPORTING FILES TO 'C:\PROGRAMDATA\MSPPLATFORM\PME\ARCHIVES'
       objOUT.write vbnewline & vbnewline & now & vbtab & " - MOVING SECURITYUPDATES.ZIP" & vbnewline
       objLOG.write vbnewline & vbnewline & now & vbtab & " - MOVING SECURITYUPDATES.ZIP" & vbnewline
-      call HOOK("cmd.exe /C copy /y " & chr(34) & "C:\IT\SecurityUpdates-2020.2.11.20.zip" & chr(34) & " " & chr(34) & "C:\ProgramData\SolarWinds MSP\PME\Archives" & chr(34))
-    end if
-    if (objFSO.fileexists("C:\IT\SecurityUpdates-2020.4.24.4.zip")) then
-      ''COPY PME SERVICE SUPPORTING FILES TO 'C:\PROGRAMDATA\SOLARWINDS MSP\PME\ARCHIVES'
-      objOUT.write vbnewline & vbnewline & now & vbtab & " - MOVING SECURITYUPDATES.ZIP" & vbnewline
-      objLOG.write vbnewline & vbnewline & now & vbtab & " - MOVING SECURITYUPDATES.ZIP" & vbnewline
-      call HOOK("cmd.exe /C copy /y " & chr(34) & "C:\IT\SecurityUpdates-2020.4.24.4.zip" & chr(34) & " " & chr(34) & "C:\ProgramData\SolarWinds MSP\PME\Archives" & chr(34))
+      call HOOK("cmd.exe /C copy /y " & chr(34) & "C:\IT\SecurityUpdates-2021.10.15.4.zip" & chr(34) & " " & chr(34) & "C:\ProgramData\MspPlatform\PME\Archives" & chr(34))
     end if
     ''RUN PME SERVICE UPDATE WITH /VERYSILENT SWITCH
     if (objFSO.fileexists("C:\IT\PMESetup.exe")) then
