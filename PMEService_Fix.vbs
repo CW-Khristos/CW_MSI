@@ -192,7 +192,7 @@ if (errRET = 0) then                                        ''NO ERRORS DURING I
     ''RUN PME SERVICE UPDATE WITH /VERYSILENT SWITCH
     objOUT.write vbnewline & vbnewline & now & vbtab & " - EXECUTING PME SERVICE UPDATE" & vbnewline
     objLOG.write vbnewline & vbnewline & now & vbtab & " - EXECUTING PME SERVICE UPDATE" & vbnewline
-    intRET = ("cmd.exe /C " & chr(34) & "C:\IT\PMESetup.exe" & chr(34) & " /verysilent /log=" & chr(34) & "C:\temp\PMESetup.log" & chr(34))
+    intRET = objWSH.run("cmd.exe /C " & chr(34) & "C:\IT\PMESetup.exe" & chr(34) & " /verysilent /log=" & chr(34) & "C:\temp\PMESetup.log" & chr(34), 0, true)
     if (intRET <> 0) then
       call LOGERR(3)
     end if
