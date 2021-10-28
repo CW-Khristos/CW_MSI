@@ -187,7 +187,7 @@ if (errRET = 0) then                                        ''NO ERRORS DURING I
     call FILEDL("http://sis.n-able.com/ComponentData/RMM/1/SecurityUpdates_details.xml", "C:\IT", "SecurityUpdates_details.xml")
     objOUT.write vbnewline & vbnewline & now & vbtab & " - DOWNLOADING SECURITYUPDATES.ZIP" & vbnewline
     objLOG.write vbnewline & vbnewline & now & vbtab & " - DOWNLOADING SECURITYUPDATES.ZIP" & vbnewline
-    call FILEDL("https://sis.n-able.com/PatchManagement/SecurityUpdates-2021.10.15.4.zip, "C:\IT", "SecurityUpdates.zip")
+    call FILEDL("https://sis.n-able.com/PatchManagement/SecurityUpdates-2021.10.15.4.zip", "C:\IT", "SecurityUpdates.zip")
     ''DOWNLOAD LATEST PME SERVICE UPDATE 1.1.14.2223
     objOUT.write vbnewline & vbnewline & now & vbtab & " - DOWNLOADING PME SERVICE UPDATE" & vbnewline
     objLOG.write vbnewline & vbnewline & now & vbtab & " - DOWNLOADING PME SERVICE UPDATE" & vbnewline
