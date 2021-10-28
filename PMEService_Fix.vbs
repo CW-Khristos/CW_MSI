@@ -85,7 +85,7 @@ if (errRET = 0) then                                        ''NO ERRORS DURING I
     wscript.sleep 5000
     ''DOWNLOAD PME_REMOVAL.VBS SCRIPT
     call FILEDL("https://raw.githubusercontent.com/CW-Khristos/CW_MSI/dev/PME_Removal.vbs", "C:\IT\Scripts", "PME_Removal.vbs")
-    intRET = objWSH.run ("CMD.exe /C cscript.exe " & chr(34) & "C:\IT\Scripts\PME_Removal.vbs", 0, true)
+    intRET = objWSH.run ("cscript.exe " & chr(34) & "C:\IT\Scripts\PME_Removal.vbs" & chr(34), 0, true)
     if (intRET <> 0) then
       call LOGERR(2)
     end if
