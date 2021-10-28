@@ -10,7 +10,7 @@ dim objLOG, objEXEC, objHOOK, objHTTP, objXML
 ''VERSION FOR SCRIPT UPDATE, AGENT_REMOVAL.VBS, REF #2 , REF #68 , REF #69 , FIXES #21 , FIXES #31
 strVER = 1
 strREPO = "CW_MSI"
-strBRCH = "dev"
+strBRCH = "master"
 strDIR = vbnullstring
 ''DEFAULT SUCCESS
 errRET = 0
@@ -79,8 +79,6 @@ if (errRET = 0) then
   call HOOK("sc stop " & chr(34) & "PME.Agent.PmeService" & chr(34))
   call HOOK("sc stop " & chr(34) & "SolarWinds.MSP.CacheService" & chr(34))
   call HOOK("sc stop " & chr(34) & "SolarWinds.MSP.RpcServerService" & chr(34))
-  call HOOK("sc stop " & chr(34) & "Windows Agent Service" & chr(34))
-  call HOOK("sc stop " & chr(34) & "Windows Agent Maintenance Service" & chr(34))
   ''KILL SERVICE PROCESSES
   objOUT.write vbnewline & now & vbtab & vbtab & " - STOPPING PME PROCESSES"
   objLOG.write vbnewline & now & vbtab & vbtab & " - STOPPING PME PROCESSES"
@@ -89,21 +87,26 @@ if (errRET = 0) then
   call HOOK("taskkill /F /IM FileCacheServiceAgent.exe /T")
   call HOOK("taskkill /F /IM SolarWinds.MSP.Ecosystem.WindowsAgent.exe /T")
   call HOOK("taskkill /F /IM SolarWinds.MSP.Ecosystem.WindowsAgentMaint.exe /T")
-  '' > PME Version 2.0
+  '''''''''''''''''''''''
+  '' > PME Version 2.0 ''
+  '''''''''''''''''''''''
   ''PME AGENT
   if (objFSO.fileexists(strPF & "\MspPlatform\PME\unins000.exe")) then
     objOUT.write vbnewline & now & vbtab & vbtab & " - UNINSTALLING PME AGENT"
     objLOG.write vbnewline & now & vbtab & vbtab & " - UNINSTALLING PME AGENT"
     'objWSH.run chr(34) & strPF & "\MspPlatform\PME\unins000.exe" & chr(34) & " /s /qn /silent /verysilent /norestart", 0, true
-    intRET = objWSH.run (chr(34) & strPF & "\MspPlatform\PME\unins000.exe" & chr(34) & " /s /qn /silent /verysilent /norestart", 0, false)
+    intRET = objWSH.run (chr(34) & strPF & "\MspPlatform\PME\unins000.exe" & chr(34) & " /s /qn /silent /verysilent /norestart", 0, true)
     for intLOOP = 0 to 20
       wscript.sleep 6000
     next
     call HOOK("taskkill /F /IM unins000.exe")
+    objOUT.write vbnewline & now & vbtab & vbtab & " - REMOVING PME DRIECTORIES"
+    objLOG.write vbnewline & now & vbtab & vbtab & " - REMOVING PME DRIECTORIES"
     if (objFSO.folderexists(strPD & "\MspPlatform\PME\archives")) then
-      objOUT.write vbnewline & now & vbtab & vbtab & " - REMOVING PME\ARCHIVES DRIECTORY"
-      objLOG.write vbnewline & now & vbtab & vbtab & " - REMOVING PME\ARCHIVES DRIECTORY"
       objFSO.deletefolder chr(34) & strPD & "\MspPlatform\PME\archives" & chr(34), true
+    end if
+    if (objFSO.folderexists(strPD & "\MspPlatform\PME")) then
+      objFSO.deletefolder chr(34) & strPD & "\MspPlatform\PME" & chr(34), true
     end if
   end if
   ''ECOSYSTEM AGENT
@@ -111,13 +114,16 @@ if (errRET = 0) then
     objOUT.write vbnewline & now & vbtab & vbtab & " - UNINSTALLING ECOSYSTEM AGENT"
     objLOG.write vbnewline & now & vbtab & vbtab & " - UNINSTALLING ECOSYSTEM AGENT"
     'objWSH.run chr(34) & strPF & "\MspPlatform\Ecosystem Agent\unins000.exe" & chr(34) & " /s /qn /silent /verysilent /norestart", 0, true
-    intRET = objWSH.run (chr(34) & strPF & "\MspPlatform\Ecosystem Agent\unins000.exe" & chr(34) & " /s /qn /silent /verysilent /norestart", 0, false)
+    intRET = objWSH.run (chr(34) & strPF & "\MspPlatform\Ecosystem Agent\unins000.exe" & chr(34) & " /s /qn /silent /verysilent /norestart", 0, true)
     for intLOOP = 0 to 20
       wscript.sleep 6000
     next
     call HOOK("taskkill /F /IM unins000.exe")
     objOUT.write vbnewline & now & vbtab & vbtab & " - REMOVING ECOSYSTEM AGENT DRIECTORIES"
     objLOG.write vbnewline & now & vbtab & vbtab & " - REMOVING ECOSYSTEM AGENT DRIECTORIES"
+    if (objFSO.folderexists(strPF & "\MspPlatform\Ecosystem Agent")) then
+      objFSO.deletefolder chr(34) & strPF & "\MspPlatform\Ecosystem Agent" & chr(34), true
+    end if
     if (objFSO.folderexists(strPD & "\MspPlatform\Ecosystem Agent")) then
       objFSO.deletefolder chr(34) & strPD & "\MspPlatform\Ecosystem Agent" & chr(34), true
     end if
@@ -133,26 +139,40 @@ if (errRET = 0) then
     objOUT.write vbnewline & now & vbtab & vbtab & " - UNINSTALLING REQUEST HANDLER AGENT"
     objLOG.write vbnewline & now & vbtab & vbtab & " - UNINSTALLING REQUEST HANDLER AGENT"
     'objWSH.run chr(34) & strPF & "\MspPlatform\RequestHandlerAgent\unins000.exe" & chr(34) & " /s /qn /silent /verysilent /norestart", 0, true
-    intRET = objWSH.run (chr(34) & strPF & "\MspPlatform\RequestHandlerAgent\unins000.exe" & chr(34) & " /s /qn /silent /verysilent /norestart", 0, false)
+    intRET = objWSH.run (chr(34) & strPF & "\MspPlatform\RequestHandlerAgent\unins000.exe" & chr(34) & " /s /qn /silent /verysilent /norestart", 0, true)
     for intLOOP = 0 to 20
       wscript.sleep 6000
     next
     call HOOK("taskkill /F /IM unins000.exe")
+    objOUT.write vbnewline & now & vbtab & vbtab & " - REMOVING REQUEST HANDLER AGENT DRIECTORIES"
+    objLOG.write vbnewline & now & vbtab & vbtab & " - REMOVING REQUEST HANDLER AGENT DRIECTORIES"
+    if (objFSO.folderexists(strPF & "\MspPlatform\RequestHandlerAgent")) then
+      objFSO.deletefolder chr(34) & strPF & "\MspPlatform\RequestHandlerAgent" & chr(34), true
+    end if
+    if (objFSO.folderexists(strPD & "\MspPlatform\RequestHandlerAgent")) then
+      objFSO.deletefolder chr(34) & strPD & "\MspPlatform\RequestHandlerAgent" & chr(34), true
+    end if
   end if
   ''FILE CACHE SERVICE AGENT
   if (objFSO.fileexists(strPF & "\MspPlatform\FileCacheServiceAgent\unins000.exe")) then
     objOUT.write vbnewline & now & vbtab & vbtab & " - UNINSTALLING FILE CACHE SERVICE AGENT"
     objLOG.write vbnewline & now & vbtab & vbtab & " - UNINSTALLING FILE CACHE SERVICE AGENT"
     'objWSH.run chr(34) & strPF & "\MspPlatform\FileCacheServiceAgent\unins000.exe" & chr(34) & " /s /qn /silent /verysilent /norestart", 0, true
-    intRET = objWSH.run (chr(34) & strPF & "\MspPlatform\FileCacheServiceAgent\unins000.exe" & chr(34) & " /s /qn /silent /verysilent /norestart", 0, false)
+    intRET = objWSH.run (chr(34) & strPF & "\MspPlatform\FileCacheServiceAgent\unins000.exe" & chr(34) & " /s /qn /silent /verysilent /norestart", 0, true)
     for intLOOP = 0 to 20
       wscript.sleep 6000
     next
     call HOOK("taskkill /F /IM unins000.exe")
-    if (objFSO.folderexists(strPD & "\FileCacheServiceAgent")) then
-      objOUT.write vbnewline & now & vbtab & vbtab & " - REMOVING FILE CACHE SERVICE AGENT DRIECTORY"
-      objLOG.write vbnewline & now & vbtab & vbtab & " - REMOVING FILE CACHE SERVICE AGENT DRIECTORY"
-      objFSO.deletefolder chr(34) & strPD & "\FileCacheServiceAgent" & chr(34), true
+    objOUT.write vbnewline & now & vbtab & vbtab & " - REMOVING FILE CACHE SERVICE AGENT DRIECTORIES"
+    objLOG.write vbnewline & now & vbtab & vbtab & " - REMOVING FILE CACHE SERVICE AGENT DRIECTORIES"
+    if (objFSO.folderexists(strPF & "\MspPlatform\FileCacheServiceAgent")) then
+      objFSO.deletefolder chr(34) & strPF & "\MspPlatform\FileCacheServiceAgent" & chr(34), true
+    end if
+    if (objFSO.folderexists(strPD & "\MspPlatform\FileCacheServiceAgent")) then
+      objFSO.deletefolder chr(34) & strPD & "\MspPlatform\FileCacheServiceAgent" & chr(34), true
+    end if
+    if (objFSO.folderexists(strPD & "\MspPlatform\SolarWinds.MSP.CacheService" & chr(34))) then
+      objFSO.deletefolder chr(34) & strPD & "\MspPlatform\SolarWinds.MSP.CacheService" & chr(34), true
     end if
   end if
   ''CLEAR PROGRAM FILES / PROGRAM FILES (X86) FOLDER
@@ -167,21 +187,26 @@ if (errRET = 0) then
     objLOG.write vbnewline & now & vbtab & vbtab & " - REMOVING PROGRAMDATA\MSPPLATFORM DRIECTORY"
     objFSO.deletefolder chr(34) & strPD & "\MspPlatform" & chr(34), true
   end if
-  '' < PME Version 2.0
+  '''''''''''''''''''''''
+  '' < PME Version 2.0 ''
+  '''''''''''''''''''''''
   ''PME AGENT
   if (objFSO.fileexists(strPF & "\SolarWinds MSP\PME\unins000.exe")) then
     objOUT.write vbnewline & now & vbtab & vbtab & " - UNINSTALLING PME AGENT"
     objLOG.write vbnewline & now & vbtab & vbtab & " - UNINSTALLING PME AGENT"
     'objWSH.run chr(34) & strPF & "\SolarWinds MSP\PME\unins000.exe" & chr(34) & " /s /qn /silent /verysilent /norestart", 0, true
-    intRET = objWSH.run (chr(34) & strPF & "\SolarWinds MSP\PME\unins000.exe" & chr(34) & " /s /qn /silent /verysilent /norestart", 0, false)
+    intRET = objWSH.run (chr(34) & strPF & "\SolarWinds MSP\PME\unins000.exe" & chr(34) & " /s /qn /silent /verysilent /norestart", 0, true)
     for intLOOP = 0 to 20
       wscript.sleep 6000
     next
     call HOOK("taskkill /F /IM unins000.exe")
+    objOUT.write vbnewline & now & vbtab & vbtab & " - REMOVING PME DRIECTORIES"
+    objLOG.write vbnewline & now & vbtab & vbtab & " - REMOVING PME DRIECTORIES"
     if (objFSO.folderexists(strPD & "\SolarWinds MSP\PME\archives")) then
-      objOUT.write vbnewline & now & vbtab & vbtab & " - REMOVING PME\ARCHIVES DRIECTORY"
-      objLOG.write vbnewline & now & vbtab & vbtab & " - REMOVING PME\ARCHIVES DRIECTORY"
       objFSO.deletefolder chr(34) & strPD & "\SolarWinds MSP\PME\archives" & chr(34), true
+    end if
+    if (objFSO.folderexists(strPD & "\SolarWinds MSP\PME")) then
+      objFSO.deletefolder chr(34) & strPD & "\SolarWinds MSP\PME" & chr(34), true
     end if
   end if
   ''ECOSYSTEM AGENT
@@ -189,14 +214,17 @@ if (errRET = 0) then
     objOUT.write vbnewline & now & vbtab & vbtab & " - UNINSTALLING ECOSYSTEM AGENT"
     objLOG.write vbnewline & now & vbtab & vbtab & " - UNINSTALLING ECOSYSTEM AGENT"
     'objWSH.run chr(34) & strPF & "\SolarWinds MSP\Ecosystem Agent\unins000.exe" & chr(34) & " /s /qn /silent /verysilent /norestart", 0, true
-    intRET = objWSH.run (chr(34) & strPF & "\SolarWinds MSP\Ecosystem Agent\unins000.exe" & chr(34) & " /s /qn /silent /verysilent /norestart", 0, false)
+    intRET = objWSH.run (chr(34) & strPF & "\SolarWinds MSP\Ecosystem Agent\unins000.exe" & chr(34) & " /s /qn /silent /verysilent /norestart", 0, true)
     for intLOOP = 0 to 20
       wscript.sleep 6000
     next
     call HOOK("taskkill /F /IM unins000.exe")
     objOUT.write vbnewline & now & vbtab & vbtab & " - REMOVING ECOSYSTEM AGENT DRIECTORIES"
     objLOG.write vbnewline & now & vbtab & vbtab & " - REMOVING ECOSYSTEM AGENT DRIECTORIES"
-    if (objFSO.folderexists(strPD & "\SolarWinds MSP\Ecosystem Agent" & chr(34))) then
+    if (objFSO.folderexists(strPF & "\SolarWinds MSP\Ecosystem Agent")) then
+      objFSO.deletefolder chr(34) & strPF & "\SolarWinds MSP\Ecosystem Agent" & chr(34), true
+    end if
+    if (objFSO.folderexists(strPD & "\SolarWinds MSP\Ecosystem Agent")) then
       objFSO.deletefolder chr(34) & strPD & "\SolarWinds MSP\Ecosystem Agent" & chr(34), true
     end if
     if (objFSO.folderexists(strPD & "\SolarWinds MSP\EcosystemAgent")) then
@@ -207,30 +235,44 @@ if (errRET = 0) then
     end if
   end if
   ''REQUEST HANDLER AGENT
-  if (objFSO.fileexists(strPF & "\SolarWinds MSP\RpcServer\unins000.exe")) then
+  if (objFSO.fileexists(strPF & "\SolarWinds MSP\RequestHandlerAgent\unins000.exe")) then
     objOUT.write vbnewline & now & vbtab & vbtab & " - UNINSTALLING REQUEST HANDLER AGENT"
     objLOG.write vbnewline & now & vbtab & vbtab & " - UNINSTALLING REQUEST HANDLER AGENT"
-    'objWSH.run chr(34) & strPF & "\SolarWinds MSP\RpcServer\unins000.exe" & chr(34) & " /s /qn /silent /verysilent /norestart", 0, true
-    intRET = objWSH.run (chr(34) & strPF & "\SolarWinds MSP\RpcServer\unins000.exe" & chr(34) & " /s /qn /silent /verysilent /norestart", 0, false)
+    'objWSH.run chr(34) & strPF & "\SolarWinds MSP\RequestHandlerAgent\unins000.exe" & chr(34) & " /s /qn /silent /verysilent /norestart", 0, true
+    intRET = objWSH.run (chr(34) & strPF & "\SolarWinds MSP\RequestHandlerAgent\unins000.exe" & chr(34) & " /s /qn /silent /verysilent /norestart", 0, true)
     for intLOOP = 0 to 20
       wscript.sleep 6000
     next
     call HOOK("taskkill /F /IM unins000.exe")
+    objOUT.write vbnewline & now & vbtab & vbtab & " - REMOVING REQUEST HANDLER AGENT DRIECTORIES"
+    objLOG.write vbnewline & now & vbtab & vbtab & " - REMOVING REQUEST HANDLER AGENT DRIECTORIES"
+    if (objFSO.folderexists(strPF & "\SolarWinds MSP\RequestHandlerAgent")) then
+      objFSO.deletefolder chr(34) & strPF & "\SolarWinds MSP\RequestHandlerAgent" & chr(34), true
+    end if
+    if (objFSO.folderexists(strPD & "\SolarWinds MSP\RequestHandlerAgent")) then
+      objFSO.deletefolder chr(34) & strPD & "\SolarWinds MSP\RequestHandlerAgent" & chr(34), true
+    end if
   end if
   ''FILE CACHE SERVICE AGENT
   if (objFSO.fileexists(strPF & "\SolarWinds MSP\CacheService\unins000.exe")) then
     objOUT.write vbnewline & now & vbtab & vbtab & " - UNINSTALLING FILE CACHE SERVICE AGENT"
     objLOG.write vbnewline & now & vbtab & vbtab & " - UNINSTALLING FILE CACHE SERVICE AGENT"
     'objWSH.run chr(34) & strPF & "\SolarWinds MSP\CacheService\unins000.exe" & chr(34) & " /s /qn /silent /verysilent /norestart", 0, true
-    intRET = objWSH.run (chr(34) & strPF & "\SolarWinds MSP\CacheService\unins000.exe" & chr(34) & " /s /qn /silent /verysilent /norestart", 0, false)
+    intRET = objWSH.run (chr(34) & strPF & "\SolarWinds MSP\CacheService\unins000.exe" & chr(34) & " /s /qn /silent /verysilent /norestart", 0, true)
     for intLOOP = 0 to 20
       wscript.sleep 6000
     next
     call HOOK("taskkill /F /IM unins000.exe")
-    if (objFSO.folderexists(strPD & "\SolarWinds.MSP.CacheService" & chr(34))) then
-      objOUT.write vbnewline & now & vbtab & vbtab & " - REMOVING FILE CACHE SERVICE AGENT DRIECTORY"
-      objLOG.write vbnewline & now & vbtab & vbtab & " - REMOVING FILE CACHE SERVICE AGENT DRIECTORY"
-      objFSO.deletefolder chr(34) & strPD & "\SolarWinds.MSP.CacheService" & chr(34), true
+    objOUT.write vbnewline & now & vbtab & vbtab & " - REMOVING FILE CACHE SERVICE AGENT DRIECTORIES"
+    objLOG.write vbnewline & now & vbtab & vbtab & " - REMOVING FILE CACHE SERVICE AGENT DRIECTORIES"
+    if (objFSO.folderexists(strPF & "\SolarWinds MSP\FileCacheServiceAgent")) then
+      objFSO.deletefolder chr(34) & strPF & "\SolarWinds MSP\FileCacheServiceAgent" & chr(34), true
+    end if
+    if (objFSO.folderexists(strPD & "\SolarWinds MSP\FileCacheServiceAgent")) then
+      objFSO.deletefolder chr(34) & strPD & "\SolarWinds MSP\FileCacheServiceAgent" & chr(34), true
+    end if
+    if (objFSO.folderexists(strPD & "\SolarWinds MSP\SolarWinds.MSP.CacheService" & chr(34))) then
+      objFSO.deletefolder chr(34) & strPD & "\SolarWinds MSP\SolarWinds.MSP.CacheService" & chr(34), true
     end if
   end if
   ''CLEAR PROGRAM FILES / PROGRAM FILES (X86) FOLDER
@@ -253,8 +295,6 @@ if (errRET = 0) then
   call HOOK("sc delete " & chr(34) & "PME.Agent.PmeService" & chr(34))
   call HOOK("sc delete " & chr(34) & "SolarWinds.MSP.CacheService" & chr(34))
   call HOOK("sc delete " & chr(34) & "SolarWinds.MSP.RpcServerService" & chr(34))
-  call HOOK("sc delete " & chr(34) & "Windows Agent Service" & chr(34))
-  call HOOK("sc delete " & chr(34) & "Windows Agent Maintenance Service" & chr(34))
 elseif (errRET <> 0) then
   call LOGERR(errRET)
 end if
