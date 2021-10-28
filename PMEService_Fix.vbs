@@ -85,10 +85,7 @@ if (errRET = 0) then                                        ''NO ERRORS DURING I
     wscript.sleep 5000
     ''DOWNLOAD PME_REMOVAL.VBS SCRIPT
     call FILEDL("https://raw.githubusercontent.com/CW-Khristos/CW_MSI/dev/PME_Removal.vbs", "C:\IT\Scripts", "PME_Removal.vbs")
-    intRET = objWSH.run ("cscript.exe " & chr(34) & "C:\IT\Scripts\PME_Removal.vbs" & chr(34), 0, true)
-    if (intRET <> 0) then
-      call LOGERR(2)
-    end if
+    call HOOK("cscript.exe " & chr(34) & "C:\IT\Scripts\PME_Removal.vbs" & chr(34))
     ''DOWNLOAD AND RUN 'CCLUTTER.VBS' WHICH INCLUDES NABLEPATCHCACHE AND NABLEUPDATECACHE DIRECTORIES
     call FILEDL("https://raw.githubusercontent.com/CW-Khristos/scripts/master/CClutter.vbs", "C:\IT\Scripts", "CClutter.vbs")
     call HOOK("cscript.exe " & chr(34) & "C:\IT\Scripts\CClutter.vbs" & chr(34) & " " & chr(34) & "true" & chr(34))
