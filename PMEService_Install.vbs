@@ -4,7 +4,7 @@
 ''WRITTEN BY : CJ BLEDSOE / CJ<@>THECOMPUTERWARRIORS.COM
 on error resume next
 ''SCRIPT VARIABLES
-dim errRET, strVER, strIN
+dim errRET, strVER, strIN, strPD
 ''REGISTRY CONSTANTS
 const HKCR = &H80000000
 const HKLM = &H80000002
@@ -30,6 +30,7 @@ set objARG = wscript.arguments
 set objWSH = createobject("wscript.shell")
 Set objAPP = createobject("shell.application")
 set objFSO = createobject("scripting.filesystemobject")
+strPD = objWSH.expandenvironmentstrings("%ProgramData%")
 ''CHECK 'PERSISTENT' FOLDERS , REF #2 , REF #73
 if (not (objFSO.folderexists("C:\IT\"))) then
   objFSO.createfolder("C:\IT\")
@@ -89,20 +90,20 @@ if (errRET = 0) then                                        ''NO ERRORS DURING I
     end if
     wscript.sleep 5000
     ''DOWNLOAD AND RUN 'CCLUTTER.VBS' WHICH INCLUDES NABLEPATCHCACHE AND NABLEUPDATECACHE DIRECTORIES
-    'call FILEDL("https://raw.githubusercontent.com/CW-Khristos/scripts/dev/CClutter.vbs", "C:\IT\Scripts", "CClutter.vbs")
-    'call HOOK("cscript.exe " & chr(34) & "C:\IT\Scripts\CClutter.vbs" & chr(34) & " " & chr(34) & "true" & chr(34))
+    call FILEDL("https://raw.githubusercontent.com/CW-Khristos/scripts/dev/CClutter.vbs", "C:\IT\Scripts", "CClutter.vbs")
+    call HOOK("cscript.exe " & chr(34) & "C:\IT\Scripts\CClutter.vbs" & chr(34) & " " & chr(34) & "true" & chr(34))
     ''REMOVE POSSIBLE TRASHED 'ARCHIVES'
-    if (objFSO.fileexists("%ProgramData%\SolarWinds MSP\PME\Archives")) then
-      objFSO.deletefile "%ProgramData%\SolarWinds MSP\PME\Archives", true
+    if (objFSO.fileexists(strPD & "\MspPlatform\PME\Archives")) then
+      objFSO.deletefile strPD & "\MspPlatform\PME\Archives", true
     end if
-    if (not (objFSO.folderexists("%ProgramData%\SolarWinds MSP\SolarWinds.MSP.CacheService"))) then
-      call HOOK("cmd.exe /C rd /s /q " & chr(34) & "%ProgramData%\SolarWinds MSP\SolarWinds.MSP.CacheService" & chr(34))
+    if (not (objFSO.folderexists(strPD & "\MspPlatform\SolarWinds.MSP.CacheService"))) then
+      call HOOK("cmd.exe /C rd /s /q " & chr(34) & strPD & "\MspPlatform\SolarWinds.MSP.CacheService" & chr(34))
     end if
-    if (not (objFSO.folderexists("%ProgramData%\SolarWinds MSP\SolarWinds.MSP.PME.Agent.PmeService"))) then
-      call HOOK("cmd.exe /C rd /s /q " & chr(34) & "%ProgramData%\SolarWinds MSP\SolarWinds.MSP.PME.Agent.PmeService" & chr(34))
+    if (not (objFSO.folderexists(strPD & "\MspPlatform\SolarWinds.MSP.PME.Agent.PmeService"))) then
+      call HOOK("cmd.exe /C rd /s /q " & chr(34) & strPD & "\MspPlatform\SolarWinds.MSP.PME.Agent.PmeService" & chr(34))
     end if
-    if (not (objFSO.folderexists("%ProgramData%\SolarWinds MSP\SolarWinds.MSP.RPCServerService"))) then
-      call HOOK("cmd.exe /C rd /s /q " & chr(34) & "%ProgramData%\SolarWinds MSP\SolarWinds.MSP.RPCServerService" & chr(34))
+    if (not (objFSO.folderexists(strPD & "\MspPlatform\SolarWinds.MSP.RPCServerService"))) then
+      call HOOK("cmd.exe /C rd /s /q " & chr(34) & strPD & "\MspPlatform\SolarWinds.MSP.RPCServerService" & chr(34))
     end if
     ''MAKE NECESSARY REGISTRY CHANGES TO ALLOW POWERSHELL 'INVOKE-WEBREQUEST' CMDLET USED BY PME SERVICE TO DOWNLOAD FILES
     objOUT.write vbnewline & vbnewline & now & vbtab & " - CHANGING IE FIRST-RUN TO ALLOW POWERSHELL INVOKE-WEBREQUEST"
@@ -126,11 +127,11 @@ if (errRET = 0) then                                        ''NO ERRORS DURING I
     ''DOWNLOAD PME SERVICE SUPPORTING FILES
     objOUT.write vbnewline & vbnewline & now & vbtab & " - DOWNLOADING PME SERVICE SUPPORTING FILES" & vbnewline
     objLOG.write vbnewline & vbnewline & now & vbtab & " - DOWNLOADING PME SERVICE SUPPORTING FILES" & vbnewline
-    call FILEDL("https://raw.githubusercontent.com/CW-Khristos/CW_MSI/master/PMEService.zip", "C:\IT", "PMEService.zip")
+    call FILEDL("https://raw.githubusercontent.com/CW-Khristos/CW_MSI/dev/PMEService.zip", "C:\IT", "PMEService.zip")
     wscript.sleep 5000
     ''DOWNLOAD SUPPORTING FILES
     if (not objFSO.fileexists("C:\IT\PMEService.zip")) then
-      call FILEDL("https://raw.githubusercontent.com/CW-Khristos/CW_MSI/master/PMEService.zip", "C:\IT", "PMEService.zip")
+      call FILEDL("https://raw.githubusercontent.com/CW-Khristos/CW_MSI/dev/PMEService.zip", "C:\IT", "PMEService.zip")
       wscript.sleep 10000
     end if
     if (objFSO.fileexists("C:\IT\PMEService.zip")) then
@@ -173,7 +174,7 @@ if (errRET = 0) then                                        ''NO ERRORS DURING I
     if (objFSO.fileexists("C:\IT\PMESetup.exe")) then
       objOUT.write vbnewline & vbnewline & now & vbtab & " - EXECUTING PME SERVICE UPDATE" & vbnewline
       objLOG.write vbnewline & vbnewline & now & vbtab & " - EXECUTING PME SERVICE UPDATE" & vbnewline
-      call HOOK("cmd.exe /C " & chr(34) & "C:\IT\PMESetup.exe" & chr(34) & " /verysilent /log=" & chr(34) & "C:\temp\PMESetup.log" & chr(34))
+      call HOOK("cmd.exe /C " & chr(34) & chr(34) & "C:\IT\PMESetup.exe" & chr(34) & " /verysilent /log=" & chr(34) & "C:\temp\PMESetup.log" & chr(34) & chr(34))
     end if
     ''RESTART WINDOWS PROBE SERVICES
     objOUT.write vbnewline & vbnewline & now & vbtab & " - RESTARTING WINDOWS PROBE SERVICES" & vbnewline
@@ -201,8 +202,8 @@ sub FILEDL(strURL, strDL, strFILE)                          ''CALL HOOK TO DOWNL
   strSAV = vbnullstring
   ''SET DOWNLOAD PATH
   strSAV = strDL & "\" & strFILE
-  objOUT.write vbnewline & now & vbtab & vbtab & vbtab & "HTTPDOWNLOAD-------------DOWNLOAD : " & strURL & " : SAVE AS :  " & strSAV
-  objLOG.write vbnewline & now & vbtab & vbtab & vbtab & "HTTPDOWNLOAD-------------DOWNLOAD : " & strURL & " : SAVE AS :  " & strSAV
+  objOUT.write vbnewline & now & vbtab & vbtab & " - HTTPDOWNLOAD-------------DOWNLOAD : " & strURL & " : SAVE AS :  " & strSAV
+  objLOG.write vbnewline & now & vbtab & vbtab & " - HTTPDOWNLOAD-------------DOWNLOAD : " & strURL & " : SAVE AS :  " & strSAV
   ''ADD WINHTTP SECURE CHANNEL TLS REGISTRY KEYS
   call HOOK("reg add " & chr(34) & "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Internet Settings\WinHttp" & chr(34) & _
     " /f /v DefaultSecureProtocols /t REG_DWORD /d 0x00000A00 /reg:32")
@@ -247,8 +248,8 @@ end sub
 
 sub HOOK(strCMD)                                            ''CALL HOOK TO MONITOR OUTPUT OF CALLED COMMAND , 'ERRRET'=12
   on error resume next
-  objOUT.write vbnewline & now & vbtab & vbtab & "EXECUTING : " & strCMD
-  objLOG.write vbnewline & now & vbtab & vbtab & "EXECUTING : " & strCMD
+  objOUT.write vbnewline & now & vbtab & vbtab & " - EXECUTING : " & strCMD
+  objLOG.write vbnewline & now & vbtab & vbtab & " - EXECUTING : " & strCMD
   set objHOOK = objWSH.exec(strCMD)
   if (instr(1, strCMD, "takeown /F ") = 0) then             ''SUPPRESS 'TAKEOWN' SUCCESS MESSAGES
     while (not objHOOK.stdout.atendofstream)
