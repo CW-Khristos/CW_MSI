@@ -3,7 +3,7 @@
 ''WRITTEN BY : CJ BLEDSOE / CBLEDSOE<@>IPMCOMPUTERS.COM
 on error resume next
 ''SCRIPT VARIABLES
-dim errRET, strVER, strIN
+dim errRET, strVER, strIN, strPD
 ''REGISTRY CONSTANTS
 const HKCR = &H80000000
 const HKLM = &H80000002
@@ -172,7 +172,6 @@ if (errRET = 0) then                                        ''NO ERRORS DURING I
     call HOOK("reg add " & chr(34) & "HKCU\SOFTWARE\Microsoft\Internet Explorer\Main" & chr(34) & _
       " /f /v DisableFirstRunCustomize /t REG_DWORD /d 0x00000001 /reg:64")
     ''DOWNLOAD PME SERVICE SUPPORTING FILES
-    call HOOK("cmd.exe /C rd /s /q " & chr(34) & strPD & "\SolarWinds MSP\PME" & chr(34))
     objOUT.write vbnewline & vbnewline & now & vbtab & " - DOWNLOADING ANNIVERSARYUPDATES_DETAILS.XML" & vbnewline
     objLOG.write vbnewline & vbnewline & now & vbtab & " - DOWNLOADING ANNIVERSARYUPDATES_DETAILS.XML" & vbnewline
     call FILEDL("http://sis.n-able.com/ComponentData/RMM/1/AnniversaryUpdates_details.xml", "C:\IT", "AnniversaryUpdates_details.xml")
@@ -192,7 +191,7 @@ if (errRET = 0) then                                        ''NO ERRORS DURING I
     ''RUN PME SERVICE UPDATE WITH /VERYSILENT SWITCH
     objOUT.write vbnewline & vbnewline & now & vbtab & " - EXECUTING PME SERVICE UPDATE" & vbnewline
     objLOG.write vbnewline & vbnewline & now & vbtab & " - EXECUTING PME SERVICE UPDATE" & vbnewline
-    intRET = objWSH.run("cmd.exe /C " & chr(34) & "C:\IT\PMESetup.exe" & chr(34) & " /verysilent /log=" & chr(34) & "C:\temp\PMESetup.log" & chr(34), 0, true)
+    intRET = objWSH.run("cmd.exe /C " & chr(34) & chr(34) & "C:\IT\PMESetup.exe" & chr(34) & " /verysilent /log=" & chr(34) & "C:\temp\PMESetup.log" & chr(34) & chr(34), 0, true)
     if (intRET <> 0) then
       call LOGERR(3)
     end if
@@ -234,8 +233,8 @@ sub FILEDL(strURL, strDL, strFILE)                          ''CALL HOOK TO DOWNL
   strSAV = vbnullstring
   ''SET DOWNLOAD PATH
   strSAV = strDL & "\" & strFILE
-  objOUT.write vbnewline & now & vbtab & vbtab & vbtab & "HTTPDOWNLOAD-------------DOWNLOAD : " & strURL & " : SAVE AS :  " & strSAV
-  objLOG.write vbnewline & now & vbtab & vbtab & vbtab & "HTTPDOWNLOAD-------------DOWNLOAD : " & strURL & " : SAVE AS :  " & strSAV
+  objOUT.write vbnewline & now & vbtab & vbtab & " - HTTPDOWNLOAD-------------DOWNLOAD : " & strURL & " : SAVE AS :  " & strSAV
+  objLOG.write vbnewline & now & vbtab & vbtab & " - HTTPDOWNLOAD-------------DOWNLOAD : " & strURL & " : SAVE AS :  " & strSAV
   ''ADD WINHTTP SECURE CHANNEL TLS REGISTRY KEYS
   call HOOK("reg add " & chr(34) & "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Internet Settings\WinHttp" & chr(34) & _
     " /f /v DefaultSecureProtocols /t REG_DWORD /d 0x00000A00 /reg:32")
@@ -269,13 +268,16 @@ sub FILEDL(strURL, strDL, strFILE)                          ''CALL HOOK TO DOWNL
     objLOG.write vbnewline & now & vbtab & vbtab & " - DOWNLOAD : " & strSAV & " : SUCCESSFUL"
     ''COPY PME SERVICE SUPPORTING FILES TO 'C:\PROGRAMDATA\SOLARWINDS MSP\PME\ARCHIVES'
     if (instr(1, lcase(strFILE), "updates")) then
-      if (not (objFSO.folderexists(strPD & "\SolarWinds MSP\PME\"))) then
-        objFSO.createfolder(strPD & "\SolarWinds MSP\PME\")
+      if (not (objFSO.folderexists(strPD & "\MspPlatform\"))) then
+        objFSO.createfolder(strPD & "\MspPlatform\")
       end if
-      if (not (objFSO.folderexists(strPD & "\SolarWinds MSP\PME\Archives\"))) then
-        objFSO.createfolder(strPD & "\SolarWinds MSP\PME\Archives\")
+      if (not (objFSO.folderexists(strPD & "\MspPlatform\PME\"))) then
+        objFSO.createfolder(strPD & "\MspPlatform\PME\")
       end if
-      call HOOK("cmd.exe /C copy /y " & chr(34) & strSAV & chr(34) & " " & chr(34) & "\SolarWinds MSP\PME\Archives\" & chr(34))
+      if (not (objFSO.folderexists(strPD & "\MspPlatform\PME\Archives\"))) then
+        objFSO.createfolder(strPD & "\MspPlatform\PME\Archives\")
+      end if
+      call HOOK("cmd.exe /C copy /y " & chr(34) & strSAV & chr(34) & " " & chr(34) & "\MspPlatform\PME\Archives\" & chr(34))
     end if
   end if
   set objHTTP = nothing
@@ -290,8 +292,8 @@ end sub
 
 sub HOOK(strCMD)                                            ''CALL HOOK TO MONITOR OUTPUT OF CALLED COMMAND , 'ERRRET'=12
   on error resume next
-  objOUT.write vbnewline & now & vbtab & vbtab & "EXECUTING : " & strCMD
-  objLOG.write vbnewline & now & vbtab & vbtab & "EXECUTING : " & strCMD
+  objOUT.write vbnewline & now & vbtab & vbtab & " - EXECUTING : " & strCMD
+  objLOG.write vbnewline & now & vbtab & vbtab & " - EXECUTING : " & strCMD
   set objHOOK = objWSH.exec(strCMD)
   if (instr(1, strCMD, "takeown /F ") = 0) then             ''SUPPRESS 'TAKEOWN' SUCCESS MESSAGES
     while (not objHOOK.stdout.atendofstream)
